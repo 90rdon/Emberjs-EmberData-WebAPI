@@ -1,2 +1,19 @@
-h1 this is my index
-p Find me in <code>templates/about.emblem</code>
+h1 Debtors
+
+.row-fluid
+  table.table
+    thead
+      each model
+        tr
+          td
+            =firstname 
+            |  
+            =lastname
+          td
+            =address1
+          td
+            =city
+          td
+            =state
+          td
+            =zip

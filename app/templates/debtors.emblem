@@ -1,0 +1,22 @@
+.container-fluid
+  .row-fluid
+    .span9
+      table.table
+        thead
+          each model
+            tr
+              td
+                =firstname 
+                |  
+                =lastname
+              td
+                =address1
+              td
+                =city
+              td
+                =state
+              td
+                =zip
+
+    .span9
+      == outlet

@@ -1,0 +1,1 @@
+App.DebtorsController = Em.ArrayController.extend()

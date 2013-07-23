@@ -1,0 +1,23 @@
+App.RelatedPerson = DS.Model.extend
+  relationship:   DS.attr 'string'
+  title:          DS.attr 'string'
+  last:           DS.attr 'string'
+  first:          DS.attr 'string'
+  middle:         DS.attr 'string'
+  suffix:         DS.attr 'string'
+  dob:            DS.attr 'date'
+  SSN:            DS.attr 'string'
+  startDate:      DS.attr 'date'
+  claimNumber:    DS.attr 'string'
+  source:         DS.attr 'string'
+
+  country:        DS.attr 'string'
+  address1:       DS.attr 'string'
+  address2:       DS.attr 'string'
+  address3:       DS.attr 'string'
+  city:           DS.attr 'string'
+  state:          DS.attr 'string'
+  zip:            DS.attr 'string'
+  county:         DS.attr 'string'
+
+  debtor:         DS.belongsTo 'App.Debtor'
