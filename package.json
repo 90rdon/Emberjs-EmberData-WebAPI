@@ -12,10 +12,12 @@
     "node": "~0.10"
   },
   "scripts": {
-    "start": "brunch watch --server",
+    "start": "brunch w -s",
+    "postinstall": "brunch b -o",
     "test": "./bin/test"
   },
   "dependencies": {
+    "brunch": "1.x",
     "javascript-brunch": ">= 1.0 < 1.6",
     "coffee-script-brunch": ">= 1.0 < 1.6",
     "coffeelint-brunch": "> 1.0 < 1.5",
@@ -24,7 +26,8 @@
     "uglify-js-brunch": ">= 1.0 < 1.6",
     "clean-css-brunch": ">= 1.0 < 1.6",
     "auto-reload-brunch": "> 1.0 < 1.5",
-    "emblem-brunch": "~0.1.1"
+    "emblem-brunch": "~0.1.1",
+    "statik": "~1.4.2"
   },
   "devDependencies": {
     "chai": "1.2.0",

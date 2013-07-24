@@ -4,14 +4,11 @@
     .navbar-inner
       linkTo "index" class="brand" | Hunter Warfield
       ul.nav
-        linkTo "index" tagName="li"
-          a href="{{view.href}}"
-            | Home
+        / linkTo "index" tagName="li"
+        /   a href="{{view.href}}"
+        /     | Home
         linkTo "about" tagName="li"
           a href="{{view.href}}"
             | About
-
-  p.alert
-    | Main application template Find me in <code>app/templates/application.emblem</code>
 
   #page= outlet

@@ -5,6 +5,7 @@ window.App = require 'app'
 #/////////////////////////////////
 
 require 'controllers/debtorsController'
+require 'controllers/debtorController'
 
 #//////////////////////////////////
 #// Models
@@ -35,6 +36,7 @@ require 'templates/about'
 require 'templates/_well'
 require 'templates/debtors'
 require 'templates/debtor'
+require 'templates/debtor/_edit'
 
 #/////////////////////////////////
 #// Views
@@ -52,11 +54,13 @@ require 'store/fixtureAdapter'
 #// Router
 #/////////////////////////////////
 
-App.Router.reopen(
-  location: 'history'
-)
+# App.Router.reopen(
+#   location: 'history'
+# )
 
 App.Router.map ->
   @route 'about', path: '/about'
-  @route 'debtors', path: '/debtors'
+  # @route 'debtors', path: '/debtors'
   @route 'index', path: '/'
+  @resource   'debtors', () ->
+    @resource 'debtor', path: ':debtor_id'

@@ -3,12 +3,25 @@
     .span9
       table.table
         thead
+          tr
+            td
+              b Name
+            td
+              b Address
+            td
+              b City
+            td
+              b State
+            td
+              b Zipcode
+        tbody
           each model
             tr
               td
-                =firstname 
-                |  
-                =lastname
+                linkTo 'debtor' this
+                  =firstname 
+                  |  
+                  =lastname
               td
                 =address1
               td

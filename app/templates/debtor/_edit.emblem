@@ -1,0 +1,12 @@
+.modal
+  view Em.TextField valueBinding='type'
+  view Em.TextField valueBinding='title'
+  view Em.TextField valueBinding='firstname'
+  view Em.TextField valueBinding='lastname'
+  view Em.TextField valueBinding='dob'
+  view Em.TextField valueBinding='SSN'
+  view Em.TextField valueBinding='email'
+  view Em.TextField valueBinding='address1'
+  view Em.TextField valueBinding='city'
+  view Em.TextField valueBinding='state'
+  view Em.TextField valueBinding='zip'

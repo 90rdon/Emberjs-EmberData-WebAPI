@@ -1,19 +1,1 @@
 h1 Debtors
-
-.row-fluid
-  table.table
-    thead
-      each model
-        tr
-          td
-            =firstname 
-            |  
-            =lastname
-          td
-            =address1
-          td
-            =city
-          td
-            =state
-          td
-            =zip

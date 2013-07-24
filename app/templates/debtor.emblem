@@ -1,11 +1,26 @@
-/ if isEditing
-/   partial 'debtor/edit'
-/   button{action 'doneEditing'} Done
-/ else
-/   button{action 'edit'} Edit
+.span3
+  if isEditing
+    partial 'debtor/edit'
+    button{action 'doneEditing'} Done
+  else
+    button{action 'edit'} Edit
 
-h1 =firstname
-h4 by #{SSN}
-hr
-.intro
-  = markdown email
+  h2
+    =title
+    |  
+    =firstname
+    |  
+    =lastname
+  h4 =SSN
+  hr
+  .intro
+    h5 Address
+    =address1
+    br
+    =city
+    |, 
+    =state
+    |  
+    =zip
+    h5 Email
+    =email
