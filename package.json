@@ -28,8 +28,8 @@
     "clean-css-brunch": ">= 1.0 < 1.6",
     "auto-reload-brunch": "> 1.0 < 1.5",
     "emblem-brunch": "~0.1.1",
-    "coffeescript": "0.0.1",
-    "express": "~3.3.4"
+    "express": "~3.3.4",
+    "coffee-script": "~1.6.3"
   },
   "devDependencies": {
     "chai": "1.2.0",
