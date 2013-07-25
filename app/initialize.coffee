@@ -1,11 +1,18 @@
 window.App = require 'app'
 
 #/////////////////////////////////
+#// Helpers
+#/////////////////////////////////
+
+require 'helpers/handlebarsHelpers'
+
+#/////////////////////////////////
 #// Controllers
 #/////////////////////////////////
 
 require 'controllers/debtorsController'
 require 'controllers/debtorController'
+require 'controllers/columnItemController'
 
 #//////////////////////////////////
 #// Models
@@ -42,7 +49,8 @@ require 'templates/debtor/_edit'
 #// Views
 #/////////////////////////////////
 
-
+require 'views/jquerySortableView'
+require 'views/jquerySortableItemView'
 
 #/////////////////////////////////
 #// Store

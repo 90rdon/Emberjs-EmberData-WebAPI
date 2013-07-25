@@ -4,18 +4,16 @@
       table.table
         thead
           tr
-            td
-              b Name
-            td
-              b Address
-            td
-              b City
-            td
-              b State
-            td
-              b Zipcode
+            each columns itemController="columnItem"
+              th{action toggleSort name}
+                =titleize name
+                if sortedAsc
+                  i class="icon-chevron-up"
+
+                if sortedDesc
+                  i class="icon-chevron-down"
         tbody
-          each model
+          each controller
             tr
               td
                 linkTo 'debtor' this
