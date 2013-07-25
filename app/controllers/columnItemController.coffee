@@ -1,5 +1,4 @@
 App.ColumnItemController = Em.ObjectController.extend
-    
   sortColumn:
     Em.computed.alias('parentController.sortedColumn')
   
@@ -10,8 +9,8 @@ App.ColumnItemController = Em.ObjectController.extend
     Em.computed.not('sortAscending')
   
   isSorted: (->
-    @get('sortColumn') is @get('name')
-  ).property('sortColumn', 'name')
+    @get('sortColumn') is @get('columnName')
+  ).property('sortColumn', 'columnName')
   
   sortedAsc:
     Em.computed.and('sortAscending', 'isSorted')

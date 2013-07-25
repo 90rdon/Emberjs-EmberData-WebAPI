@@ -5,8 +5,8 @@
         thead
           tr
             each columns itemController="columnItem"
-              th{action toggleSort name}
-                =titleize name
+              th{action toggleSort columnName}
+                =titleize columnName
                 if sortedAsc
                   i class="icon-chevron-up"
 

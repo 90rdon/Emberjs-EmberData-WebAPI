@@ -6,16 +6,14 @@ App.DebtorsController = Em.ArrayController.extend
   ).property('sortProperties.[]')
 
   columns: (-> [
-    Em.Object.create(name: 'name')
-    Em.Object.create(name: 'address')
-    Em.Object.create(name: 'city')
-    Em.Object.create(name: 'state')
-    Em.Object.create(name: 'zip')
+    Em.Object.create(columnName: 'name')
+    Em.Object.create(columnName: 'address')
+    Em.Object.create(columnName: 'city')
+    Em.Object.create(columnName: 'state')
+    Em.Object.create(columnName: 'zip')
   ]).property()
 
   toggleSort: (column) ->
-    console.log 'toggle ' + column
-    console.log @get('sortedColumn')
     if @get('sortedColumn') is column
       @toggleProperty 'sortAscending'
     else
