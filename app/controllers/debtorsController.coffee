@@ -6,11 +6,13 @@ App.DebtorsController = Em.ArrayController.extend
   ).property('sortProperties.[]')
 
   columns: (-> [
-    Em.Object.create(columnName: 'name')
-    Em.Object.create(columnName: 'address')
-    Em.Object.create(columnName: 'city')
-    Em.Object.create(columnName: 'state')
-    Em.Object.create(columnName: 'zip')
+    Em.Object.create(columnName: 'Debtor Number')
+    Em.Object.create(columnName: 'First Name')
+    Em.Object.create(columnName: 'Last Name')
+    Em.Object.create(columnName: 'Address')
+    Em.Object.create(columnName: 'City')
+    Em.Object.create(columnName: 'State')
+    Em.Object.create(columnName: 'Zip')
   ]).property()
 
   toggleSort: (column) ->

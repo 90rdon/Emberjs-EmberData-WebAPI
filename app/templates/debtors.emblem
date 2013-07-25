@@ -17,9 +17,11 @@
             tr
               td
                 linkTo 'debtor' this
-                  =firstname 
-                  |  
-                  =lastname
+                  =id
+              td
+                =firstname
+              td
+                =lastname
               td
                 =address1
               td

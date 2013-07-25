@@ -1,5 +1,5 @@
 App.Debtor.FIXTURES = [
-  id: 1
+  id: 123456
   type: 'consumer'
   title: 'Mr.'
   lastname: 'Obama'
@@ -15,7 +15,7 @@ App.Debtor.FIXTURES = [
   state: 'DC'
   zip: '20500'
 ,
-  id: 2
+  id: 234567
   type: 'consumer'
   title: 'Mrs.'
   lastname: 'Deen'
@@ -31,7 +31,7 @@ App.Debtor.FIXTURES = [
   state: 'GA'
   zip: '31404'
 ,
-  id: 3
+  id: 345678
   type: 'consumer'
   title: 'Mr.'
   lastname: 'Bush'
