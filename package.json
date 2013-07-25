@@ -14,7 +14,7 @@
   },
   "scripts": {
     "start": "brunch w -s",
-    "postinstall": "brunch b -o -c config-release.coffee",
+    "postinstall": "brunch b -o",
     "test": "./bin/test"
   },
   "dependencies": {
