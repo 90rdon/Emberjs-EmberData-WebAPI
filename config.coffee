@@ -50,3 +50,9 @@ exports.config =
   conventions:
     ignored: -> false
 
+  server:
+    path:       'server.coffee'
+    port:       3333
+    run:        yes
+    base:       '/'
+

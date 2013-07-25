@@ -9,11 +9,12 @@
     "url": ""
   },
   "engines": {
-    "node": "~0.10"
+    "node": "~0.10",
+    "npm": "~1.2.x"
   },
   "scripts": {
     "start": "brunch w -s",
-    "postinstall": "brunch b -o",
+    "postinstall": "brunch b -o -c config-release.coffee",
     "test": "./bin/test"
   },
   "dependencies": {
@@ -27,7 +28,8 @@
     "clean-css-brunch": ">= 1.0 < 1.6",
     "auto-reload-brunch": "> 1.0 < 1.5",
     "emblem-brunch": "~0.1.1",
-    "statik": "~1.4.2"
+    "coffeescript": "0.0.1",
+    "express": "~3.3.4"
   },
   "devDependencies": {
     "chai": "1.2.0",
