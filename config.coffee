@@ -1,5 +1,10 @@
+fs      = require 'fs'
+sysPath = require 'path'
+
 exports.config =
-  # See docs at http://brunch.readthedocs.org/en/latest/config.html.
+  paths:
+    public: 'public'
+    
   coffeelint:
     pattern:                                /^app\/.*\.coffee$/
     options:
@@ -48,7 +53,14 @@ exports.config =
         emblem:         'vendor/scripts/emblem.js'
 
   conventions:
-    ignored: -> false
+    ignored: (path) ->
+      startsWith = (string, substring) ->
+          string.indexOf(substring, 0) is 0
+      sep = sysPath.sep
+      if path.indexOf("app#{sep}templates#{sep}") is 0
+          false
+      else
+          startsWith sysPath.basename(path), '_'
 
   server:
     path:       'server.coffee'
