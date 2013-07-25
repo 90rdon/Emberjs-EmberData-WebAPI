@@ -15,3 +15,6 @@ exports.startServer = (port, path, callback) ->
     console.log         '---------------------------------------------'
     console.log         '--- app is listening on http://' + addr.address + ':' + addr.port
     console.log         '---------------------------------------------'
+
+if process.env.NODE_ENV = 'production'
+  exports.startServer()
