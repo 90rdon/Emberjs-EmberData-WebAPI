@@ -1,12 +1,43 @@
 .modal
-  view Em.TextField valueBinding='type'
-  view Em.TextField valueBinding='title'
-  view Em.TextField valueBinding='firstname'
-  view Em.TextField valueBinding='lastname'
-  view Em.TextField valueBinding='dob'
-  view Em.TextField valueBinding='SSN'
-  view Em.TextField valueBinding='email'
-  view Em.TextField valueBinding='address1'
-  view Em.TextField valueBinding='city'
-  view Em.TextField valueBinding='state'
-  view Em.TextField valueBinding='zip'
+  .span6
+    label Type
+    view Em.TextField valueBinding='type'
+    label Title
+    view Em.TextField valueBinding='title'
+    label Last Name
+    view Em.TextField valueBinding='lastname'
+    label First Name
+    view Em.TextField valueBinding='firstname'
+    label Middle Name
+    view Em.TextField valueBinding='middlename'
+    label Suffix
+    view Em.TextField valueBinding='suffix'
+    label Date of Birth
+    view Em.TextField valueBinding='dob'
+    label SSN
+    view Em.TextField valueBinding='ssn'
+    label Marital Status
+    view Em.TextField valueBinding='maritalStatus'
+
+  .span6
+    label Email
+    view Em.TextField valueBinding='email'
+    label Email Validity
+    .span
+      view Ember.RadioButton name='emailvalidity' selectionBinding='emailValidity' value='true' | Valid
+      view Ember.RadioButton name='emailvalidity' selectionBinding='emailValidity' value='false' | Invalid
+    label Address1
+    view Em.TextField valueBinding='address1'
+    label Address2
+    view Em.TextField valueBinding='address2'
+    label Address3
+    view Em.TextField valueBinding='address3'
+    label City
+    view Em.TextField valueBinding='city'
+    label State
+    view Em.TextField valueBinding='state'
+    label Zip Code
+    view Em.TextField valueBinding='zip'
+
+  p Validity
+  =emailValidity

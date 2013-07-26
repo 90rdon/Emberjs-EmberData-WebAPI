@@ -8,6 +8,7 @@ App.DebtorsController = Em.ArrayController.extend
   columns: (-> [
     Em.Object.create(columnName: 'Debtor Number')
     Em.Object.create(columnName: 'First Name')
+    Em.Object.create(columnName: 'Middle')
     Em.Object.create(columnName: 'Last Name')
     Em.Object.create(columnName: 'Address')
     Em.Object.create(columnName: 'City')

@@ -11,6 +11,9 @@ exports.config =
       indentation:
         value: 2
         level: "error"
+      max_line_length:
+        value: 500
+        level: 'warn'
 
   files:
     javascripts:

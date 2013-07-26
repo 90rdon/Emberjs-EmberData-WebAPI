@@ -8,10 +8,8 @@
   h2
     =title
     |  
-    =firstname
-    |  
-    =lastname
-  h4 =SSN
+    =fullname
+  h4 =ssn
   hr
   .intro
     h5 Address

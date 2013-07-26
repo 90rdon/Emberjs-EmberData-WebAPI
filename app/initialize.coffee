@@ -5,6 +5,7 @@ window.App = require 'app'
 #/////////////////////////////////
 
 require 'helpers/handlebarsHelpers'
+require 'helpers/radioButton'
 
 #/////////////////////////////////
 #// Controllers

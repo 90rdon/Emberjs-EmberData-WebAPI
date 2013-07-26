@@ -21,6 +21,8 @@
               td
                 =firstname
               td
+                =middlename
+              td
                 =lastname
               td
                 =address1

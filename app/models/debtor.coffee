@@ -6,12 +6,12 @@ App.Debtor = DS.Model.extend
   middlename:         DS.attr 'string'
   suffix:  						DS.attr 'string'
   dob:								DS.attr 'date'
-  SSN:								DS.attr 'string'
+  ssn:								DS.attr 'string'
   martialStatus:			DS.attr 'string'
   email:							DS.attr 'string'
   emailValidity:			DS.attr 'boolean'
   optIn:							DS.attr 'boolean'
-  EIN:								DS.attr 'string'
+  ein:								DS.attr 'string'
   commericalContact:	DS.attr 'string'
 
   country:            DS.attr 'string'
@@ -23,10 +23,10 @@ App.Debtor = DS.Model.extend
   zip:                DS.attr 'string'
   county:             DS.attr 'string'
   
-  DLIssuer:						DS.attr	'string'
-  DLNumber:						DS.attr	'string'
+  dlIssuer:						DS.attr	'string'
+  dlNumber:						DS.attr	'string'
   passport:						DS.attr	'string'
-  PIN:								DS.attr	'string'
+  pin:								DS.attr	'string'
 
   contact: 						DS.hasMany    'App.Contact'
   relatedPerson:      DS.hasMany    'App.RelatedPerson'
