@@ -7,8 +7,8 @@
         / linkTo "index" tagName="li"
         /   a href="{{view.href}}"
         /     | Home
-        linkTo "about" tagName="li"
-          a href="{{view.href}}"
-            | About
+        / linkTo "about" tagName="li"
+        /   a href="{{view.href}}"
+        /     | About
 
   #page= outlet

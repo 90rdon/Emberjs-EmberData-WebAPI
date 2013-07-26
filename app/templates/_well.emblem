@@ -1,5 +1,5 @@
 .well
-  h3 Partials
+  h3 Welcome to the 'Debtor to CRM Project'
   p This is a partial.
   p Find me in <code>app/templates/_well.emblem</code>
 
