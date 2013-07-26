@@ -2,23 +2,24 @@ App.DebtorsController = Em.ArrayController.extend
   sortedColumn: (->
     properties = @get('sortProperties')
     return 'undefined'  unless properties
-    properties.get 'firstObject'
+    return properties.get 'firstObject'
   ).property('sortProperties.[]')
 
   columns: (-> [
-    Em.Object.create(columnName: 'Debtor Number')
-    Em.Object.create(columnName: 'First Name')
-    Em.Object.create(columnName: 'Middle')
-    Em.Object.create(columnName: 'Last Name')
-    Em.Object.create(columnName: 'Address')
-    Em.Object.create(columnName: 'City')
-    Em.Object.create(columnName: 'State')
-    Em.Object.create(columnName: 'Zip')
+    Em.Object.create(column: 'id')
+    Em.Object.create(column: 'firstname')
+    Em.Object.create(column: 'middlename')
+    Em.Object.create(column: 'lastname')
+    Em.Object.create(column: 'address1')
+    Em.Object.create(column: 'address2')
+    Em.Object.create(column: 'city')
+    Em.Object.create(column: 'state')
+    Em.Object.create(column: 'zip')
   ]).property()
 
   toggleSort: (column) ->
     if @get('sortedColumn') is column
       @toggleProperty 'sortAscending'
     else
-      @set 'sortProperties', [column]
-      @set 'sortAscending', true
+      @set('sortProperties', [column])
+      @set('sortAscending', true)

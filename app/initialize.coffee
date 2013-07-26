@@ -50,8 +50,7 @@ require 'templates/debtor/_edit'
 #// Views
 #/////////////////////////////////
 
-require 'views/jquerySortableView'
-require 'views/jquerySortableItemView'
+
 
 #/////////////////////////////////
 #// Store
@@ -69,7 +68,6 @@ require 'store/fixtureAdapter'
 
 App.Router.map ->
   @route 'about', path: '/about'
-  # @route 'debtors', path: '/debtors'
   @route 'index', path: '/'
   @resource   'debtors', () ->
     @resource 'debtor', path: ':debtor_id'

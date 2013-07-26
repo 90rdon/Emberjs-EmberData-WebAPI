@@ -33,23 +33,6 @@ App.Debtor.FIXTURES = [
   state: 'GA'
   zip: '31404'
 ,
-  id: 345678
-  type: 'consumer'
-  title: 'Mr.'
-  lastname: 'Clinton'
-  firstname: 'Bill'
-  dob: '8/16/1946'
-  SSN: '456-77-0000'
-  martialStatus: 'M'
-  email: 'billclinton@sample.com'
-  emailValidity: true
-  optIn: true
-  country: 'United States'
-  address1: '55 West 125th Street'
-  city: 'New York'
-  state: 'NY'
-  zip: '10027'
-,
   id: 456789
   type: 'consumer'
   title: 'Mr.'
@@ -86,6 +69,23 @@ App.Debtor.FIXTURES = [
   city: 'Houston'
   state: 'TX'
   zip: '77024'
+,
+  id: 345678
+  type: 'consumer'
+  title: 'Mr.'
+  lastname: 'Clinton'
+  firstname: 'Bill'
+  dob: '8/16/1946'
+  ssn: '456-77-0000'
+  martialStatus: 'M'
+  email: 'billclinton@sample.com'
+  emailValidity: true
+  optIn: true
+  country: 'United States'
+  address1: '55 West 125th Street'
+  city: 'New York'
+  state: 'NY'
+  zip: '10027'
 ]
 
 

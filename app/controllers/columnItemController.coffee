@@ -9,8 +9,8 @@ App.ColumnItemController = Em.ObjectController.extend
     Em.computed.not('sortAscending')
   
   isSorted: (->
-    @get('sortColumn') is @get('columnName')
-  ).property('sortColumn', 'columnName')
+    @get('sortColumn') is @get('column')
+  ).property('sortColumn', 'column')
   
   sortedAsc:
     Em.computed.and('sortAscending', 'isSorted')

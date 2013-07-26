@@ -5,8 +5,8 @@
         thead
           tr
             each columns itemController="columnItem"
-              th{action toggleSort columnName}
-                =titleize columnName
+              th{action toggleSort column}
+                =titleize column
                 if sortedAsc
                   i class="icon-chevron-up"
 
@@ -26,6 +26,8 @@
                 =lastname
               td
                 =address1
+              td
+                =address2
               td
                 =city
               td
