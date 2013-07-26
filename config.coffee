@@ -4,7 +4,7 @@ sysPath = require 'path'
 exports.config =
   paths:
     public: 'public'
-    
+
   coffeelint:
     pattern:                                /^app\/.*\.coffee$/
     options:
@@ -61,7 +61,7 @@ exports.config =
           false
       else
           startsWith sysPath.basename(path), '_'
-
+  
   server:
     path:       'server.coffee'
     port:       3333
