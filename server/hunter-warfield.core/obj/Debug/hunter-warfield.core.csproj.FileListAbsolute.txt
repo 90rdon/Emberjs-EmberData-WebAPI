@@ -1,0 +1,5 @@
+Y:\server\hunter-warfield.core\bin\Debug\hunter-warfield.core.dll
+Y:\server\hunter-warfield.core\bin\Debug\hunter-warfield.core.pdb
+Y:\server\hunter-warfield.core\obj\Debug\hunter-warfield.core.csprojResolveAssemblyReference.cache
+Y:\server\hunter-warfield.core\obj\Debug\hunter-warfield.core.dll
+Y:\server\hunter-warfield.core\obj\Debug\hunter-warfield.core.pdb

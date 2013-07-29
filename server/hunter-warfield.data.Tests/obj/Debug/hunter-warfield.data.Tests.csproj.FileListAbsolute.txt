@@ -1,0 +1,12 @@
+Y:\server\hunter-warfield.data.Tests\obj\Debug\hunter-warfield.data.Tests.csprojResolveAssemblyReference.cache
+Y:\server\hunter-warfield.data.Tests\bin\Debug\hunter-warfield.data.Tests.dll.config
+Y:\server\hunter-warfield.data.Tests\bin\Debug\hunter-warfield.data.Tests.dll
+Y:\server\hunter-warfield.data.Tests\bin\Debug\hunter-warfield.data.Tests.pdb
+Y:\server\hunter-warfield.data.Tests\bin\Debug\EntityFramework.dll
+Y:\server\hunter-warfield.data.Tests\bin\Debug\hunter-warfield.core.dll
+Y:\server\hunter-warfield.data.Tests\bin\Debug\hunter-warfield.data.dll
+Y:\server\hunter-warfield.data.Tests\bin\Debug\hunter-warfield.core.pdb
+Y:\server\hunter-warfield.data.Tests\bin\Debug\hunter-warfield.data.pdb
+Y:\server\hunter-warfield.data.Tests\bin\Debug\EntityFramework.xml
+Y:\server\hunter-warfield.data.Tests\obj\Debug\hunter-warfield.data.Tests.dll
+Y:\server\hunter-warfield.data.Tests\obj\Debug\hunter-warfield.data.Tests.pdb
