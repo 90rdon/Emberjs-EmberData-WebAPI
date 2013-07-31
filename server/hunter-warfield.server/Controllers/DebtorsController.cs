@@ -8,19 +8,21 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.OData;
 using hunter_warfield.core.Domain;
 using hunter_warfield.data.Contexts;
 
 namespace hunter_warfield.server.Controllers
 {
-    public class DebtorsController : ApiController
+    public class DebtorsController : ApiController //EntitySetController<Debtor, Int32>
     {
         private hwiContext db = new hwiContext();
 
         // GET api/Debtors
-        public IEnumerable<Debtor> GetDebtors()
+        [Queryable(PageSize=10)]
+        public IQueryable<Debtor> GetDebtors()
         {
-            return db.Debtors.AsEnumerable();
+            return db.Debtors.AsQueryable();
         }
 
         // GET api/Debtors/5
