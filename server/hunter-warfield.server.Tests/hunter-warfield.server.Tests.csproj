@@ -113,8 +113,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\DebtorsControllerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Controllers\ValuesControllerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
@@ -123,6 +123,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\hunter-warfield.core\hunter-warfield.core.csproj">
+      <Project>{360dbf5d-c9ef-44c3-9bbc-d552926a138b}</Project>
+      <Name>hunter-warfield.core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\hunter-warfield.server\hunter-warfield.server.csproj">
       <Project>{61C19443-4398-41AC-B1EA-6FB519846D71}</Project>
       <Name>hunter-warfield.server</Name>
