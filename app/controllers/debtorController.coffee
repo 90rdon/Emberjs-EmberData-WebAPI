@@ -1,10 +1,10 @@
 App.DebtorController = Em.ObjectController.extend
   fullName: (->
-    first   = @get('firstName')
-    middle  = @get('middleName')
-    last    = @get('lastName')
+    first   = @get('firstName') || ''
+    middle  = @get('middleName') || ''
+    last    = @get('lastName') || ''
 
-    return first + ' ' + last   unless middle
+    # return first + ' ' + last   unless middle
     return first + ' ' + middle + ' ' + last
   ).property('firstName', 'lastName', 'middleName')
 

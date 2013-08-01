@@ -15,4 +15,11 @@
 #   primaryKey: 'todoItemId'
 
 App.Store = DS.Store.extend
-  adapter: DS.WebAPIAdapter.create()
+  # adapter: DS.WebAPIAdapter.create()
+  adapter: DS.RESTAdapter.extend
+    url: 'http://192.168.1.123'
+    namespace: 'hunter-warfield.WebAPI/api'
+    bulkCommit: false
+    serializer: DS.WebAPISerializer
+    plurals:
+      debtor: 'debtors'
