@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace hunter_warfield.core.Interfaces
+namespace hunter_warfield.Core.Interfaces
 {
     public interface IGenericRepository<T> where T : class
     {

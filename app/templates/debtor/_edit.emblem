@@ -5,11 +5,11 @@
     label Title
     view Em.TextField valueBinding='title'
     label Last Name
-    view Em.TextField valueBinding='lastname'
+    view Em.TextField valueBinding='lastName'
     label First Name
-    view Em.TextField valueBinding='firstname'
+    view Em.TextField valueBinding='firstName'
     label Middle Name
-    view Em.TextField valueBinding='middlename'
+    view Em.TextField valueBinding='middleName'
     label Suffix
     view Em.TextField valueBinding='suffix'
     label Date of Birth

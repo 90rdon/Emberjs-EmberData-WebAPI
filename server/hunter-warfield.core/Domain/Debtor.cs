@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace hunter_warfield.core.Domain
+namespace hunter_warfield.Core.Domain
 {
     public class Debtor
     {
@@ -33,7 +33,7 @@ namespace hunter_warfield.core.Domain
 
         //public string EIN { get; set; }
 
-        public string Contact { get; set; }
+        public string CommContact { get; set; }
 
         public Int16 Country { get; set; }
 

@@ -6,7 +6,7 @@
           tr
             each columns itemController="columnItem"
               th{action toggleSort column}
-                =titleize column
+                =humanize column
                 if sortedAsc
                   i class="icon-chevron-up"
 
@@ -19,11 +19,11 @@
                 linkTo 'debtor' this
                   =id
               td
-                =firstname
+                =firstName
               td
-                =middlename
+                =middleName
               td
-                =lastname
+                =lastName
               td
                 =address1
               td

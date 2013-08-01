@@ -11,6 +11,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>This package contains the Microsoft.Web.Infrastructure assembly that lets you dynamically register HTTP modules at run time.</description>
     <language>en-US</language>
-    <references />
+    <tags>ASPNETWEBPAGES</tags>
+    <references>
+      <reference file="Microsoft.Web.Infrastructure.dll" />
+    </references>
   </metadata>
 </package>

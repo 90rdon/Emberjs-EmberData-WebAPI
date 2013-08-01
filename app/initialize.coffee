@@ -24,7 +24,7 @@ require 'models/contact'
 require 'models/relatedPerson'
 require 'models/employment'
 require 'models/historicalEvent'
-require 'models/debtorData'
+# require 'models/debtorData'
 
 #/////////////////////////////////
 #// Routes
@@ -56,7 +56,10 @@ require 'templates/debtor/_edit'
 #// Store
 #/////////////////////////////////
 
-require 'store/fixtureAdapter'
+# require 'store/fixtureAdapter'
+require 'store/webapi/adapter'
+require 'store/webapi/serializer'
+require 'store/RESTfulAdapter'
 
 #/////////////////////////////////
 #// Router

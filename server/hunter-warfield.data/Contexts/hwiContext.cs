@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
-using System.Data.Metadata.Edm;
+using System.Data.Entity.Edm;
 using System.Data.Entity.ModelConfiguration.Conventions;
 
-using hunter_warfield.core.Domain;
-using hunter_warfield.data.Configurations;
+using hunter_warfield.Core.Domain;
+using hunter_warfield.Data.Configurations;
 
-namespace hunter_warfield.data.Contexts
+namespace hunter_warfield.Data.Contexts
 {
     public class hwiContext : DbContext
     {

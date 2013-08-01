@@ -1,9 +1,9 @@
 App.Debtor = DS.Model.extend
   type:        				DS.attr 'boolean'
   title:       				DS.attr 'string'
-  lastname:        	  DS.attr 'string'
-  firstname:     			DS.attr 'string'
-  middlename:         DS.attr 'string'
+  lastName:        	  DS.attr 'string'
+  firstName:     			DS.attr 'string'
+  middleName:         DS.attr 'string'
   suffix:  						DS.attr 'string'
   dob:								DS.attr 'date'
   ssn:								DS.attr 'string'
@@ -11,8 +11,8 @@ App.Debtor = DS.Model.extend
   email:							DS.attr 'string'
   emailValidity:			DS.attr 'boolean'
   optIn:							DS.attr 'boolean'
-  ein:								DS.attr 'string'
-  commericalContact:	DS.attr 'string'
+  # ein:								DS.attr 'string'
+  commContact:	          DS.attr 'string'
 
   country:            DS.attr 'string'
   address1:           DS.attr 'string'

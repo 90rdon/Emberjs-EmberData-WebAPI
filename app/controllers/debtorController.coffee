@@ -1,12 +1,12 @@
 App.DebtorController = Em.ObjectController.extend
-  fullname: (->
-    first   = @get('firstname')
-    middle  = @get('middlename')
-    last    = @get('lastname')
+  fullName: (->
+    first   = @get('firstName')
+    middle  = @get('middleName')
+    last    = @get('lastName')
 
     return first + ' ' + last   unless middle
     return first + ' ' + middle + ' ' + last
-  ).property('firstname', 'lastname', 'middlename')
+  ).property('firstName', 'lastName', 'middleName')
 
   isEditing: false
 

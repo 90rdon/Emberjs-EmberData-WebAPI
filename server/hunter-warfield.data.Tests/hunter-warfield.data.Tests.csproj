@@ -6,8 +6,8 @@
     <ProjectGuid>{79A39077-4C0A-469D-A6D2-A821A12DC658}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>hunter_warfield.data.Tests</RootNamespace>
-    <AssemblyName>hunter-warfield.data.Tests</AssemblyName>
+    <RootNamespace>hunter_warfield.Data.Tests</RootNamespace>
+    <AssemblyName>hunter-warfield.Data.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -35,12 +35,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.0.0-beta1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.0.0-beta1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.Entity" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -59,18 +63,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\hunter-warfield.core\hunter-warfield.core.csproj">
-      <Project>{360dbf5d-c9ef-44c3-9bbc-d552926a138b}</Project>
-      <Name>hunter-warfield.core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\hunter-warfield.data\hunter-warfield.data.csproj">
-      <Project>{cc7e0ba4-eaf0-4bed-a5dd-e1f284fb6056}</Project>
-      <Name>hunter-warfield.data</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\hunter-warfield.Core\hunter-warfield.Core.csproj">
+      <Project>{360dbf5d-c9ef-44c3-9bbc-d552926a138b}</Project>
+      <Name>hunter-warfield.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\hunter-warfield.Data\hunter-warfield.Data.csproj">
+      <Project>{cc7e0ba4-eaf0-4bed-a5dd-e1f284fb6056}</Project>
+      <Name>hunter-warfield.Data</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

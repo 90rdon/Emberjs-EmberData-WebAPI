@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using hunter_warfield.core.Interfaces;
-using hunter_warfield.data.Contexts;
+using hunter_warfield.Core.Interfaces;
+using hunter_warfield.Data.Contexts;
 
-namespace hunter_warfield.data.Repositories
+namespace hunter_warfield.Data.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T>
         where T : class
@@ -44,7 +44,7 @@ namespace hunter_warfield.data.Repositories
 
         public void Update(T entity)
         {
-            _entities.Entry(entity).State = System.Data.EntityState.Modified;
+            _entities.Entry(entity).State = System.Data.Entity.EntityState.Modified;
         }
 
         public void Save()

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Data.Entity;
 using System.Collections.Generic;
 
-using hunter_warfield.core.Domain;
-using hunter_warfield.data.Contexts;
-using hunter_warfield.data.Repositories;
+using hunter_warfield.Core.Domain;
+using hunter_warfield.Data.Contexts;
+using hunter_warfield.Data.Repositories;
 
 namespace hunter_warfield.data.Tests
 {
