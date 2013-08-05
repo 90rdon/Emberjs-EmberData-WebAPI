@@ -218,6 +218,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="Content\app.css" />
     <Content Include="Content\themes\base\images\animated-overlay.gif" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -282,12 +283,7 @@
     <Content Include="Content\themes\base\minified\jquery.ui.tooltip.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <Content Include="Scripts\ember-1.0.0-rc.5.js" />
-    <Content Include="Scripts\ember-1.0.0-rc.5.min.js" />
-    <Content Include="Scripts\ember-data.js" />
-    <Content Include="Scripts\ember-data.min.js" />
-    <Content Include="Scripts\handlebars.js" />
-    <Content Include="Scripts\handlebars.runtime.js" />
+    <Content Include="Scripts\app.js" />
     <Content Include="Areas\HelpPage\Views\Web.config" />
     <Content Include="Areas\HelpPage\Views\Shared\_Layout.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Index.cshtml" />
@@ -299,19 +295,7 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\HelpPageApiModel.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
-    <None Include="Scripts\jquery-2.0.2.intellisense.js" />
-    <Content Include="Scripts\jquery-2.0.2.js" />
-    <Content Include="Scripts\jquery-2.0.2.min.js" />
-    <Content Include="Scripts\jquery-ui-1.10.3.js" />
-    <Content Include="Scripts\jquery-ui-1.10.3.min.js" />
-    <None Include="Scripts\jquery.validate-vsdoc.js" />
-    <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
-    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
-    <Content Include="Scripts\jquery.validate.js" />
-    <Content Include="Scripts\jquery.validate.min.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
-    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\vendor.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -322,28 +306,6 @@
     <Content Include="Areas\HelpPage\Views\_ViewStart.cshtml" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\TodoList.css" />
-    <Content Include="Scripts\_references.js" />
-    <Content Include="Scripts\app\ajaxlogin.js" />
-    <Content Include="Scripts\app\app.js" />
-    <Content Include="Scripts\app\controllers\TodoItemController.js" />
-    <Content Include="Scripts\app\controllers\TodoListController.js" />
-    <Content Include="Scripts\app\helpers.js" />
-    <Content Include="Scripts\app\models\TodoItem.js" />
-    <Content Include="Scripts\app\models\TodoList.js" />
-    <Content Include="Scripts\app\router.js" />
-    <Content Include="Scripts\app\routes\TodoListRoute.js" />
-    <Content Include="Scripts\app\templates\about.hbs" />
-    <Content Include="Scripts\app\templates\application.hbs" />
-    <Content Include="Scripts\app\templates\index.hbs" />
-    <Content Include="Scripts\app\templates\todoList.hbs" />
-    <Content Include="Scripts\app\templates\_navbar.hbs" />
-    <Content Include="Scripts\app\views\TodoItemEditView.js" />
-    <Content Include="Scripts\app\views\TodoItemView.js" />
-    <Content Include="Scripts\app\views\TodoListEditView.js" />
-    <Content Include="Scripts\app\views\TodoListNewView.js" />
-    <Content Include="Scripts\app\views\TodoListView.js" />
-    <Content Include="Scripts\app\webapi_adapter.js" />
-    <Content Include="Scripts\app\webapi_serializer.js" />
     <Content Include="Images\accent.png" />
     <Content Include="Images\bullet.png" />
     <Content Include="Images\heroAccent.png" />
@@ -373,7 +335,7 @@
     <Content Include="Views\Home\App.cshtml" />
     <Content Include="Views\Home\_Login.cshtml" />
     <Content Include="Views\Home\_Register.cshtml" />
-    <Content Include="Scripts\jquery-2.0.2.min.map" />
+    <Content Include="Views\Home\Copy of App.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -409,7 +371,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>2099</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/hunter-warfield.WebAPI</IISUrl>
+          <IISUrl>http://localhost/hunter-warfield</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

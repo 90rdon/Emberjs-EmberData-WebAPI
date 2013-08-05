@@ -6,7 +6,7 @@ exports.config =
     public: 'public'
 
   coffeelint:
-    pattern:                                /^app\/.*\.coffee$/
+    pattern:                                                            /^app\/.*\.coffee$/
     options:
       indentation:
         value: 2
@@ -18,10 +18,12 @@ exports.config =
   files:
     javascripts:
       joinTo:
-        'javascripts/app.js':               /^app/
-        'javascripts/vendor.js':            /^vendor/
-        'test/javascripts/test.js':         /^test[\\/](?!vendor)/
-        'test/javascripts/test-vendor.js':  /^test[\\/](?=vendor)/
+        'javascripts/app.js':                                           /^app/
+        'javascripts/vendor.js':                                        /^vendor/
+        '../server/hunter-warfield.WebAPI/Scripts/app.js':              /^app/
+        '../server/hunter-warfield.WebAPI/Scripts/vendor.js':           /^vendor/
+        'test/javascripts/test.js':                                     /^test[\\/](?!vendor)/
+        'test/javascripts/test-vendor.js':                              /^test[\\/](?=vendor)/
       order:
         # Files in `vendor` directories are compiled before other files
         # even if they aren't specified in order.
@@ -36,8 +38,9 @@ exports.config =
 
     stylesheets:
       joinTo:
-        'stylesheets/app.css':              /^(app|vendor)/
-        'test/stylesheets/test.css':        /^test/
+        'stylesheets/app.css':                                          /^(app|vendor)/
+        '../server/hunter-warfield.WebAPI/Content/app.css':             /^(app|vendor)/
+        'test/stylesheets/test.css':                                    /^test/
       order:
         before:         ['vendor/styles/normalize.css']
         after:          ['vendor/styles/helpers.css']
@@ -45,7 +48,9 @@ exports.config =
     templates:
       precompile:       true
       root:             'app/templates'
-      joinTo:           'javascripts/app.js' : /^app/
+      joinTo:           
+        'javascripts/app.js' :                                          /^app/
+        '../server/hunter-warfield.WebAPI/Scripts/app.js':              /^app/
       defaultExtension: 'emblem'
       paths:
         # If you don't specify jquery and ember there,

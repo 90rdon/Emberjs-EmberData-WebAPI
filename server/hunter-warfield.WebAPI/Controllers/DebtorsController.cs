@@ -19,10 +19,10 @@ namespace hunter_warfield.WebAPI.Controllers
         private hwiContext db = new hwiContext();
 
         // GET api/Debtors
-        [Queryable(PageSize = 5)]
+        [Queryable(PageSize = 25)]
         public IQueryable<Debtor> GetDebtors()
         {
-            return db.Debtors.AsQueryable().Take(5);
+            return db.Debtors.AsQueryable().Take(25);
         }
 
         // GET api/Debtors/5
