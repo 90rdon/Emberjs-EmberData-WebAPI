@@ -25,5 +25,5 @@ This project is design to run Ember.js with Node.js and IIS as the web server. I
 		
 		$-> npm install
 
-* Run from [Node.js]()
+* Run from [Node.js](https://github.com/octapus/Hunter-Warfield/wiki/Running-from-Node.js)
 * Run from [Windows IIS 7.5]()
