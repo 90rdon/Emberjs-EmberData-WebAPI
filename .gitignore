@@ -18,6 +18,7 @@
 .tmproj
 nbproject
 Thumbs.db
+.com.apple.timemachine*
 
 # AWS Configuration
 .elasticbeanstalk

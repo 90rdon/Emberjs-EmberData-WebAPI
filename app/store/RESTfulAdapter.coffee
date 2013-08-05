@@ -17,7 +17,7 @@
 App.Store = DS.Store.extend
   # adapter: DS.WebAPIAdapter.create()
   adapter: DS.RESTAdapter.extend
-    url: 'http://localhost'
+    url: 'http://10.211.55.4'
     namespace: 'hunter-warfield/api'
     bulkCommit: false
     serializer: DS.WebAPISerializer
