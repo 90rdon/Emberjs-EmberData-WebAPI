@@ -57,8 +57,8 @@ require 'templates/debtor/_edit'
 #/////////////////////////////////
 
 # require 'store/fixtureAdapter'
-require 'store/webapi/adapter'
 require 'store/webapi/serializer'
+require 'store/webapi/adapter'
 require 'store/RESTfulAdapter'
 
 #/////////////////////////////////

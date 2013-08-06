@@ -12,12 +12,8 @@ rejectionHandler = (reason) ->
 get = Em.get
 
 DS.WebAPIAdapter = DS.RESTAdapter.extend
-  url: 'http://192.168.1.123'
-  namespace: 'hunter-warfield.WebAPI/api'
-  bulkCommit: false
-  antiForgeryTokenSelector: '#antiForgeryToken'
-  # serializer: DS.WebAPISerializer
-  # antiForgeryTokenSelector: null
+  serializer: DS.WebAPISerializer
+  antiForgeryTokenSelector: null
   
   shouldSave: (record) ->
     # By default Web API doesn't handle children update from parent.
@@ -88,7 +84,7 @@ DS.WebAPIAdapter = DS.RESTAdapter.extend
       hash = hash or {}
       hash.url = url
       hash.type = type
-      hash.dataType = 'jsonp' #dataType or 'json'
+      hash.dataType = 'json' #dataType or 'json'
       hash.context = adapter
       if hash.data and type isnt 'GET'
         hash.contentType = 'application/json; charset=utf-8'
@@ -108,11 +104,6 @@ DS.WebAPIAdapter = DS.RESTAdapter.extend
       jQuery.ajax hash
     )
 
-  plurals:
-    debtor: 'debtors'
-
-  # pluralize: (string) ->
-  #   string
 
 
 
