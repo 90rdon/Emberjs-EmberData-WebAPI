@@ -13,9 +13,9 @@ namespace hunter_warfield.WebAPI
                 "~/Scripts/vendor.js"
             ));
 
-            //bundles.Add(new StyleBundle("~/Content/css").Include(
-            //    "~/Content/app.css"
-            //));
+            bundles.Add(new StyleBundle("~/Content/css").Include(
+                "~/Content/app.css"
+            ));
 
             //bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
             //    "~/Scripts/jquery-{version}.js"

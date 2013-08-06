@@ -1,5 +1,5 @@
 App.Debtor = DS.Model.extend
-  type:        				DS.attr 'boolean'
+  type:        				DS.attr 'string'
   title:       				DS.attr 'string'
   lastName:        	  DS.attr 'string'
   firstName:     			DS.attr 'string'
@@ -9,12 +9,11 @@ App.Debtor = DS.Model.extend
   ssn:								DS.attr 'string'
   martialStatus:			DS.attr 'string'
   email:							DS.attr 'string'
-  emailValidity:			DS.attr 'boolean'
-  optIn:							DS.attr 'boolean'
-  # ein:								DS.attr 'string'
-  commContact:	          DS.attr 'string'
+  emailValidity:			DS.attr 'number'
+  optIn:							DS.attr 'string'
+  commContact:	      DS.attr 'string'
 
-  country:            DS.attr 'string'
+  country:            DS.attr 'number'
   address1:           DS.attr 'string'
   address2:           DS.attr 'string'
   address3:           DS.attr 'string'
@@ -28,6 +27,6 @@ App.Debtor = DS.Model.extend
   passport:						DS.attr	'string'
   pin:								DS.attr	'string'
 
-  contact: 						DS.hasMany    'App.Contact'
-  relatedPerson:      DS.hasMany    'App.RelatedPerson'
-  employment:         DS.hasMany    'App.Employment'
+  # contact: 						DS.hasMany    'App.Contact'
+  # relatedPerson:      DS.hasMany    'App.RelatedPerson'
+  # employment:         DS.hasMany    'App.Employment'

@@ -33,7 +33,8 @@ DS.WebAPIAdapter = DS.RESTAdapter.extend
     config = get(this, 'serializer').configurationForType(type)
     primaryKey = config and config.primaryKey
     delete data[primaryKey]  if primaryKey
-    @ajax(@buildURL(root), 'POST',
+
+    @ajax(@buildURL(root),                            'POST',
       data: data
     ).then((json) ->
       adapter.didCreateRecord store, type, record, json
@@ -49,7 +50,8 @@ DS.WebAPIAdapter = DS.RESTAdapter.extend
     data = @serialize(record,
       includeId: true
     )
-    @ajax(@buildURL(root, id), 'PUT',
+
+    @ajax(@buildURL(root, id),                        'PUT',
       data: data
     , 'text').then((json) ->
       adapter.didSaveRecord store, type, record, json
@@ -68,7 +70,8 @@ DS.WebAPIAdapter = DS.RESTAdapter.extend
     
     # webAPI delete will just return the original record, shouldn't save it back
     # ignore the returned json object
-    @ajax(@buildURL(root, id), 'DELETE').then((json) ->
+    @ajax(@buildURL(root, id),                        'DELETE'
+    ).then((json) ->
       if json[primaryKey] is id
         adapter.didSaveRecord store, type, record
       else
@@ -86,7 +89,7 @@ DS.WebAPIAdapter = DS.RESTAdapter.extend
       hash.type = type
       hash.dataType = 'json' #dataType or 'json'
       hash.context = adapter
-      if hash.data and type isnt 'GET'
+      if hash.data and type isnt                      'GET'
         hash.contentType = 'application/json; charset=utf-8'
         hash.data = JSON.stringify(hash.data)
       

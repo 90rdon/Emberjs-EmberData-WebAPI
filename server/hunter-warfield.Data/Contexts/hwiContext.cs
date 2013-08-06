@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
-using System.Data.Entity.Edm;
 using System.Data.Entity.ModelConfiguration.Conventions;
 
 using hunter_warfield.Core.Domain;
@@ -16,7 +15,7 @@ namespace hunter_warfield.Data.Contexts
     {
         public hwiContext() : base("hwi") { }
 
-        public hwiContext(string connectionString) : base(connectionString) { }
+        public hwiContext(string connectionString) { }
 
         public DbSet<Debtor> Debtors { get; set; }
 

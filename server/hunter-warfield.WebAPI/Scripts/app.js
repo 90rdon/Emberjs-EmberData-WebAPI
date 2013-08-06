@@ -289,7 +289,7 @@ window.require.register("models/contact", function(exports, require, module) {
 });
 window.require.register("models/debtor", function(exports, require, module) {
   App.Debtor = DS.Model.extend({
-    type: DS.attr('boolean'),
+    type: DS.attr('string'),
     title: DS.attr('string'),
     lastName: DS.attr('string'),
     firstName: DS.attr('string'),
@@ -299,10 +299,10 @@ window.require.register("models/debtor", function(exports, require, module) {
     ssn: DS.attr('string'),
     martialStatus: DS.attr('string'),
     email: DS.attr('string'),
-    emailValidity: DS.attr('boolean'),
-    optIn: DS.attr('boolean'),
+    emailValidity: DS.attr('number'),
+    optIn: DS.attr('string'),
     commContact: DS.attr('string'),
-    country: DS.attr('string'),
+    country: DS.attr('number'),
     address1: DS.attr('string'),
     address2: DS.attr('string'),
     address3: DS.attr('string'),
@@ -313,10 +313,7 @@ window.require.register("models/debtor", function(exports, require, module) {
     dlIssuer: DS.attr('string'),
     dlNumber: DS.attr('string'),
     passport: DS.attr('string'),
-    pin: DS.attr('string'),
-    contact: DS.hasMany('App.Contact'),
-    relatedPerson: DS.hasMany('App.RelatedPerson'),
-    employment: DS.hasMany('App.Employment')
+    pin: DS.attr('string')
   });
   
 });

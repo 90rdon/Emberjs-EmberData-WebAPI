@@ -8,7 +8,10 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
-using System.Web.Http.OData;
+//using System.Web.Http.OData;
+
+using StackExchange.Profiling;
+
 using hunter_warfield.Core.Domain;
 using hunter_warfield.Data.Contexts;
 
@@ -19,10 +22,13 @@ namespace hunter_warfield.WebAPI.Controllers
         private hwiContext db = new hwiContext();
 
         // GET api/Debtors
-        [Queryable(PageSize = 25)]
+        //[Queryable(PageSize = 25)]
         public IQueryable<Debtor> GetDebtors()
         {
-            return db.Debtors.AsQueryable().Take(25);
+            using (MiniProfiler.Current.Step("DebtorsController:GetDebtors"))
+            {
+                return db.Debtors.AsQueryable().Take(25);
+            }
         }
 
         // GET api/Debtors/5

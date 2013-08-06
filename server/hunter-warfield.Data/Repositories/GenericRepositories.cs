@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,7 +45,7 @@ namespace hunter_warfield.Data.Repositories
 
         public void Update(T entity)
         {
-            _entities.Entry(entity).State = System.Data.Entity.EntityState.Modified;
+            _entities.Entry(entity).State = EntityState.Modified;
         }
 
         public void Save()
