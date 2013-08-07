@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace hunter_warfield.Core.Domain
 {
@@ -58,5 +60,7 @@ namespace hunter_warfield.Core.Domain
         public string Passport { get; set; }
 
         public string PIN { get; set; }
+
+        public virtual ICollection<Contact> Contacts { get; set; }
     }
 }

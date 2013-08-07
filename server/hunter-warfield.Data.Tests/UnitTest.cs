@@ -39,5 +39,17 @@ namespace hunter_warfield.data.Tests
                 Assert.IsTrue(debtors != null);
             }
         }
+
+        [TestMethod]
+        public void GetContact()
+        {
+            using (var db = new hwiContext())
+            {
+                var entity = new GenericRepository<Contact>();
+                var contact = entity.GetAll().FirstOrDefault();
+
+                Assert.IsTrue(contact != null);
+            }
+        }
     }
 }

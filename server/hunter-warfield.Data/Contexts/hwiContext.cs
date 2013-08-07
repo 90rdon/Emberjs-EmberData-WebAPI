@@ -18,10 +18,18 @@ namespace hunter_warfield.Data.Contexts
         public hwiContext(string connectionString) { }
 
         public DbSet<Debtor> Debtors { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Configurations.Add(new DebtorConfiguration());
+            modelBuilder.Configurations.Add(new ContactConfiguration());
+
+            modelBuilder.Entity<Debtor>()
+                .HasMany(debtor => debtor.Contacts)
+                .WithOptional()
+                .HasForeignKey(Contact => Contact.DebtorId);
+
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
             base.OnModelCreating(modelBuilder);
         }

@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configurations\ContactConfiguration.cs" />
     <Compile Include="Configurations\DebtorConfiguration.cs" />
     <Compile Include="Contexts\hwiContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

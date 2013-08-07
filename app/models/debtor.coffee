@@ -27,6 +27,6 @@ App.Debtor = DS.Model.extend
   passport:						DS.attr	'string'
   pin:								DS.attr	'string'
 
-  # contact: 						DS.hasMany    'App.Contact'
+  phone: 						  DS.hasMany 'App.Contact'
   # relatedPerson:      DS.hasMany    'App.RelatedPerson'
   # employment:         DS.hasMany    'App.Employment'

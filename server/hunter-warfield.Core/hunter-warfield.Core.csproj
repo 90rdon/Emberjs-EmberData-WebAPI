@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\Debtor.cs" />
+    <Compile Include="Domain\Contact.cs" />
     <Compile Include="Interfaces\IGenericRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

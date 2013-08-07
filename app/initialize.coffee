@@ -20,7 +20,7 @@ require 'controllers/columnItemController'
 #//////////////////////////////////
 
 require 'models/debtor'
-require 'models/contact'
+require 'models/phone'
 require 'models/relatedPerson'
 require 'models/employment'
 require 'models/historicalEvent'
