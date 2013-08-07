@@ -21,6 +21,7 @@ namespace hunter_warfield.server.Tests.Controllers
         private const string first = "Joseph";
         private const string last = "Best";
 
+        // Mock up test Http requests
         private static void SetupControllerForTests(ApiController controller)
         {
             var config = new HttpConfiguration();
@@ -42,10 +43,14 @@ namespace hunter_warfield.server.Tests.Controllers
 
             // Act
             var result = controller.GetDebtors();
+            string test = null;
 
+            foreach (var one in result)
+            {
+                test = one.FirstName;
+            }
             // Assert
             Assert.IsNotNull(result);
-            //Assert.IsTrue(true);
         }
 
         [TestMethod]

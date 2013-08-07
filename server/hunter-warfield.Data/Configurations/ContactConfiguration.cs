@@ -16,8 +16,8 @@ namespace hunter_warfield.Data.Configurations
             this.HasKey(k => new { k.Id });
 
             this.Property(p => p.Id).HasColumnName("cnsmr_phn_id");
-            this.Property(p => p.DebtorId).HasColumnName("cnsmr_id");
             this.Property(p => p.Type).HasColumnName("cnsmr_phn_typ_cd");
+            this.Property(p => p.DebtorId).HasColumnName("cnsmr_id");
             this.Property(p => p.Country).HasColumnName("cnsmr_phn_cntry_cd");
             this.Property(p => p.Phone).HasColumnName("cnsmr_phn_nmbr_txt");
             this.Property(p => p.Extension).HasColumnName("cnsmr_phn_xtnsn_txt");
@@ -41,7 +41,7 @@ namespace hunter_warfield.Data.Configurations
                         p.Source,
                         p.Consent
                     });
-                    cnsmr.ToTable("cnsmr_phn");
+                    cnsmr.ToTable("cnsmr_Phn");
                 });
         }
     }

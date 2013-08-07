@@ -25,16 +25,18 @@ namespace hunter_warfield.WebAPI.Controllers
         //[Queryable(PageSize = 25)]
         public IQueryable<Debtor> GetDebtors()
         {
-            using (MiniProfiler.Current.Step("DebtorsController:GetDebtors"))
-            {
-                return db.Debtors.AsQueryable().Take(25);
-            }
+            //db.Configuration.LazyLoadingEnabled = true;
+            var results = db.Debtors.Take(25).AsQueryable();
+            return results;
         }
 
         // GET api/Debtors/5
         public Debtor GetDebtor(long id)
         {
             Debtor debtor = db.Debtors.Find(id);
+                //.Include(d => d.Contacts)
+                //.SingleOrDefault(s => s.Id.Equals(id));
+
             if (debtor == null)
             {
                 throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));

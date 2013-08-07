@@ -26,9 +26,9 @@ namespace hunter_warfield.Data.Contexts
             modelBuilder.Configurations.Add(new ContactConfiguration());
 
             modelBuilder.Entity<Debtor>()
-                .HasMany(debtor => debtor.Contacts)
+                .HasMany(d => d.Contacts)
                 .WithOptional()
-                .HasForeignKey(Contact => Contact.DebtorId);
+                .HasForeignKey(f => f.DebtorId);
 
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
             base.OnModelCreating(modelBuilder);

@@ -34,7 +34,7 @@ namespace hunter_warfield.data.Tests
             using (var db = new hwiContext())
             {
                 var entity = new GenericRepository<Debtor>();
-                var debtors = entity.GetAll().FirstOrDefault();
+                var debtors = entity.GetAll().Include(d => d.Contacts).FirstOrDefault();
 
                 Assert.IsTrue(debtors != null);
             }
