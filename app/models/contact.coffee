@@ -1,4 +1,5 @@
 App.Contact = DS.Model.extend
+  debtorId:       DS.attr 'number'
   type:        		DS.attr 'number'
   country:       	DS.attr 'number'
   phone:					DS.attr 'string'

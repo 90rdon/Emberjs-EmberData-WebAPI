@@ -12,8 +12,6 @@ namespace hunter_warfield.Core.Domain
     {
         public Int64 Id { get; set; }
 
-        public Int64 DebtorId { get; set; }
-
         public Int16 Type { get; set; }
 
         public Int16 Country { get; set; }
@@ -30,6 +28,8 @@ namespace hunter_warfield.Core.Domain
 
         public string Consent { get; set; }
 
+        [ForeignKey("Debtor")]
+        public Int64 DebtorId { get; set; }
         public virtual Debtor Debtor { get; set; }
     }
 }

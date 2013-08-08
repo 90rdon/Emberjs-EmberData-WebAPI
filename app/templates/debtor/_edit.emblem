@@ -38,3 +38,5 @@
     view Em.TextField valueBinding='state'
     label Zip Code
     view Em.TextField valueBinding='zip'
+
+  button{action 'doneEditing'} Done

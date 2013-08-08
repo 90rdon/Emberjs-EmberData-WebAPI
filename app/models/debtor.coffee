@@ -11,7 +11,7 @@ App.Debtor = DS.Model.extend
   email:							DS.attr 'string'
   emailValidity:			DS.attr 'number'
   optIn:							DS.attr 'string'
-  commContact:	      DS.attr 'string'
+  contact:	          DS.attr 'string'
 
   country:            DS.attr 'number'
   address1:           DS.attr 'string'
@@ -27,6 +27,6 @@ App.Debtor = DS.Model.extend
   passport:						DS.attr	'string'
   pin:								DS.attr	'string'
 
-  phone: 						  DS.hasMany 'App.Contact'
+  contacts: 					DS.hasMany 'App.Contact'
   # relatedPerson:      DS.hasMany    'App.RelatedPerson'
   # employment:         DS.hasMany    'App.Employment'

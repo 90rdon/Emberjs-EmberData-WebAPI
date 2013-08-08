@@ -23,15 +23,15 @@ namespace hunter_warfield.WebAPI.Controllers
 
         // GET api/Debtors
         //[Queryable(PageSize = 25)]
-        public IQueryable<Debtor> GetDebtors()
+        public IEnumerable<DebtorDto> GetDebtors()
         {
-            //db.Configuration.LazyLoadingEnabled = true;
-            var results = db.Debtors.Take(25).AsQueryable();
-            return results;
+            return db.Debtors.Take(25)
+                .AsEnumerable()
+                .Select(debtor => new DebtorDto(debtor));
         }
 
         // GET api/Debtors/5
-        public Debtor GetDebtor(long id)
+        public DebtorDto GetDebtor(long id)
         {
             Debtor debtor = db.Debtors.Find(id);
                 //.Include(d => d.Contacts)
@@ -42,23 +42,39 @@ namespace hunter_warfield.WebAPI.Controllers
                 throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
             }
 
-            return debtor;
+            return new DebtorDto(debtor);
         }
 
         // PUT api/Debtors/5
-        public HttpResponseMessage PutDebtor(long id, Debtor debtor)
+        public HttpResponseMessage PutDebtor(long id, DebtorDto debtorDto)
         {
             if (!ModelState.IsValid)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
             }
 
-            if (id != debtor.Id)
+            if (id != debtorDto.Id)
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest);
             }
 
-            db.Entry(debtor).State = EntityState.Modified;
+            Debtor debtor = debtorDto.ToEntity();
+
+            if (db.Entry(debtor).State == EntityState.Detached)
+            {
+                var set = db.Set<Debtor>();
+                Debtor attachedEntity = set.Find(debtor.Id);
+
+                if (attachedEntity == null)
+                {
+                    db.Entry(debtor).State = EntityState.Modified;
+                }
+                else
+                {
+                    var attachedEntry = db.Entry(attachedEntity);
+                    attachedEntry.CurrentValues.SetValues(debtor);
+                }
+            }
 
             try
             {
@@ -73,15 +89,17 @@ namespace hunter_warfield.WebAPI.Controllers
         }
 
         // POST api/Debtors
-        public HttpResponseMessage PostDebtor(Debtor debtor)
+        public HttpResponseMessage PostDebtor(DebtorDto debtorDto)
         {
             if (ModelState.IsValid)
             {
+                Debtor debtor = debtorDto.ToEntity();
                 db.Debtors.Add(debtor);
                 db.SaveChanges();
+                debtorDto.Id = debtor.Id;
 
                 HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, debtor);
-                response.Headers.Location = new Uri(Url.Link("DefaultApi", new { id = debtor.Id }));
+                response.Headers.Location = new Uri(Url.Link("DefaultApi", new { id = debtorDto.Id }));
                 return response;
             }
             else
@@ -99,6 +117,7 @@ namespace hunter_warfield.WebAPI.Controllers
                 return Request.CreateResponse(HttpStatusCode.NotFound);
             }
 
+            DebtorDto debtorDto = new DebtorDto(debtor);
             db.Debtors.Remove(debtor);
 
             try
@@ -110,7 +129,7 @@ namespace hunter_warfield.WebAPI.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.NotFound, ex);
             }
 
-            return Request.CreateResponse(HttpStatusCode.OK, debtor);
+            return Request.CreateResponse(HttpStatusCode.OK, debtorDto);
         }
 
         protected override void Dispose(bool disposing)

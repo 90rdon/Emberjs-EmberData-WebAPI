@@ -7,3 +7,14 @@ App.Store = DS.Store.extend
 
     pluralize: (string) ->
       string + 's'
+
+DS.WebAPIAdapter.map 'App.Debtor',
+  contacts: embedded: 'load'
+
+DS.WebAPIAdapter.configure 'App.Debtor',
+    sideloadAs: 'debtor',
+    primaryKey: 'id'
+
+DS.WebAPIAdapter.configure 'App.Contact',
+    sideloadAs: 'contact',
+    primaryKey: 'id'

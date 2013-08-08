@@ -98,6 +98,58 @@ window.require.register("controllers/columnItemController", function(exports, re
   });
   
 });
+window.require.register("controllers/contactController", function(exports, require, module) {
+  App.Contact = Em.ObjectController.extend({
+    isEditing: false,
+    doneEditing: function() {
+      this.set('isEditing', false);
+      return this.get('store').commit();
+    },
+    edit: function() {
+      return this.set('isEditing', true);
+    }
+  });
+  
+});
+window.require.register("controllers/contactsController", function(exports, require, module) {
+  App.ContactsController = Em.ArrayController.extend({
+    parentControllerBinding: 'App.Debtor',
+    sortedColumn: (function() {
+      var properties;
+      properties = this.get('sortProperties');
+      if (!properties) {
+        return 'undefined';
+      }
+      return properties.get('firstObject');
+    }).property('sortProperties.[]'),
+    columns: (function() {
+      return [
+        Em.Object.create({
+          column: 'number'
+        }), Em.Object.create({
+          column: 'extension'
+        }), Em.Object.create({
+          column: 'type'
+        }), Em.Object.create({
+          column: 'score'
+        }), Em.Object.create({
+          column: 'source'
+        }), Em.Object.create({
+          column: 'status'
+        })
+      ];
+    }).property(),
+    toggleSort: function(column) {
+      if (this.get('sortedColumn') === column) {
+        return this.toggleProperty('sortAscending');
+      } else {
+        this.set('sortProperties', [column]);
+        return this.set('sortAscending', true);
+      }
+    }
+  });
+  
+});
 window.require.register("controllers/debtorController", function(exports, require, module) {
   App.DebtorController = Em.ObjectController.extend({
     fullName: (function() {
@@ -115,6 +167,10 @@ window.require.register("controllers/debtorController", function(exports, requir
     },
     edit: function() {
       return this.set('isEditing', true);
+    },
+    back: function() {
+      this.set('isEditing', false);
+      return this.transitionToRoute('debtors');
     }
   });
   
@@ -218,41 +274,43 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('helpers/radioButton');
 
-  require('controllers/debtorsController');
+  require('controllers/columnItemController');
+
+  require('controllers/contactsController');
 
   require('controllers/debtorController');
 
-  require('controllers/columnItemController');
-
-  require('models/debtor');
+  require('controllers/debtorsController');
 
   require('models/contact');
 
-  require('models/relatedPerson');
+  require('models/debtor');
 
   require('models/employment');
 
   require('models/historicalEvent');
 
+  require('models/relatedPerson');
+
   require('routes/indexRoute');
 
   require('routes/debtorsRoute');
 
-  require('routes/debtorRoute');
-
-  require('templates/application');
-
-  require('templates/index');
+  require('templates/_well');
 
   require('templates/about');
 
-  require('templates/_well');
+  require('templates/application');
 
-  require('templates/debtors');
+  require('templates/contacts');
+
+  require('templates/debtor/_edit');
 
   require('templates/debtor');
 
-  require('templates/debtor/_edit');
+  require('templates/debtors');
+
+  require('templates/index');
 
   require('store/webapi/serializer');
 
@@ -267,22 +325,24 @@ window.require.register("initialize", function(exports, require, module) {
     this.route('index', {
       path: '/'
     });
-    return this.resource('debtors', function() {
-      return this.resource('debtor', {
-        path: ':debtor_id'
-      });
+    this.route('debtors');
+    return this.resource('debtor', {
+      path: ':debtor_id'
     });
   });
   
 });
 window.require.register("models/contact", function(exports, require, module) {
   App.Contact = DS.Model.extend({
-    type: DS.attr('string'),
-    country: DS.attr('string'),
+    debtorId: DS.attr('number'),
+    type: DS.attr('number'),
+    country: DS.attr('number'),
     phone: DS.attr('string'),
-    phoneExt: DS.attr('string'),
+    extension: DS.attr('string'),
     score: DS.attr('number'),
-    consentToCall: DS.attr('boolean'),
+    status: DS.attr('number'),
+    source: DS.attr('number'),
+    consent: DS.attr('string'),
     debtor: DS.belongsTo('App.Debtor')
   });
   
@@ -301,7 +361,7 @@ window.require.register("models/debtor", function(exports, require, module) {
     email: DS.attr('string'),
     emailValidity: DS.attr('number'),
     optIn: DS.attr('string'),
-    commContact: DS.attr('string'),
+    contact: DS.attr('string'),
     country: DS.attr('number'),
     address1: DS.attr('string'),
     address2: DS.attr('string'),
@@ -313,68 +373,9 @@ window.require.register("models/debtor", function(exports, require, module) {
     dlIssuer: DS.attr('string'),
     dlNumber: DS.attr('string'),
     passport: DS.attr('string'),
-    pin: DS.attr('string')
+    pin: DS.attr('string'),
+    contacts: DS.hasMany('App.Contact')
   });
-  
-});
-window.require.register("models/debtorData", function(exports, require, module) {
-  App.Debtor.FIXTURES = [
-    {
-      "id": 4103752,
-      "type": "N",
-      "title": null,
-      "firstName": "Joseph",
-      "middleName": "",
-      "lastName": "Best",
-      "suffix": null,
-      "dob": null,
-      "ssn": null,
-      "maritalStatus": 0,
-      "email": null,
-      "emailValidity": null,
-      "optIn": null,
-      "commContact": null,
-      "country": 231,
-      "address1": "4420 Green Wood",
-      "address2": null,
-      "address3": null,
-      "city": "Shreveport",
-      "state": "LA",
-      "zip": "71109",
-      "county": null,
-      "dlIssuer": null,
-      "dlNumber": null,
-      "passport": null,
-      "pin": "0263"
-    }, {
-      "id": 4103753,
-      "type": "N",
-      "title": null,
-      "firstName": "Jennifer",
-      "middleName": null,
-      "lastName": "Scneeweis",
-      "suffix": null,
-      "dob": null,
-      "ssn": null,
-      "maritalStatus": 0,
-      "email": null,
-      "emailValidity": null,
-      "optIn": null,
-      "commContact": null,
-      "country": 231,
-      "address1": "1815 N 45Th St Ste 218",
-      "address2": null,
-      "address3": null,
-      "city": "Seattle",
-      "state": "WA",
-      "zip": "98103",
-      "county": null,
-      "dlIssuer": null,
-      "dlNumber": null,
-      "passport": null,
-      "pin": "6685"
-    }
-  ];
   
 });
 window.require.register("models/employment", function(exports, require, module) {
@@ -414,100 +415,6 @@ window.require.register("models/historicalEvent", function(exports, require, mod
   });
   
 });
-window.require.register("models/oldData", function(exports, require, module) {
-  App.Debtor.FIXTURES = [
-    {
-      id: 123456,
-      type: 'consumer',
-      title: 'Mr.',
-      lastName: 'Obama',
-      firstName: 'Barack',
-      dob: '8/4/1961',
-      ssn: '123-45-6789',
-      martialStatus: 'M',
-      email: 'barackobama@sample.com',
-      emailValidity: true,
-      optIn: true,
-      country: 'United States',
-      address1: '1600 Pennsylvania Ave NW',
-      city: 'Washington',
-      state: 'DC',
-      zip: '20500'
-    }, {
-      id: 234567,
-      type: 'consumer',
-      title: 'Mrs.',
-      lastName: 'Deen',
-      firstName: 'Paula',
-      dob: '4/13/1950',
-      ssn: '321-45-9876',
-      martialStatus: 'M',
-      email: 'paula@sample.com',
-      emailValidity: true,
-      optIn: true,
-      country: 'United States',
-      address1: '2391 Downing Ave',
-      city: 'Thunderbolt',
-      state: 'GA',
-      zip: '31404'
-    }, {
-      id: 456789,
-      type: 'consumer',
-      title: 'Mr.',
-      lastName: 'Bush',
-      middleName: 'W.',
-      firstName: 'George',
-      dob: '7/6/1946',
-      ssn: '555-44-6666',
-      martialStatus: 'M',
-      email: 'gwb@sample.com',
-      emailValidity: false,
-      optIn: true,
-      country: 'United States',
-      address1: 'P.O. Box 259000',
-      city: 'Dallas',
-      state: 'TX',
-      zip: '75225'
-    }, {
-      id: 567890,
-      type: 'consumer',
-      title: 'Mr.',
-      lastName: 'Bush',
-      middleName: 'H.W.',
-      firstName: 'George',
-      dob: '6/12/1924',
-      ssn: '727-12-3434',
-      martialStatus: 'M',
-      email: 'georgesrb@sample.com',
-      emailValidity: false,
-      optIn: true,
-      country: 'United States',
-      address1: '10000 Memorial Dr.',
-      address2: 'Suite 900',
-      city: 'Houston',
-      state: 'TX',
-      zip: '77024'
-    }, {
-      id: 345678,
-      type: 'consumer',
-      title: 'Mr.',
-      lastName: 'Clinton',
-      firstName: 'Bill',
-      dob: '8/16/1946',
-      ssn: '456-77-0000',
-      martialStatus: 'M',
-      email: 'billclinton@sample.com',
-      emailValidity: true,
-      optIn: true,
-      country: 'United States',
-      address1: '55 West 125th Street',
-      city: 'New York',
-      state: 'NY',
-      zip: '10027'
-    }
-  ];
-  
-});
 window.require.register("models/relatedPerson", function(exports, require, module) {
   App.RelatedPerson = DS.Model.extend({
     relationship: DS.attr('string'),
@@ -534,7 +441,7 @@ window.require.register("models/relatedPerson", function(exports, require, modul
   
 });
 window.require.register("routes/debtorRoute", function(exports, require, module) {
-  App.DebtorRoute = Em.Route.extend();
+  
   
 });
 window.require.register("routes/debtorsRoute", function(exports, require, module) {
@@ -564,6 +471,22 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
         return string + 's';
       }
     })
+  });
+
+  DS.WebAPIAdapter.map('App.Debtor', {
+    contacts: {
+      embedded: 'load'
+    }
+  });
+
+  DS.WebAPIAdapter.configure('App.Debtor', {
+    sideloadAs: 'debtor',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Contact', {
+    sideloadAs: 'contact',
+    primaryKey: 'id'
   });
   
 });
@@ -805,25 +728,114 @@ window.require.register("templates/application", function(exports, require, modu
     
   });module.exports = module.id;
 });
+window.require.register("templates/contacts", function(exports, require, module) {
+  Ember.TEMPLATES["contacts"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [3,'>= 1.0.0-rc.4'];
+  helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+    var buffer = '', stack1, hashContexts, hashTypes, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+
+  function program1(depth0,data) {
+    
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
+    data.buffer.push("<th ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSort", "column", {hash:{},contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.humanize),stack1 ? stack1.call(depth0, "column", options) : helperMissing.call(depth0, "humanize", "column", options))));
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedAsc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedDesc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(6, program6, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</th>");
+    return buffer;
+    }
+  function program2(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-up\"></i>");
+    }
+
+  function program4(depth0,data) {
+    
+    var buffer = '';
+    return buffer;
+    }
+
+  function program6(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-down\"></i>");
+    }
+
+  function program8(depth0,data) {
+    
+    var buffer = '', hashTypes, hashContexts;
+    data.buffer.push("<tr><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "phone", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "extension", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "type", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "score", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "source", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "status", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td></tr>");
+    return buffer;
+    }
+
+    data.buffer.push("<div class=\"row-fluid\"><table class=\"table\"><thead><tr>");
+    hashContexts = {'itemController': depth0};
+    hashTypes = {'itemController': "STRING"};
+    stack1 = helpers.each.call(depth0, "columns", {hash:{
+      'itemController': ("columnItem")
+    },inverse:self.program(4, program4, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tr></thead><tbody>");
+    hashTypes = {};
+    hashContexts = {};
+    stack1 = helpers.each.call(depth0, "controller", {hash:{},inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tbody></table></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
 window.require.register("templates/debtor", function(exports, require, module) {
   Ember.TEMPLATES["debtor"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', stack1, hashTypes, hashContexts, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, self=this;
+    var buffer = '', stack1, hashTypes, hashContexts, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, self=this;
 
   function program1(depth0,data) {
     
-    var buffer = '', stack1, hashTypes, hashContexts, options;
+    var stack1, hashTypes, hashContexts, options;
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
     data.buffer.push(escapeExpression(((stack1 = helpers.partial),stack1 ? stack1.call(depth0, "debtor/edit", options) : helperMissing.call(depth0, "partial", "debtor/edit", options))));
-    data.buffer.push("<button ");
-    hashTypes = {};
-    hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</button>");
-    return buffer;
     }
 
   function program3(depth0,data) {
@@ -837,7 +849,11 @@ window.require.register("templates/debtor", function(exports, require, module) {
     return buffer;
     }
 
-    data.buffer.push("<div class=\"span6\">");
+    data.buffer.push("<div class=\"container-fluid\"><div class=\"row-fluid\"><button ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "back", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Back</button>");
     hashTypes = {};
     hashContexts = {};
     stack1 = helpers['if'].call(depth0, "isEditing", {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
@@ -875,6 +891,11 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "email", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</div></div>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.render),stack1 ? stack1.call(depth0, "contacts", "contacts", options) : helperMissing.call(depth0, "render", "contacts", "contacts", options))));
+    data.buffer.push("</div>");
     return buffer;
     
   });module.exports = module.id;
@@ -1016,7 +1037,11 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("zip")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></div>");
+    data.buffer.push("</div><button ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Done</button></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -1132,14 +1157,7 @@ window.require.register("templates/debtors", function(exports, require, module) 
     hashContexts = {};
     stack1 = helpers.each.call(depth0, "controller", {hash:{},inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("</tbody></table></div><div class=\"span9\">");
-    hashContexts = {'unescaped': depth0};
-    hashTypes = {'unescaped': "STRING"};
-    stack1 = helpers._triageMustache.call(depth0, "outlet", {hash:{
-      'unescaped': ("true")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
-    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("</div></div></div>");
+    data.buffer.push("</tbody></table></div></div></div>");
     return buffer;
     
   });module.exports = module.id;

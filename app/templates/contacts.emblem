@@ -1,0 +1,28 @@
+.row-fluid
+  table.table
+    thead
+      tr
+        each columns itemController="columnItem"
+          th{action toggleSort column}
+            =humanize column
+            if sortedAsc
+              i class="icon-chevron-up"
+
+            if sortedDesc
+              i class="icon-chevron-down"
+    tbody
+      each controller
+        tr
+          td
+            / linkTo 'contact' this
+            =phone
+          td
+            =extension
+          td
+            =type
+          td
+            =score
+          td
+            =source
+          td
+            =status

@@ -35,7 +35,7 @@ namespace hunter_warfield.Core.Domain
 
         //public string EIN { get; set; }
 
-        public string CommContact { get; set; }
+        public string Contact { get; set; }
 
         public Int16 Country { get; set; }
 
@@ -61,6 +61,6 @@ namespace hunter_warfield.Core.Domain
 
         public string PIN { get; set; }
 
-        public virtual ICollection<Contact> Contacts { get; set; }
+        public virtual List<Contact> Contacts { get; set; }
     }
 }

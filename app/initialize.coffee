@@ -11,20 +11,20 @@ require 'helpers/radioButton'
 #// Controllers
 #/////////////////////////////////
 
-require 'controllers/debtorsController'
-require 'controllers/debtorController'
 require 'controllers/columnItemController'
+require 'controllers/contactsController'
+require 'controllers/debtorController'
+require 'controllers/debtorsController'
 
 #//////////////////////////////////
 #// Models
 #//////////////////////////////////
 
+require 'models/contact'
 require 'models/debtor'
-require 'models/phone'
-require 'models/relatedPerson'
 require 'models/employment'
 require 'models/historicalEvent'
-# require 'models/debtorData'
+require 'models/relatedPerson'
 
 #/////////////////////////////////
 #// Routes
@@ -32,19 +32,19 @@ require 'models/historicalEvent'
 
 require 'routes/indexRoute'
 require 'routes/debtorsRoute'
-require 'routes/debtorRoute'
 
 #//////////////////////////////////
 #// Templates
 #//////////////////////////////////
 
-require 'templates/application'
-require 'templates/index'
-require 'templates/about'
 require 'templates/_well'
-require 'templates/debtors'
-require 'templates/debtor'
+require 'templates/about'
+require 'templates/application'
+require 'templates/contacts'
 require 'templates/debtor/_edit'
+require 'templates/debtor'
+require 'templates/debtors'
+require 'templates/index'
 
 #/////////////////////////////////
 #// Views
@@ -70,7 +70,7 @@ require 'store/RESTfulAdapter'
 # )
 
 App.Router.map ->
-  @route 'about', path: '/about'
-  @route 'index', path: '/'
-  @resource   'debtors', () ->
-    @resource 'debtor', path: ':debtor_id'
+  @route      'about', path: '/about'
+  @route      'index', path: '/'
+  @route      'debtors'
+  @resource   'debtor', path: ':debtor_id'

@@ -29,7 +29,7 @@ namespace hunter_warfield.Data.Configurations
             this.Property(p => p.EmailValidity).HasColumnName("cnsmr_email_vldty_cd");
             this.Property(p => p.OptIn).HasColumnName("cnsmr_email_optn_flg");
             //this.Property(p => p.EIN).HasColumnName("cnsmr_idntfr_ssn_txt");
-            this.Property(p => p.CommContact).HasColumnName("cnsmr_nm_cmmrcl_txt");
+            this.Property(p => p.Contact).HasColumnName("cnsmr_nm_cmmrcl_txt");
             this.Property(p => p.Country).HasColumnName("cnsmr_addrss_cntry_cd");
             this.Property(p => p.Address1).HasColumnName("cnsmr_addrss_ln_1_txt");
             this.Property(p => p.Address2).HasColumnName("cnsmr_addrss_ln_2_txt");
@@ -61,7 +61,7 @@ namespace hunter_warfield.Data.Configurations
                         p.EmailValidity,
                         p.OptIn,
                         //p.EIN,
-                        p.CommContact,
+                        p.Contact,
                         p.DLIssuer,
                         p.DLNumber,
                         p.Passport,

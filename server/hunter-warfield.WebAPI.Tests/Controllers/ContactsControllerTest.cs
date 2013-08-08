@@ -16,19 +16,18 @@ using hunter_warfield.WebAPI.Controllers;
 namespace hunter_warfield.server.Tests.Controllers
 {
     [TestClass]
-    public class DebtorsControllerTest
+    public class ContactsControllerTest
     {
-        private const Int32 id = 4103752;
-        private const string first = "Joseph";
-        private const string last = "Best";
+        private const Int32 id = 2174623;
+        private const string phone = "9035269228";
 
         // Mock up test Http requests
         private static void SetupControllerForTests(ApiController controller)
         {
             var config = new HttpConfiguration();
-            var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/debtors");
+            var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/Contacts");
             var route = config.Routes.MapHttpRoute("DefaultApi", "api/{controller}/{id}");
-            var routeData = new HttpRouteData(route, new HttpRouteValueDictionary { { "controller", "debtors" } });
+            var routeData = new HttpRouteData(route, new HttpRouteValueDictionary { { "controller", "Contacts" } });
 
             controller.ControllerContext = new HttpControllerContext(config, routeData, request);
             controller.Request = request;
@@ -40,10 +39,10 @@ namespace hunter_warfield.server.Tests.Controllers
         public void Get()
         {
             // Arrange
-            DebtorsController controller = new DebtorsController();
+            ContactsController controller = new ContactsController();
 
             // Act
-            var result = controller.GetDebtors();
+            var result = controller.GetContacts();
 
             // Assert
             Assert.IsNotNull(result);
@@ -53,21 +52,20 @@ namespace hunter_warfield.server.Tests.Controllers
         public void GetById()
         {
             // Arrange
-            DebtorsController controller = new DebtorsController();
+            ContactsController controller = new ContactsController();
 
             // Act
-            var result = controller.GetDebtor(id);
+            var result = controller.GetContact(id);
 
             // Assert
-            Assert.AreEqual(first, result.FirstName);
-            Assert.AreEqual(last, result.LastName);
+            Assert.AreEqual(phone, result.Phone);
         }
 
         [TestMethod]
         public void Post()
         {
             // Arrange
-            //DebtorsController controller = new DebtorsController();
+            //ContactsController controller = new ContactsController();
 
             //// Act
             //Debtor debtor = new Debtor();
@@ -83,35 +81,35 @@ namespace hunter_warfield.server.Tests.Controllers
         public void Put()
         {
             // Arrange
-            DebtorsController controller = new DebtorsController();
+            ContactsController controller = new ContactsController();
             SetupControllerForTests(controller);
 
             // Act
-            var debtor = controller.GetDebtor(id);
+            var contact = controller.GetContact(id);
 
-            string middleName = debtor.MiddleName;
-            debtor.MiddleName = "Test";
+            string phone = contact.Phone;
+            contact.Phone = "0000000000";
 
-            controller.PutDebtor(id, debtor);
-            debtor = null;
+            controller.PutContact(id, contact);
+            contact = null;
 
             // Assert
-            var result = controller.GetDebtor(id);
-            Assert.AreEqual("Test", result.MiddleName);
+            var result = controller.GetContact(id);
+            Assert.AreEqual("0000000000", result.Phone);
 
-            result.MiddleName = middleName;
-            controller.PutDebtor(id, result);
+            result.Phone = phone;
+            controller.PutContact(id, result);
             result = null;
 
-            debtor = controller.GetDebtor(id);
-            Assert.AreEqual(middleName, debtor.MiddleName);
+            contact = controller.GetContact(id);
+            Assert.AreEqual(phone, contact.Phone);
         }
 
         [TestMethod]
         public void Delete()
         {
             // Arrange
-            DebtorsController controller = new DebtorsController();
+            ContactsController controller = new ContactsController();
 
             // Act
             //controller.DeleteDebtor(5);

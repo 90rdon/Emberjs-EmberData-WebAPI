@@ -35,5 +35,5 @@
               td
                 =zip
 
-    .span9
-      == outlet
+    / .span6
+    /   == outlet

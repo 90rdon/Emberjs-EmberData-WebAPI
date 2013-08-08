@@ -18,3 +18,7 @@ App.DebtorController = Em.ObjectController.extend
 
   edit: ->
     @set('isEditing', true)
+
+  back: ->
+    @set('isEditing', false)
+    @transitionToRoute 'debtors'
