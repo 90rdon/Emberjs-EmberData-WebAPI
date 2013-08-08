@@ -1,1 +1,0 @@
-App.DebtorRoute = Em.Route.extend()
