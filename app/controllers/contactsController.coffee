@@ -1,6 +1,4 @@
 App.ContactsController = Em.ArrayController.extend
-  parentControllerBinding: 'App.Debtor'
-  
   sortedColumn: (->
     properties = @get('sortProperties')
     return 'undefined'  unless properties
@@ -8,7 +6,7 @@ App.ContactsController = Em.ArrayController.extend
   ).property('sortProperties.[]')
 
   columns: (-> [
-    Em.Object.create(column: 'number')
+    Em.Object.create(column: 'phone')
     Em.Object.create(column: 'extension')
     Em.Object.create(column: 'type')
     Em.Object.create(column: 'score')
@@ -22,3 +20,13 @@ App.ContactsController = Em.ArrayController.extend
     else
       @set('sortProperties', [column])
       @set('sortAscending', true)
+
+  # Phone
+  # phoneEdit: ->
+  #   @set('isPhoneEditing', true)
+
+  # isPhoneEditing: false
+
+  # donePhoneEditing: ->
+  #   @set('isPhoneEditing', false)
+  #   @get('store').commit()

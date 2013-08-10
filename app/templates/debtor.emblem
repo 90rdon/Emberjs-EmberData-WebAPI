@@ -3,7 +3,6 @@
     button{action 'back'} Back
     if isEditing
       partial 'debtor/edit'
-      / button{action 'doneEditing'} Done
     else
       button{action 'edit'} Edit
 
@@ -26,3 +25,5 @@
       =email
 
   render 'contacts' contacts
+
+  outlet

@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace hunter_warfield.Core.Domain
 {
-    public class Debtor
+    public class Person
     {
         public Int64 Id { get; set; }
 
-        public string Type { get; set; }
+        public Int16 Relationship { get; set; }
 
         public string Title { get; set; }
 
@@ -25,17 +28,11 @@ namespace hunter_warfield.Core.Domain
 
         public string SSN { get; set; }
 
-        public Int16 MaritalStatus { get; set; }
+        public DateTime StartDate { get; set; }
 
-        public string Email { get; set; }
+        public DateTime EndDate { get; set; }
 
-        public Int32? EmailValidity { get; set; }
-
-        public string OptIn { get; set; }
-
-        //public string EIN { get; set; }
-
-        public string Contact { get; set; }
+        public string ClaimNumber { get; set; }
 
         public Int16 Country { get; set; }
 
@@ -53,20 +50,8 @@ namespace hunter_warfield.Core.Domain
 
         public string County { get; set; }
 
-        public string DLIssuer { get; set; }
-
-        public string DLNumber { get; set; }
-
-        public string Passport { get; set; }
-
-        public string PIN { get; set; }
-
-        public virtual List<Contact> Contacts { get; set; }
-
-        public virtual List<Person> Persons { get; set; }
-
-        public virtual List<Employment> Employments { get; set; }
-
-        public virtual List<Historical> Historicals { get; set; }
+        [ForeignKey("Debtor")]
+        public Int64 DebtorId { get; set; }
+        public virtual Debtor Debtor { get; set; }
     }
 }

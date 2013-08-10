@@ -12,6 +12,8 @@ require 'helpers/radioButton'
 #/////////////////////////////////
 
 require 'controllers/columnItemController'
+require 'controllers/contactController'
+# require 'controllers/contactEditController'
 require 'controllers/contactsController'
 require 'controllers/debtorController'
 require 'controllers/debtorsController'
@@ -32,6 +34,7 @@ require 'models/relatedPerson'
 
 require 'routes/indexRoute'
 require 'routes/debtorsRoute'
+require 'routes/debtorRoute'
 
 #//////////////////////////////////
 #// Templates
@@ -40,6 +43,8 @@ require 'routes/debtorsRoute'
 require 'templates/_well'
 require 'templates/about'
 require 'templates/application'
+require 'templates/contact/_edit'
+require 'templates/contact'
 require 'templates/contacts'
 require 'templates/debtor/_edit'
 require 'templates/debtor'
@@ -70,7 +75,11 @@ require 'store/RESTfulAdapter'
 # )
 
 App.Router.map ->
-  @route      'about', path: '/about'
-  @route      'index', path: '/'
-  @route      'debtors'
-  @resource   'debtor', path: ':debtor_id'
+  @route          'about', path: '/about'
+  @route          'index', path: '/'
+  @route          'debtors'
+  @resource       'debtor', path: '/debtor/:debtor_id', ->
+    @resource     'contact', path: '/contact/:contact_id'
+
+
+

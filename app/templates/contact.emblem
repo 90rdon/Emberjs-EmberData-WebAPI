@@ -1,0 +1,14 @@
+.span9
+  / button{action 'back'} Back
+  / if isEditing
+  /   # partial 'contact/edit'
+  /   / button{action 'doneEditing'} Done
+  / else
+  /   button{action 'edit'} Edit
+
+  h2 Contact
+  =phone
+  |  
+  =extension
+
+  / partial 'contact/edit'

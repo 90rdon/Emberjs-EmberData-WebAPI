@@ -45,6 +45,12 @@
     <Compile Include="Domain\Debtor.cs" />
     <Compile Include="Domain\Contact.cs" />
     <Compile Include="Domain\DebtorDto.cs" />
+    <Compile Include="Domain\Employment.cs" />
+    <Compile Include="Domain\EmploymentDto.cs" />
+    <Compile Include="Domain\Historical.cs" />
+    <Compile Include="Domain\HistoricalDto.cs" />
+    <Compile Include="Domain\Person.cs" />
+    <Compile Include="Domain\PersonDto.cs" />
     <Compile Include="Interfaces\IGenericRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

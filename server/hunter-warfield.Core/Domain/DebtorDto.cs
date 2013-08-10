@@ -38,9 +38,14 @@ namespace hunter_warfield.Core.Domain
             Passport = debtor.Passport;
             PIN = debtor.PIN;
             Contacts = new List<ContactDto>();
+            Persons = new List<PersonDto>();
             foreach (Contact contact in debtor.Contacts)
             {
                 Contacts.Add(new ContactDto(contact));
+            }
+            foreach (Person person in debtor.Persons)
+            {
+                Persons.Add(new PersonDto(person));
             }
         }
 
@@ -101,6 +106,13 @@ namespace hunter_warfield.Core.Domain
 
         public virtual List<ContactDto> Contacts { get; set; }
 
+        public virtual List<PersonDto> Persons { get; set; }
+
+        public virtual List<EmploymentDto> Employments { get; set; }
+
+        public virtual List<HistoricalDto> Historicals { get; set; }
+
+
         public Debtor ToEntity()
         {
             Debtor debtor = new Debtor
@@ -131,7 +143,10 @@ namespace hunter_warfield.Core.Domain
                 DLNumber = DLNumber,
                 Passport = Passport,
                 PIN = PIN,
-                Contacts = new List<Contact>()
+                Contacts = new List<Contact>(),
+                Persons = new List<Person>(),
+                Employments = new List<Employment>(),
+                Historicals = new List<Historical>()
             };
 
             if (Contacts != null)
@@ -139,6 +154,30 @@ namespace hunter_warfield.Core.Domain
                 foreach (ContactDto contact in Contacts)
                 {
                     debtor.Contacts.Add(contact.ToEntity());
+                }
+            }
+
+            if (Persons != null)
+            {
+                foreach (PersonDto person in Persons)
+                {
+                    debtor.Persons.Add(person.ToEntity());
+                }
+            }
+
+            if (Employments != null)
+            {
+                foreach (EmploymentDto employment in Employments)
+                {
+                    debtor.Employments.Add(employment.ToEntity());
+                }
+            }
+
+            if (Historicals != null)
+            {
+                foreach (HistoricalDto historical in Historicals)
+                {
+                    debtor.Historicals.Add(historical.ToEntity());
                 }
             }
 

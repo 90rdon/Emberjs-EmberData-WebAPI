@@ -1,9 +1,22 @@
-App.Contact = Em.ObjectController.extend
-  isEditing: false
+App.ContactController = Em.ObjectController.extend()
+  # needs: 'contact'
 
-  doneEditing: ->
-    @set('isEditing', false)
-    @get('store').commit()
+  # fullPhone: (->
+  #   phone = @get('phone') || ''
+  #   extension = @get('extension') || ''
 
-  edit: ->
-    @set('isEditing', true)
+  #   return phone + ' ' + extension
+  # ).property('phone', 'extension')
+
+  # isEditing: false
+
+  # doneEditing: ->
+  #   @set('isEditing', false)
+  #   @get('store').commit()
+
+  # edit: ->
+  #   @set('isEditing', true)
+
+  # back: ->
+  #   @set('isEditing', false)
+  #   @transitionToRoute 'debtors'

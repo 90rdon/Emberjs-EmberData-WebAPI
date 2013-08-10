@@ -99,21 +99,11 @@ window.require.register("controllers/columnItemController", function(exports, re
   
 });
 window.require.register("controllers/contactController", function(exports, require, module) {
-  App.Contact = Em.ObjectController.extend({
-    isEditing: false,
-    doneEditing: function() {
-      this.set('isEditing', false);
-      return this.get('store').commit();
-    },
-    edit: function() {
-      return this.set('isEditing', true);
-    }
-  });
+  App.ContactController = Em.ObjectController.extend();
   
 });
 window.require.register("controllers/contactsController", function(exports, require, module) {
   App.ContactsController = Em.ArrayController.extend({
-    parentControllerBinding: 'App.Debtor',
     sortedColumn: (function() {
       var properties;
       properties = this.get('sortProperties');
@@ -125,7 +115,7 @@ window.require.register("controllers/contactsController", function(exports, requ
     columns: (function() {
       return [
         Em.Object.create({
-          column: 'number'
+          column: 'phone'
         }), Em.Object.create({
           column: 'extension'
         }), Em.Object.create({
@@ -276,6 +266,8 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('controllers/columnItemController');
 
+  require('controllers/contactController');
+
   require('controllers/contactsController');
 
   require('controllers/debtorController');
@@ -296,11 +288,17 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('routes/debtorsRoute');
 
+  require('routes/debtorRoute');
+
   require('templates/_well');
 
   require('templates/about');
 
   require('templates/application');
+
+  require('templates/contact/_edit');
+
+  require('templates/contact');
 
   require('templates/contacts');
 
@@ -327,7 +325,11 @@ window.require.register("initialize", function(exports, require, module) {
     });
     this.route('debtors');
     return this.resource('debtor', {
-      path: ':debtor_id'
+      path: '/debtor/:debtor_id'
+    }, function() {
+      return this.resource('contact', {
+        path: '/contact/:contact_id'
+      });
     });
   });
   
@@ -728,6 +730,90 @@ window.require.register("templates/application", function(exports, require, modu
     
   });module.exports = module.id;
 });
+window.require.register("templates/contact", function(exports, require, module) {
+  Ember.TEMPLATES["contact"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [3,'>= 1.0.0-rc.4'];
+  helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"span9\"><h2>Contact</h2>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "phone", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "extension", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/contact/_edit", function(exports, require, module) {
+  Ember.TEMPLATES["contact/_edit"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [3,'>= 1.0.0-rc.4'];
+  helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+    var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"span6\"><label>Type</label>");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("type")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("<label>Country</label>");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("country")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("<label>Phone</label>");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("phone")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("<label>Extension</label>");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("extension")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("<label>Score</label>");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("score")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("<label>Status</label>");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("status")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("<label>Source</label>");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("source")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("<label>Consent</label>");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("consent")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><button ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "donePhoneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Done</button></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
 window.require.register("templates/contacts", function(exports, require, module) {
   Ember.TEMPLATES["contacts"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
@@ -777,11 +863,13 @@ window.require.register("templates/contacts", function(exports, require, module)
 
   function program8(depth0,data) {
     
-    var buffer = '', hashTypes, hashContexts;
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
     data.buffer.push("<tr><td>");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "phone", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    options = {hash:{},inverse:self.program(4, program4, data),fn:self.program(9, program9, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    stack2 = ((stack1 = helpers.linkTo),stack1 ? stack1.call(depth0, "contact", "", options) : helperMissing.call(depth0, "linkTo", "contact", "", options));
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
     data.buffer.push("</td><td>");
     hashTypes = {};
     hashContexts = {};
@@ -805,8 +893,15 @@ window.require.register("templates/contacts", function(exports, require, module)
     data.buffer.push("</td></tr>");
     return buffer;
     }
+  function program9(depth0,data) {
+    
+    var hashTypes, hashContexts;
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "phone", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    }
 
-    data.buffer.push("<div class=\"row-fluid\"><table class=\"table\"><thead><tr>");
+    data.buffer.push("<div class=\"row-fluid\"><div class=\"span9\"><table class=\"table\"><thead><tr>");
     hashContexts = {'itemController': depth0};
     hashTypes = {'itemController': "STRING"};
     stack1 = helpers.each.call(depth0, "columns", {hash:{
@@ -818,7 +913,7 @@ window.require.register("templates/contacts", function(exports, require, module)
     hashContexts = {};
     stack1 = helpers.each.call(depth0, "controller", {hash:{},inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("</tbody></table></div>");
+    data.buffer.push("</tbody></table></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -895,6 +990,9 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashContexts = {};
     options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
     data.buffer.push(escapeExpression(((stack1 = helpers.render),stack1 ? stack1.call(depth0, "contacts", "contacts", options) : helperMissing.call(depth0, "render", "contacts", "contacts", options))));
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</div>");
     return buffer;
     
