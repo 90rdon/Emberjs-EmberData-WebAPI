@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using hunter_warfield.Core.Interfaces;
+
 namespace hunter_warfield.Core.Domain
 {
-    public class Person
+    public partial class Person : IIdentifier
     {
         public Int64 Id { get; set; }
 
-        public Int16 Relationship { get; set; }
+        public Int16? Relationship { get; set; }
 
         public string Title { get; set; }
 
@@ -28,13 +27,13 @@ namespace hunter_warfield.Core.Domain
 
         public string SSN { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public string ClaimNumber { get; set; }
 
-        public Int16 Country { get; set; }
+        public Int16? Country { get; set; }
 
         public string Address1 { get; set; }
 

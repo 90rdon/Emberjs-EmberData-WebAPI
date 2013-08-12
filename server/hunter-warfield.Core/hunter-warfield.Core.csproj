@@ -51,7 +51,11 @@
     <Compile Include="Domain\HistoricalDto.cs" />
     <Compile Include="Domain\Person.cs" />
     <Compile Include="Domain\PersonDto.cs" />
+    <Compile Include="Interfaces\ICreatedOn.cs" />
+    <Compile Include="Interfaces\IDataTransfer.cs" />
     <Compile Include="Interfaces\IGenericRepository.cs" />
+    <Compile Include="Interfaces\IIdentifier.cs" />
+    <Compile Include="Interfaces\IModifiedOn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

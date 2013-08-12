@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using hunter_warfield.Core.Interfaces;
+
 namespace hunter_warfield.Core.Domain
 {
-    public class Historical
+    public partial class Historical : IIdentifier
     {
         public Int64 Id { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime Time { get; set; }
 
-        public Int16 ActionCode { get; set; }
+        public Int16? ActionCode { get; set; }
 
-        public Int16 ResultCode { get; set; }
+        public Int16? ResultCode { get; set; }
 
         public Int64 User { get; set; }
 

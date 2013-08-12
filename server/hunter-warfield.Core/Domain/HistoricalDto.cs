@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using hunter_warfield.Core.Interfaces;
+
 namespace hunter_warfield.Core.Domain
 {
-    public class HistoricalDto
+    public partial class HistoricalDto : IDataTransfer<Historical>
     {
         public HistoricalDto() { }
 
         public HistoricalDto(Historical historical)
         {
+            if (historical == null) return;
             Id = historical.Id;
-            Date = historical.Date;
+            Time = historical.Time;
             ActionCode = historical.ActionCode;
             ResultCode = historical.ResultCode;
             User = historical.User;
@@ -26,11 +26,11 @@ namespace hunter_warfield.Core.Domain
         [Key]
         public Int64 Id { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime Time { get; set; }
 
-        public Int16 ActionCode { get; set; }
+        public Int16? ActionCode { get; set; }
 
-        public Int16 ResultCode { get; set; }
+        public Int16? ResultCode { get; set; }
 
         public Int64 User { get; set; }
 
@@ -43,7 +43,7 @@ namespace hunter_warfield.Core.Domain
             return new Historical
             {
                 Id = Id,
-                Date = Date,
+                Time = Time,
                 ActionCode = ActionCode,
                 ResultCode = ResultCode,
                 User = User,

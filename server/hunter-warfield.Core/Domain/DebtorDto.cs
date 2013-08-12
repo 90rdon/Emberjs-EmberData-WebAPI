@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using hunter_warfield.Core.Interfaces;
+
 namespace hunter_warfield.Core.Domain
 {
-    public class DebtorDto
+    public partial class DebtorDto : IDataTransfer<Debtor>
     {
         public DebtorDto() { }
 
         public DebtorDto(Debtor debtor)
         {
+            if (debtor == null) return;
             Id = debtor.Id;
             Type = debtor.Type;
             Title = debtor.Title;
@@ -39,6 +42,8 @@ namespace hunter_warfield.Core.Domain
             PIN = debtor.PIN;
             Contacts = new List<ContactDto>();
             Persons = new List<PersonDto>();
+            Employments = new List<EmploymentDto>();
+            Historicals = new List<HistoricalDto>();
             foreach (Contact contact in debtor.Contacts)
             {
                 Contacts.Add(new ContactDto(contact));
@@ -46,6 +51,14 @@ namespace hunter_warfield.Core.Domain
             foreach (Person person in debtor.Persons)
             {
                 Persons.Add(new PersonDto(person));
+            }
+            foreach (Employment employment in debtor.Employments)
+            {
+                Employments.Add(new EmploymentDto(employment));
+            }
+            foreach (Historical historical in debtor.Historicals)
+            {
+                Historicals.Add(new HistoricalDto(historical));
             }
         }
 

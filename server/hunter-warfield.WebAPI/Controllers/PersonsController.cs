@@ -5,8 +5,8 @@ using hunter_warfield.WebAPI.Helpers;
 
 namespace hunter_warfield.WebAPI.Controllers
 {
-    public class ContactsController : BaseApiController<Contact, ContactDto>
+    public class PersonsController : BaseApiController<Person, PersonDto>
     {
-        public ContactsController() { }
+        public PersonsController() { }
     }
 }

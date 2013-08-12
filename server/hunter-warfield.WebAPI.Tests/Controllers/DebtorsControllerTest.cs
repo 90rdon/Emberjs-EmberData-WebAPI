@@ -43,7 +43,7 @@ namespace hunter_warfield.server.Tests.Controllers
             DebtorsController controller = new DebtorsController();
 
             // Act
-            var result = controller.GetDebtors();
+            var result = controller.Get();
 
             // Assert
             Assert.IsNotNull(result);
@@ -56,7 +56,7 @@ namespace hunter_warfield.server.Tests.Controllers
             DebtorsController controller = new DebtorsController();
 
             // Act
-            var result = controller.GetDebtor(id);
+            var result = controller.Get(id);
 
             // Assert
             Assert.AreEqual(first, result.FirstName);
@@ -87,37 +87,37 @@ namespace hunter_warfield.server.Tests.Controllers
             SetupControllerForTests(controller);
 
             // Act
-            var debtor = controller.GetDebtor(id);
+            var debtor = controller.Get(id);
 
             string middleName = debtor.MiddleName;
             debtor.MiddleName = "Test";
 
-            controller.PutDebtor(id, debtor);
+            controller.Put(debtor);
             debtor = null;
 
             // Assert
-            var result = controller.GetDebtor(id);
+            var result = controller.Get(id);
             Assert.AreEqual("Test", result.MiddleName);
 
             result.MiddleName = middleName;
-            controller.PutDebtor(id, result);
+            controller.Put(result);
             result = null;
 
-            debtor = controller.GetDebtor(id);
+            debtor = controller.Get(id);
             Assert.AreEqual(middleName, debtor.MiddleName);
         }
 
-        [TestMethod]
-        public void Delete()
-        {
-            // Arrange
-            DebtorsController controller = new DebtorsController();
+        //[TestMethod]
+        //public void Delete()
+        //{
+        //    // Arrange
+        //    DebtorsController controller = new DebtorsController();
 
-            // Act
-            //controller.DeleteDebtor(5);
+        //    // Act
+        //    //controller.DeleteDebtor(5);
 
-            // Assert
-            Assert.IsTrue(true);
-        }
+        //    // Assert
+        //    Assert.IsTrue(true);
+        //}
     }
 }

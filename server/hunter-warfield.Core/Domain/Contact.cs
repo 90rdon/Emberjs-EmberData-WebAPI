@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using hunter_warfield.Core.Interfaces;
+
 namespace hunter_warfield.Core.Domain
 {
-    public class Contact
+    public partial class Contact : IIdentifier
     {
         public Int64 Id { get; set; }
 

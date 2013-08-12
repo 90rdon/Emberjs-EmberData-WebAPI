@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="Controllers\DebtorsControllerTest.cs" />
     <Compile Include="Controllers\ContactsControllerTest.cs" />
+    <Compile Include="Controllers\PersonsControllerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

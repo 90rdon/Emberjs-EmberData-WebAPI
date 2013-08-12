@@ -17,7 +17,6 @@ namespace hunter_warfield.Data.Configurations
 
             this.Property(p => p.Id).HasColumnName("cnsmr_phn_id");
             this.Property(p => p.Type).HasColumnName("cnsmr_phn_typ_cd");
-            this.Property(p => p.DebtorId).HasColumnName("cnsmr_id");
             this.Property(p => p.Country).HasColumnName("cnsmr_phn_cntry_cd");
             this.Property(p => p.Phone).HasColumnName("cnsmr_phn_nmbr_txt");
             this.Property(p => p.Extension).HasColumnName("cnsmr_phn_xtnsn_txt");
@@ -25,23 +24,24 @@ namespace hunter_warfield.Data.Configurations
             this.Property(p => p.Status).HasColumnName("cnsmr_phn_stts_cd");
             this.Property(p => p.Source).HasColumnName("cnsmr_phn_src_cd");
             this.Property(p => p.Consent).HasColumnName("cnsmr_phn_cnsnt_flg");
+            this.Property(p => p.DebtorId).HasColumnName("cnsmr_id");
 
-            this.Map(cnsmr =>
+            this.Map(cnsmr_Phn =>
                 {
-                    cnsmr.Properties(p => new
+                    cnsmr_Phn.Properties(p => new
                     {
                         p.Id,
                         p.Type,
-                        p.DebtorId,
                         p.Country,
                         p.Phone,
                         p.Extension,
                         p.Score,
                         p.Status,
                         p.Source,
-                        p.Consent
+                        p.Consent,
+                        p.DebtorId
                     });
-                    cnsmr.ToTable("cnsmr_Phn");
+                    cnsmr_Phn.ToTable("cnsmr_Phn");
                 });
         }
     }

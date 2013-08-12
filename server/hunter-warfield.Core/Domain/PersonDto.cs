@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using hunter_warfield.Core.Interfaces;
+
 namespace hunter_warfield.Core.Domain
 {
-    public class PersonDto
+    public partial class PersonDto : IDataTransfer<Person>
     {
         public PersonDto() { }
 
         public PersonDto(Person person)
         {
+            if (person == null) return;
             Id = person.Id;
             Relationship = person.Relationship;
             Title = person.Title;
@@ -40,7 +40,7 @@ namespace hunter_warfield.Core.Domain
         [Key]
         public Int64 Id { get; set; }
 
-        public Int16 Relationship { get; set; }
+        public Int16? Relationship { get; set; }
 
         public string Title { get; set; }
 
@@ -56,13 +56,13 @@ namespace hunter_warfield.Core.Domain
 
         public string SSN { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public string ClaimNumber { get; set; }
 
-        public Int16 Country { get; set; }
+        public Int16? Country { get; set; }
 
         public string Address1 { get; set; }
 

@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using hunter_warfield.Core.Interfaces;
+
 namespace hunter_warfield.Core.Domain
 {
-    public class EmploymentDto
+    public partial class EmploymentDto : IDataTransfer<Employment>
     {
         public EmploymentDto() { }
 
         public EmploymentDto(Employment employment)
         {
+            if (employment == null) return;
             Id = employment.Id;
             Relationship = employment.Relationship;
             Name = employment.Name;
@@ -42,7 +42,7 @@ namespace hunter_warfield.Core.Domain
         [Key]
         public Int64 Id { get; set; }
 
-        public Int16 Relationship { get; set; }
+        public Int16? Relationship { get; set; }
 
         public string Name { get; set; }
 
@@ -50,17 +50,17 @@ namespace hunter_warfield.Core.Domain
 
         public string Position { get; set; }
 
-        public DateTime HireDate { get; set; }
+        public DateTime? HireDate { get; set; }
 
         public string Phone { get; set; }
 
         public string Website { get; set; }
 
-        public Int16 Status { get; set; }
+        public Int16? Status { get; set; }
 
-        public Int16 Source { get; set; }
+        public Int16? Source { get; set; }
 
-        public Int16 Country { get; set; }
+        public Int16? Country { get; set; }
 
         public string Address1 { get; set; }
 
@@ -78,7 +78,7 @@ namespace hunter_warfield.Core.Domain
 
         public string JobTitle { get; set; }
 
-        public DateTime TerminationDate { get; set; }
+        public DateTime? TerminationDate { get; set; }
 
         public decimal YearlyIncome { get; set; }
 

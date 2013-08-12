@@ -6,14 +6,17 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using hunter_warfield.Core.Interfaces;
+
 namespace hunter_warfield.Core.Domain
 {
-    public class ContactDto
+    public partial class ContactDto : IDataTransfer<Contact>
     {
         public ContactDto() { }
 
         public ContactDto(Contact contact)
         {
+            if (contact == null) return;
             Id = contact.Id;
             Type = contact.Type;
             Country = contact.Country;

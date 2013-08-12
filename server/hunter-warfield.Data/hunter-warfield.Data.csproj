@@ -47,10 +47,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configurations\ContactConfiguration.cs" />
+    <Compile Include="Configurations\HistoricalConfiguration.cs" />
+    <Compile Include="Configurations\EmploymentConfiguration.cs" />
+    <Compile Include="Configurations\PersonConfiguration.cs" />
     <Compile Include="Configurations\DebtorConfiguration.cs" />
     <Compile Include="Contexts\hwiContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\GenericRepositories.cs" />
+    <Compile Include="Repositories\EFRepositories.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
