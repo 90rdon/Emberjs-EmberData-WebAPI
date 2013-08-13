@@ -12,11 +12,16 @@ require 'helpers/radioButton'
 #/////////////////////////////////
 
 require 'controllers/columnItemController'
+# require 'controllers/columnSorterController'
 require 'controllers/contactController'
-# require 'controllers/contactEditController'
 require 'controllers/contactsController'
 require 'controllers/debtorController'
 require 'controllers/debtorsController'
+require 'controllers/personsController'
+require 'controllers/personController'
+require 'controllers/employmentController'
+require 'controllers/employmentsController'
+require 'controllers/historicalsController'
 
 #//////////////////////////////////
 #// Models
@@ -25,8 +30,8 @@ require 'controllers/debtorsController'
 require 'models/contact'
 require 'models/debtor'
 require 'models/employment'
-require 'models/historicalEvent'
-require 'models/relatedPerson'
+require 'models/historical'
+require 'models/person'
 
 #/////////////////////////////////
 #// Routes
@@ -34,7 +39,6 @@ require 'models/relatedPerson'
 
 require 'routes/indexRoute'
 require 'routes/debtorsRoute'
-require 'routes/debtorRoute'
 
 #//////////////////////////////////
 #// Templates
@@ -50,6 +54,14 @@ require 'templates/debtor/_edit'
 require 'templates/debtor'
 require 'templates/debtors'
 require 'templates/index'
+require 'templates/person/_edit'
+require 'templates/person'
+require 'templates/persons'
+require 'templates/employment/_edit'
+require 'templates/employment'
+require 'templates/employments'
+require 'templates/historical'
+require 'templates/historicals'
 
 #/////////////////////////////////
 #// Views
@@ -75,11 +87,13 @@ require 'store/RESTfulAdapter'
 # )
 
 App.Router.map ->
-  @route          'about', path: '/about'
-  @route          'index', path: '/'
+  @route          'index',      path: '/'
   @route          'debtors'
-  @resource       'debtor', path: '/debtor/:debtor_id', ->
-    @resource     'contact', path: '/contact/:contact_id'
+  @resource       'debtor',     path: '/debtor/:debtor_id', ->
+    @resource     'contact',    path: '/contact/:contact_id',
+    @resource     'person',     path: '/person/:person_id',
+    @resource     'employment', path: '/employment/:employment_id'
+    @resource     'historical', path: '/historical/:historical_id'
 
 
 

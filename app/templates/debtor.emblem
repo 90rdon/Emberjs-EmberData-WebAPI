@@ -6,24 +6,31 @@
     else
       button{action 'edit'} Edit
 
-    h2
-      =title
-      |  
-      =fullName
-    h4 =ssn
-    hr
-    .intro
-      h5 Address
-      =address1
-      br
-      =city
-      |, 
-      =state
-      |  
-      =zip
-      h5 Email
-      =email
+    .span4
+      address
+        h2
+          =title
+          |  
+          =name
+        h4 =ssn
+        hr
+        .intro
+          h5 Address
+          =address1
+          br
+          =city
+          |, 
+          =state
+          |  
+          =zip
+          h5 Email
+          =email
 
-  render 'contacts' contacts
+  .row-fluid
+    .span12
+      render 'contacts'     contacts
+      render 'persons'      persons
+      render 'employments'  employments
+      render 'historicals'  historicals
 
   outlet

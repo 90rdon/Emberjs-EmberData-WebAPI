@@ -1,5 +1,6 @@
-.container-fluid
-  .row-fluid
+.row-fluid
+  .span9
+    h4 Historical Events
     table.table
       thead
         tr
@@ -15,21 +16,15 @@
         each controller
           tr
             td
-              linkTo 'debtor' this
-                =id
+              linkTo 'historical' this
+                date time
             td
-              =firstName
+              =actionCode
             td
-              =middleName
+              =resultCode
             td
-              =lastName
+              =user
             td
-              =address1
-            td
-              =address2
-            td
-              =city
-            td
-              =state
-            td
-              =zip
+              summarize message
+
+    hr

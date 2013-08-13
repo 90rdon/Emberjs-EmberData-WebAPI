@@ -1,11 +1,10 @@
-App.ContactsController = Em.ArrayController.extend
+App.HistoricalsController = Em.ArrayController.extend
   columns: (-> [
-    Em.Object.create(column: 'phone')
-    Em.Object.create(column: 'extension')
-    Em.Object.create(column: 'type')
-    Em.Object.create(column: 'score')
-    Em.Object.create(column: 'source')
-    Em.Object.create(column: 'status')
+    Em.Object.create(column: 'time')
+    Em.Object.create(column: 'actionCode')
+    Em.Object.create(column: 'resultCode')
+    Em.Object.create(column: 'user')
+    Em.Object.create(column: 'message')
   ]).property()
 
   sortedColumn: (->

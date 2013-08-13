@@ -1,0 +1,12 @@
+.modal
+  h2
+    =user
+  h4 =date time
+  hr
+  .intro
+    h5 
+      | Action Code 
+      =actionCode
+    br
+    h5 Result Code
+    =resultCode

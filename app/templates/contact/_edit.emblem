@@ -17,4 +17,4 @@
     label Consent
     view Em.TextField valueBinding='consent'
 
-  button{action 'donePhoneEditing'} Done
+  button{action 'doneEditing'} Done

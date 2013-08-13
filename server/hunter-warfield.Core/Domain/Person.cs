@@ -49,6 +49,8 @@ namespace hunter_warfield.Core.Domain
 
         public string County { get; set; }
 
+        public string Phone { get; set; }
+
         [ForeignKey("Debtor")]
         public Int64 DebtorId { get; set; }
         public virtual Debtor Debtor { get; set; }

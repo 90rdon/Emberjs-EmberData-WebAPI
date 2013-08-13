@@ -1,5 +1,6 @@
-.container-fluid
-  .row-fluid
+.row-fluid
+  .span9
+    h4 Related Persons
     table.table
       thead
         tr
@@ -15,21 +16,17 @@
         each controller
           tr
             td
-              linkTo 'debtor' this
-                =id
+              linkTo 'person' this
+                =firstName
             td
-              =firstName
+              =relationship
             td
-              =middleName
-            td
-              =lastName
-            td
-              =address1
-            td
-              =address2
+              =phone
             td
               =city
             td
               =state
             td
-              =zip
+              =comment
+
+    hr

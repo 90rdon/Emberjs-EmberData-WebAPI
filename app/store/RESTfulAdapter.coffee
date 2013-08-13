@@ -9,7 +9,10 @@ App.Store = DS.Store.extend
       string + 's'
 
 DS.WebAPIAdapter.map 'App.Debtor',
-  contacts: embedded: 'load'
+  contacts:     embedded: 'load'
+  persons:      embedded: 'load'
+  employments:  embedded: 'load'
+  historicals:  embedded: 'load'
 
 DS.WebAPIAdapter.configure 'App.Debtor',
     sideloadAs: 'debtor',
@@ -17,4 +20,16 @@ DS.WebAPIAdapter.configure 'App.Debtor',
 
 DS.WebAPIAdapter.configure 'App.Contact',
     sideloadAs: 'contact',
+    primaryKey: 'id'
+
+DS.WebAPIAdapter.configure 'App.Person',
+    sideloadAs: 'person',
+    primaryKey: 'id'
+
+DS.WebAPIAdapter.configure 'App.Employment',
+    sideloadAs: 'employment',
+    primaryKey: 'id'
+
+DS.WebAPIAdapter.configure 'App.Historical',
+    sideloadAs: 'historical',
     primaryKey: 'id'

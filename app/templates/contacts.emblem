@@ -1,5 +1,6 @@
 .row-fluid
   .span9
+    h4 Contact Phone Records
     table.table
       thead
         tr
@@ -27,3 +28,4 @@
               =source
             td
               =status
+    hr

@@ -1,13 +1,4 @@
-App.ContactsController = Em.ArrayController.extend
-  columns: (-> [
-    Em.Object.create(column: 'phone')
-    Em.Object.create(column: 'extension')
-    Em.Object.create(column: 'type')
-    Em.Object.create(column: 'score')
-    Em.Object.create(column: 'source')
-    Em.Object.create(column: 'status')
-  ]).property()
-
+App.ColumnSorterController = Em.ArrayController.extend
   sortedColumn: (->
     properties = @get('sortProperties')
     return 'undefined'  unless properties

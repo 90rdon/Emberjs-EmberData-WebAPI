@@ -34,6 +34,8 @@ namespace hunter_warfield.Core.Domain
             State = person.State;
             Zip = person.Zip;
             County = person.County;
+            Phone = person.Phone;
+
             DebtorId = person.DebtorId;
         }
 
@@ -78,6 +80,8 @@ namespace hunter_warfield.Core.Domain
 
         public string County { get; set; }
 
+        public string Phone { get; set; }
+
         public Int64 DebtorId { get; set; }
 
         public Person ToEntity()
@@ -104,6 +108,7 @@ namespace hunter_warfield.Core.Domain
                 State = State,
                 Zip = Zip,
                 County = County,
+                Phone = Phone,
                 DebtorId = DebtorId
             };
         }

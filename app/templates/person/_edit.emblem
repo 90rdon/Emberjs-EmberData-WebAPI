@@ -1,7 +1,7 @@
 .modal
   .span6
-    label Type
-    view Em.TextField valueBinding='type'
+    label Relationship
+    view Em.TextField valueBinding='relationship'
     label Title
     view Em.TextField valueBinding='title'
     label Last Name
@@ -16,19 +16,14 @@
     view Em.TextField valueBinding='dob'
     label SSN
     view Em.TextField valueBinding='ssn'
-    label Marital Status
-    view Em.TextField valueBinding='maritalStatus'
-    label Email
-    view Em.TextField valueBinding='email'
-    label Email Validity
-    / .span
-    /   view Ember.RadioButton name='emailvalidity' selectionBinding='emailValidity' value='true' | Valid
-    /   view Ember.RadioButton name='emailvalidity' selectionBinding='emailValidity' value='false' | Invalid
-    view Em.TextField valueBinding='emailValidity'
-    label Opted-In
-    view Em.TextField valueBinding='optIn'
-    label Commerical Contact
-    view Em.TextField valueBinding='contact'
+    label Relationship Start Date
+    view Em.TextField valueBinding='startDate'
+    label Releationship End Date
+    view Em.TextField valueBinding='endDate'
+    label Claim Number
+    view Em.TextField valueBinding='claimNumber'
+    label Phone
+    view Em.TextField valueBinding='phone'
 
   .span6
     label Country
@@ -47,13 +42,5 @@
     view Em.TextField valueBinding='zip'
     label County
     view Em.TextField valueBinding='county'
-    label Driver License Issuer
-    view Em.TextField valueBinding='dlIssuer'
-    label Driver License Number
-    view Em.TextField valueBinding='dlNumber'
-    label Passport
-    view Em.TextField valueBinding='passport'
-    label PIN
-    view Em.TextField valueBinding='pin'
 
   button{action 'doneEditing'} Done

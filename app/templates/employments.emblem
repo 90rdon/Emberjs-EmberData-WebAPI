@@ -1,5 +1,6 @@
-.container-fluid
-  .row-fluid
+.row-fluid
+  .span9
+    h4 Employment Records
     table.table
       thead
         tr
@@ -15,21 +16,17 @@
         each controller
           tr
             td
-              linkTo 'debtor' this
-                =id
+              linkTo 'employment' this
+                =name
             td
-              =firstName
+              =status
             td
-              =middleName
+              =source
             td
-              =lastName
+              =phone
             td
-              =address1
+              =title
             td
-              =address2
-            td
-              =city
-            td
-              =state
-            td
-              =zip
+              =hireDate
+
+    hr

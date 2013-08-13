@@ -19,3 +19,9 @@ Em.Handlebars.helper 'date', (value, options) ->
 Em.Handlebars.helper 'currency', (value, options) ->
   escaped = Handlebars.Utils.escapeExpression('$' + value.toFixed(2))
   new Handlebars.SafeString(escaped)
+
+Em.Handlebars.helper 'summarize', (value, oprions) ->
+  value = value.substr(0, 255) + '...'
+
+  escaped = Handlebars.Utils.escapeExpression(value)
+  new Handlebars.SafeString(escaped)

@@ -1,5 +1,5 @@
 App.DebtorController = Em.ObjectController.extend
-  fullName: (->
+  name: (->
     first   = @get('firstName') || ''
     middle  = @get('middleName') || ''
     last    = @get('lastName') || ''

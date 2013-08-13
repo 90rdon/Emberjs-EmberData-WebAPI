@@ -1,0 +1,48 @@
+.modal
+  .span6
+    label Relationship
+    view Em.TextField valueBinding='relationship'
+    label Employment Name
+    view Em.TextField valueBinding='name'
+    label Position
+    view Em.TextField valueBinding='position'
+    label Hire Date
+    view Em.TextField valueBinding='hireDate'
+    label Termination Date
+    view Em.TextField valueBinding='terminationDate'
+    label Phone
+    view Em.TextField valueBinding='phone'
+    label WebSite
+    view Em.TextField valueBinding='website'
+    label Status
+    view Em.TextField valueBinding='status'
+    label Source
+    view Em.TextField valueBinding='source'
+    label Job Title
+    view Em.TextField valueBinding='jobTitle'
+    label Yearly Income
+    view Em.TextField valueBinding='yearlyIncome'
+    label Monthly Gross Income
+    view Em.TextField valueBinding='monthlyGrossIncome'
+    label Monthly Net Income
+    view Em.TextField valueBinding='monthlyNetIncome'
+
+  .span6
+    label Country
+    view Em.TextField valueBinding='country'
+    label Address1
+    view Em.TextField valueBinding='address1'
+    label Address2
+    view Em.TextField valueBinding='address2'
+    label Address3
+    view Em.TextField valueBinding='address3'
+    label City
+    view Em.TextField valueBinding='city'
+    label State
+    view Em.TextField valueBinding='state'
+    label Zip Code
+    view Em.TextField valueBinding='zip'
+    label County
+    view Em.TextField valueBinding='county'
+
+  button{action 'doneEditing'} Done

@@ -1,11 +1,11 @@
-App.ContactsController = Em.ArrayController.extend
+App.EmploymentsController = Em.ArrayController.extend
   columns: (-> [
-    Em.Object.create(column: 'phone')
-    Em.Object.create(column: 'extension')
-    Em.Object.create(column: 'type')
-    Em.Object.create(column: 'score')
-    Em.Object.create(column: 'source')
+    Em.Object.create(column: 'name')
     Em.Object.create(column: 'status')
+    Em.Object.create(column: 'source')
+    Em.Object.create(column: 'phone')
+    Em.Object.create(column: 'title')
+    Em.Object.create(column: 'hireDate')
   ]).property()
 
   sortedColumn: (->

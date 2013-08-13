@@ -28,5 +28,6 @@ App.Debtor = DS.Model.extend
   pin:								DS.attr	'string'
 
   contacts: 					DS.hasMany 'App.Contact'
-  # relatedPerson:      DS.hasMany    'App.RelatedPerson'
-  # employment:         DS.hasMany    'App.Employment'
+  persons:            DS.hasMany 'App.Person'
+  employments:        DS.hasMany 'App.Employment'
+  historicals:        DS.hasMany 'App.Historical'

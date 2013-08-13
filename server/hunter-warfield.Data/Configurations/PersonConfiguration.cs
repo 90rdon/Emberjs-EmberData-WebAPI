@@ -36,6 +36,7 @@ namespace hunter_warfield.Data.Configurations
             this.Property(p => p.Zip).HasColumnName("rltd_prsn_addrss_pstl_cd_txt");
             this.Property(p => p.County).HasColumnName("rltd_prsn_addrss_cnty_txt");
             this.Property(p => p.DebtorId).HasColumnName("cnsmr_id");
+            this.Property(p => p.Phone).HasColumnName("rltd_prsn_phn_nmbr_home_txt");
 
             this.Map(prsn =>
                 {
@@ -61,7 +62,8 @@ namespace hunter_warfield.Data.Configurations
                         p.State,
                         p.Zip,
                         p.County,
-                        p.DebtorId
+                        p.DebtorId,
+                        p.Phone
                     });
                     prsn.ToTable("Rltd_Prsn");
                 });
