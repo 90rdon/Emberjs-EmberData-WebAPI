@@ -282,6 +282,14 @@ window.require.register("controllers/employmentsController", function(exports, r
   });
   
 });
+window.require.register("controllers/historicalController", function(exports, require, module) {
+  App.HistoricalController = Em.ObjectController.extend({
+    close: function() {
+      return this.transitionToRoute('debtor');
+    }
+  });
+  
+});
 window.require.register("controllers/historicalsController", function(exports, require, module) {
   App.HistoricalsController = Em.ArrayController.extend({
     columns: (function() {
@@ -444,6 +452,8 @@ window.require.register("initialize", function(exports, require, module) {
   require('controllers/employmentController');
 
   require('controllers/employmentsController');
+
+  require('controllers/historicalController');
 
   require('controllers/historicalsController');
 
@@ -970,7 +980,7 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
     var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"span6\"><label>Type</label>");
+    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\"><label>Type</label>");
     hashContexts = {'valueBinding': depth0};
     hashTypes = {'valueBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
@@ -1018,11 +1028,11 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("consent")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><button ");
+    data.buffer.push("<button ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</button></div>");
+    data.buffer.push(">Done</button></div></div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -1231,7 +1241,7 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
     var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"span6\"><label>Type</label>");
+    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\"><label>Type</label>");
     hashContexts = {'valueBinding': depth0};
     hashTypes = {'valueBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
@@ -1385,7 +1395,7 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</button></div>");
+    data.buffer.push(">Done</button></div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -1489,7 +1499,7 @@ window.require.register("templates/debtors", function(exports, require, module) 
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "id", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     }
 
-    data.buffer.push("<div class=\"container-fluid\"><div class=\"row-fluid\"><table class=\"table\"><thead><tr>");
+    data.buffer.push("<div class=\"container-fluid\"><div class=\"row-fluid\"><table class=\"table table-striped\"><thead><tr>");
     hashContexts = {'itemController': depth0};
     hashTypes = {'itemController': "STRING"};
     stack1 = helpers.each.call(depth0, "columns", {hash:{
@@ -1530,7 +1540,7 @@ window.require.register("templates/employment/_edit", function(exports, require,
     var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"span6\"><label>Relationship</label>");
+    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\"><label>Relationship</label>");
     hashContexts = {'valueBinding': depth0};
     hashTypes = {'valueBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
@@ -1660,7 +1670,7 @@ window.require.register("templates/employment/_edit", function(exports, require,
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</button></div>");
+    data.buffer.push(">Done</button></div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -1776,24 +1786,32 @@ window.require.register("templates/historical", function(exports, require, modul
     var buffer = '', stack1, hashTypes, hashContexts, options, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
-    data.buffer.push("<div class=\"modal\"><h2>");
+    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span9\"><div class=\"span3\"><h2>");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "user", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</h2><h4>");
+    data.buffer.push("</h2></div><div class=\"span3\"><h4>");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
     data.buffer.push(escapeExpression(((stack1 = helpers.date),stack1 ? stack1.call(depth0, "time", options) : helperMissing.call(depth0, "date", "time", options))));
-    data.buffer.push("</h4><hr /><div class=\"intro\"><h5>Action Code ");
+    data.buffer.push("</h4></div><div class=\"intro\"><div class=\"span3\"><h5>Action Code ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "actionCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</h5><br /><h5>Result Code</h5>");
+    data.buffer.push("</h5></div><div class=\"span3\"><h5>Result Code ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "resultCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></div>");
+    data.buffer.push("</h5></div></div></div></div><hr /><dl class=\"dl-horizontal\"><dt>Message</dt><dd>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "message", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</dd></dl><button ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "close", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Close</button></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -1935,7 +1953,7 @@ window.require.register("templates/person/_edit", function(exports, require, mod
     var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"span6\"><label>Relationship</label>");
+    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\"><label>Relationship</label>");
     hashContexts = {'valueBinding': depth0};
     hashTypes = {'valueBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
@@ -2059,7 +2077,7 @@ window.require.register("templates/person/_edit", function(exports, require, mod
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</button></div>");
+    data.buffer.push(">Done</button></div></div></div>");
     return buffer;
     
   });module.exports = module.id;

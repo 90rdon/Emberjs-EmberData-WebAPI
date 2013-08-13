@@ -1,20 +1,22 @@
 .modal
-  .span6
-    label Type
-    view Em.TextField valueBinding='type'
-    label Country
-    view Em.TextField valueBinding='country'
-    label Phone
-    view Em.TextField valueBinding='phone'
-    label Extension
-    view Em.TextField valueBinding='extension'
-    label Score
-    view Em.TextField valueBinding='score'
-    label Status
-    view Em.TextField valueBinding='status'
-    label Source
-    view Em.TextField valueBinding='source'
-    label Consent
-    view Em.TextField valueBinding='consent'
+  .container-fluid
+    .row-fluid
+      .span6
+        label Type
+        view Em.TextField valueBinding='type'
+        label Country
+        view Em.TextField valueBinding='country'
+        label Phone
+        view Em.TextField valueBinding='phone'
+        label Extension
+        view Em.TextField valueBinding='extension'
+        label Score
+        view Em.TextField valueBinding='score'
+        label Status
+        view Em.TextField valueBinding='status'
+        label Source
+        view Em.TextField valueBinding='source'
+        label Consent
+        view Em.TextField valueBinding='consent'
 
-  button{action 'doneEditing'} Done
+        button{action 'doneEditing'} Done

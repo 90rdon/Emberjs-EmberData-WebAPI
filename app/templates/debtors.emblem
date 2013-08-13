@@ -1,6 +1,6 @@
 .container-fluid
   .row-fluid
-    table.table
+    table.table.table-striped
       thead
         tr
           each columns itemController="columnItem"

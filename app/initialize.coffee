@@ -21,6 +21,7 @@ require 'controllers/personsController'
 require 'controllers/personController'
 require 'controllers/employmentController'
 require 'controllers/employmentsController'
+require 'controllers/historicalController'
 require 'controllers/historicalsController'
 
 #//////////////////////////////////
