@@ -37,7 +37,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Get()
+        public void GetDebtorsDto()
         {
             // Arrange
             DebtorsController controller = new DebtorsController();
@@ -50,7 +50,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void GetById()
+        public void GetDebtorsById()
         {
             // Arrange
             DebtorsController controller = new DebtorsController();
@@ -64,7 +64,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Post()
+        public void PostDebtors()
         {
             // Arrange
             //DebtorsController controller = new DebtorsController();
@@ -80,7 +80,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Put()
+        public void PutDebtors()
         {
             // Arrange
             DebtorsController controller = new DebtorsController();
@@ -108,7 +108,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         //[TestMethod]
-        //public void Delete()
+        //public void DeleteDebtors()
         //{
         //    // Arrange
         //    DebtorsController controller = new DebtorsController();

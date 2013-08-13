@@ -37,7 +37,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Get()
+        public void GetPersons()
         {
             // Arrange
             PersonsController controller = new PersonsController();
@@ -50,7 +50,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void GetById()
+        public void GetPersonsById()
         {
             // Arrange
             PersonsController controller = new PersonsController();
@@ -64,7 +64,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Post()
+        public void PostPersons()
         {
             // Arrange
             PersonsController controller = new PersonsController();
@@ -82,7 +82,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Put()
+        public void PutPersons()
         {
             //// Arrange
             //PersonsController controller = new PersonsController();
@@ -111,7 +111,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Delete()
+        public void DeletePersons()
         {
             // Arrange
             PersonsController controller = new PersonsController();

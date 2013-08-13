@@ -36,7 +36,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Get()
+        public void GetContactsDto()
         {
             // Arrange
             ContactsController controller = new ContactsController();
@@ -49,7 +49,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void GetById()
+        public void GetContactsDtoById()
         {
             // Arrange
             ContactsController controller = new ContactsController();
@@ -62,7 +62,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Post()
+        public void PostContactsDto()
         {
             // Arrange
             ContactsController controller = new ContactsController();
@@ -80,7 +80,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Put()
+        public void PutContactsDto()
         {
             // Arrange
             ContactsController controller = new ContactsController();
@@ -108,7 +108,7 @@ namespace hunter_warfield.server.Tests.Controllers
         }
 
         [TestMethod]
-        public void Delete()
+        public void DeleteContactsDto()
         {
             // Arrange
             ContactsController controller = new ContactsController();
