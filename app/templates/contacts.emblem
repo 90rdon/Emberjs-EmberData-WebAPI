@@ -22,10 +22,10 @@
               =extension
             td
               =type
-            td
-              =score
-            td
-              =source
-            td
-              =status
+            / td
+            /   =score
+            / td
+            /   =source
+            / td
+            /   =status
     hr

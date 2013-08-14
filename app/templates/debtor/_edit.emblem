@@ -3,25 +3,25 @@
     .row-fluid
       .span6
         label Type
-        view Em.TextField valueBinding='type' 
+        view  Em.Select    contentBinding='App.ConsumerFlagsController' optionLabelPath='content.type' optionValuePath='content.id' selectionBinding='selectedType'
         label Title
-        view Em.TextField valueBinding='title'
+        view  Em.TextField valueBinding='title'
         label Last Name
-        view Em.TextField valueBinding='lastName'
+        view  Em.TextField valueBinding='lastName'
         label First Name
-        view Em.TextField valueBinding='firstName'
+        view  Em.TextField valueBinding='firstName'
         label Middle Name
-        view Em.TextField valueBinding='middleName'
+        view  Em.TextField valueBinding='middleName'
         label Suffix
-        view Em.TextField valueBinding='suffix'
+        view  Em.TextField valueBinding='suffix'
         label Date of Birth
-        view Em.TextField valueBinding='dob'
+        view  Em.TextField valueBinding='dob'
         label SSN
-        view Em.TextField valueBinding='ssn'
+        view  Em.TextField valueBinding='ssn'
         label Marital Status
-        view Em.TextField valueBinding='maritalStatus'
+        view  Em.TextField valueBinding='maritalStatus'
         label Email
-        view Em.TextField valueBinding='email'
+        view  Em.TextField valueBinding='email'
         label Email Validity
         / .span
         /   view Ember.RadioButton name='emailvalidity' selectionBinding='emailValidity' value='true' | Valid

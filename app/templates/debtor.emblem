@@ -5,32 +5,39 @@
       partial 'debtor/edit'
     else
       button{action 'edit'} Edit
+    .span12
+      .span4
+        address
+          h2
+            =title
+            |  
+            =name
+          h4 =ssn
+          hr
+          .intro
+            h5 Address
+            =address1
+            br
+            =city
+            |, 
+            =state
+            |  
+            =zip
+            h5 Email
+            =email
 
-    .span4
-      address
-        h2
-          =title
-          |  
-          =name
-        h4 =ssn
-        hr
-        .intro
-          h5 Address
-          =address1
-          br
-          =city
-          |, 
-          =state
-          |  
-          =zip
-          h5 Email
-          =email
+      .span8
+        render 'contacts'     contacts
+
+  hr
 
   .row-fluid
     .span12
-      render 'contacts'     contacts
-      render 'persons'      persons
-      render 'employments'  employments
+      / render 'contacts'     contacts
+      .span6
+        render 'persons'      persons
+      .span6
+        render 'employments'  employments
       render 'historicals'  historicals
 
   outlet

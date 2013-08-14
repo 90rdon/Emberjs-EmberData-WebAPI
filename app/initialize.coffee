@@ -24,6 +24,8 @@ require 'controllers/employmentsController'
 require 'controllers/historicalController'
 require 'controllers/historicalsController'
 
+require 'controllers/lookupDataController'
+
 #//////////////////////////////////
 #// Models
 #//////////////////////////////////

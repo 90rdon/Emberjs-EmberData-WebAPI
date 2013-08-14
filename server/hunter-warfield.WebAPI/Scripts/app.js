@@ -174,20 +174,23 @@ window.require.register("controllers/debtorController", function(exports, requir
       middle = this.get('middleName') || '';
       last = this.get('lastName') || '';
       return first + ' ' + middle + ' ' + last;
-    }).property('firstName', 'lastName', 'middleName'),
+    }).property('firstName', 'lastName', 'middleName', 'type'),
     isEditing: false,
     emailv: false,
     doneEditing: function() {
       this.set('isEditing', false);
+      this.set('type', this.get('selectedType.id'));
       return this.get('store').commit();
     },
     edit: function() {
-      return this.set('isEditing', true);
+      this.set('isEditing', true);
+      return this.set('selectedType', App.ConsumerFlagsController.findProperty('id', this.get('type')));
     },
     back: function() {
       this.set('isEditing', false);
       return this.transitionToRoute('debtors');
-    }
+    },
+    selectedType: null
   });
   
 });
@@ -326,6 +329,35 @@ window.require.register("controllers/historicalsController", function(exports, r
   });
   
 });
+window.require.register("controllers/lookupDataController", function(exports, require, module) {
+  App.ConsumerFlagsController = Em.ArrayController.create({
+    content: [
+      Em.Object.create({
+        id: 'N',
+        type: 'Consumer'
+      }), Em.Object.create({
+        id: 'Y',
+        type: 'Commerical'
+      })
+    ]
+  });
+
+  App.TitlesController = Em.ArrayController.create({
+    selected: null,
+    content: [
+      Em.Object.create({
+        title: ''
+      })
+    ],
+    getObjectById: function(id) {
+      return this.get('content').filterProperty('id', id).get('firstObject');
+    },
+    setSelectedById: function(id) {
+      return this.set('selected', this.getObjectById(id));
+    }
+  });
+  
+});
 window.require.register("controllers/personController", function(exports, require, module) {
   App.PersonController = Em.ObjectController.extend({
     doneEditing: function() {
@@ -456,6 +488,8 @@ window.require.register("initialize", function(exports, require, module) {
   require('controllers/historicalController');
 
   require('controllers/historicalsController');
+
+  require('controllers/lookupDataController');
 
   require('models/contact');
 
@@ -1101,18 +1135,6 @@ window.require.register("templates/contacts", function(exports, require, module)
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "type", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</td><td>");
-    hashTypes = {};
-    hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "score", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</td><td>");
-    hashTypes = {};
-    hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "source", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</td><td>");
-    hashTypes = {};
-    hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "status", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</td></tr>");
     return buffer;
     }
@@ -1176,7 +1198,7 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashContexts = {};
     stack1 = helpers['if'].call(depth0, "isEditing", {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("<div class=\"span4\"><address><h2>");
+    data.buffer.push("<div class=\"span12\"><div class=\"span4\"><address><h2>");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "title", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -1208,19 +1230,22 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "email", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></address></div></div><div class=\"row-fluid\"><div class=\"span12\">");
+    data.buffer.push("</div></address></div><div class=\"span8\">");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
     data.buffer.push(escapeExpression(((stack1 = helpers.render),stack1 ? stack1.call(depth0, "contacts", "contacts", options) : helperMissing.call(depth0, "render", "contacts", "contacts", options))));
+    data.buffer.push("</div></div></div><hr /><div class=\"row-fluid\"><div class=\"span12\"><div class=\"span6\">");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
     data.buffer.push(escapeExpression(((stack1 = helpers.render),stack1 ? stack1.call(depth0, "persons", "persons", options) : helperMissing.call(depth0, "render", "persons", "persons", options))));
+    data.buffer.push("</div><div class=\"span6\">");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
     data.buffer.push(escapeExpression(((stack1 = helpers.render),stack1 ? stack1.call(depth0, "employments", "employments", options) : helperMissing.call(depth0, "render", "employments", "employments", options))));
+    data.buffer.push("</div>");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
@@ -1242,10 +1267,13 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
 
 
     data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\"><label>Type</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("type")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("App.ConsumerFlagsController"),
+      'optionLabelPath': ("content.type"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("selectedType")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<label>Title</label>");
     hashContexts = {'valueBinding': depth0};

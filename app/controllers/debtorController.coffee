@@ -6,7 +6,7 @@ App.DebtorController = Em.ObjectController.extend
 
     # return first + ' ' + last   unless middle
     return first + ' ' + middle + ' ' + last
-  ).property('firstName', 'lastName', 'middleName')
+  ).property('firstName', 'lastName', 'middleName', 'type')
 
   isEditing: false
 
@@ -14,11 +14,15 @@ App.DebtorController = Em.ObjectController.extend
 
   doneEditing: ->
     @set('isEditing', false)
+    @set('type', @get('selectedType.id'))
     @get('store').commit()
 
   edit: ->
     @set('isEditing', true)
+    @set('selectedType', App.ConsumerFlagsController.findProperty('id', @get('type')))
 
   back: ->
     @set('isEditing', false)
     @transitionToRoute 'debtors'
+
+  selectedType: null
