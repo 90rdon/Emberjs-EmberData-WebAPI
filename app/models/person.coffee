@@ -20,5 +20,6 @@ App.Person = DS.Model.extend
   state:          DS.attr 'string'
   zip:            DS.attr 'string'
   county:         DS.attr 'string'
+  debtorId:       DS.attr 'number'
 
   debtor:         DS.belongsTo 'App.Debtor'

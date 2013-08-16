@@ -10,7 +10,7 @@ using hunter_warfield.Core.Interfaces;
 
 namespace hunter_warfield.Core.Domain
 {
-    public partial class Country : IIdentifier<Int16>
+    public partial class Relationship : IIdentifier<Int16>
     {
         public Int16 Id { get; set; }
 

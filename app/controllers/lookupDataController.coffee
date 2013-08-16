@@ -53,7 +53,7 @@ App.YesNoController = App.LookupDataController.extend
     Em.Object.create({id: 'N', label: 'No'})
   ]
 
-App.PhoneTypeController = App.LookupDataController.extend
+App.PhoneTypesController = App.LookupDataController.extend
   content: [
     Em.Object.create({id: 0, label: 'Unknown'})
     Em.Object.create({id: 1, label: 'Home'})
@@ -63,7 +63,7 @@ App.PhoneTypeController = App.LookupDataController.extend
     Em.Object.create({id: 5, label: 'VOIP'})
   ]
 
-App.PhoneStatusController = App.LookupDataController.extend
+App.PhoneStatusesController = App.LookupDataController.extend
   content: [
     Em.Object.create({id: 0, label: 'Unknown'})
     Em.Object.create({id: 1, label: 'Valid'})
@@ -72,7 +72,7 @@ App.PhoneStatusController = App.LookupDataController.extend
     Em.Object.create({id: 4, label: 'Valid - Do not call'})
   ]
 
-App.PhoneSourceController = App.LookupDataController.extend
+App.PhoneSourcesController = App.LookupDataController.extend
   content: [
     Em.Object.create({id: 0, label: 'Unknown'})
     Em.Object.create({id: 1, label: 'Type In'})
@@ -81,6 +81,28 @@ App.PhoneSourceController = App.LookupDataController.extend
     Em.Object.create({id: 4, label: 'Consumer Portal'})
   ]
 
-App.CountriesController = App.LookupDataController.extend()
+App.AssociationsController = App.LookupDataController.extend
+  content: [
+    Em.Object.create({id: '1', label: 'Consumer'})
+    Em.Object.create({id: '2', label: 'Spouse'})
+  ]
+
+App.EmploymentStatusesController = App.LookupDataController.extend
+  content: [
+    Em.Object.create({id: 1, label: 'Employed'})
+    Em.Object.create({id: 2, label: 'Full Time'})
+    Em.Object.create({id: 3, label: 'Part Time'})
+    Em.Object.create({id: 4, label: 'Unemployed'})
+    Em.Object.create({id: 5, label: 'Other'})
+    Em.Object.create({id: 6, label: 'Self Employed'})
+  ]
+
+App.CountriesController = App.LookupDataController.extend
+  loaded: (->
+    @set('sortAscending', true)
+  ).observes('@content.isloaded')
+
+App.RelationshipsController = App.LookupDataController.extend()
+    
 
 

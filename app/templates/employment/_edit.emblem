@@ -2,49 +2,48 @@
   .container-fluid
     .row-fluid
       .span6
-        label Relationship
-        view Em.TextField valueBinding='relationship'
-        label Employment Name
-        view Em.TextField valueBinding='name'
-        label Position
-        view Em.TextField valueBinding='position'
-        label Hire Date
-        view Em.TextField valueBinding='hireDate'
-        label Termination Date
-        view Em.TextField valueBinding='terminationDate'
-        label Phone
-        view Em.TextField valueBinding='phone'
-        label WebSite
-        view Em.TextField valueBinding='website'
-        label Status
-        view Em.TextField valueBinding='status'
-        label Source
-        view Em.TextField valueBinding='source'
-        label Job Title
-        view Em.TextField valueBinding='jobTitle'
-        label Yearly Income
-        view Em.TextField valueBinding='yearlyIncome'
-        label Monthly Gross Income
-        view Em.TextField valueBinding='monthlyGrossIncome'
-        label Monthly Net Income
-        view Em.TextField valueBinding='monthlyNetIncome'
+        / label Relationship
+        view  Em.Select    contentBinding='controllers.associations' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.associations.selected' prompt='Relationship ...'
+        view Em.TextField valueBinding='name' placeholder='Name'
+        / label Position
+        view Em.TextField valueBinding='position' placeholder='Position'
+        / label Hire Date
+        view Em.TextField valueBinding='hireDate' placeholder='Hire Date'
+        / label Termination Date
+        view Em.TextField valueBinding='terminationDate' placeholder='Termination Date'
+        / label Phone
+        view Em.TextField valueBinding='phone' placeholder='Phone'
+        / label WebSite
+        view Em.TextField valueBinding='website' placeholder='Website'
+        / label Status
+        view  Em.Select    contentBinding='controllers.employmentStatuses' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.employmentStatuses.selected' prompt='Employment Status ...'
+        / label Source
+        view Em.TextField valueBinding='source' placeholder='Source'
+        / label Job Title
+        view Em.TextField valueBinding='jobTitle' placeholder='Job Title'
+        / label Yearly Income
+        view Em.TextField valueBinding='yearlyIncome' placeholder='Yearly Income'
+        / label Monthly Gross Income
+        view Em.TextField valueBinding='monthlyGrossIncome' placeholder='Monthly Gross Income'
+        / label Monthly Net Income
+        view Em.TextField valueBinding='monthlyNetIncome' placeholder='Monthly Net Income'
 
       .span6
-        label Country
-        view Em.TextField valueBinding='country'
-        label Address1
-        view Em.TextField valueBinding='address1'
-        label Address2
-        view Em.TextField valueBinding='address2'
-        label Address3
-        view Em.TextField valueBinding='address3'
-        label City
-        view Em.TextField valueBinding='city'
-        label State
-        view Em.TextField valueBinding='state'
-        label Zip Code
-        view Em.TextField valueBinding='zip'
-        label County
-        view Em.TextField valueBinding='county'
+        / label Country
+        view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.countries.selected' prompt='Country ...'
+        / label Address1
+        view Em.TextField valueBinding='address1' placeholder='Address 1'
+        / label Address2
+        view Em.TextField valueBinding='address2' placeholder='Address 2'
+        / label Address3
+        view Em.TextField valueBinding='address3' placeholder='Address 3'
+        / label City
+        view Em.TextField valueBinding='city' placeholder='City'
+        / label State
+        view Em.TextField valueBinding='state' placeholder='State'
+        / label Zip Code
+        view Em.TextField valueBinding='zip' placeholder='Zip'
+        / label County
+        view Em.TextField valueBinding='county' placeholder='County'
 
       button{action 'doneEditing'} Done

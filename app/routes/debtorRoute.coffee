@@ -5,3 +5,4 @@ App.DebtorRoute = Em.Route.extend
   setupController: (controller, model) ->
     controller.set 'model', model
     @controllerFor('countries').set 'model', App.Country.find()
+    @controllerFor('relationships').set 'model', App.Relationship.find()

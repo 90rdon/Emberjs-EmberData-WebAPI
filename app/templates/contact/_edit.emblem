@@ -2,21 +2,21 @@
   .container-fluid
     .row-fluid
       .span6
-        label Type
-        view  Em.Select    contentBinding='App.PhoneTypeController' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='App.ContactController.type' prompt='Type ...'
-        label Country
-        / view  Em.Select    contentBinding='App.CountriesController' optionLabelPath='content.desc' optionValuePath='content.id' selectionBinding='App.CountriesController.selected' prompt='Country ...'
-        label Phone
-        view Em.TextField valueBinding='phone'
-        label Extension
-        view Em.TextField valueBinding='extension'
-        label Score
-        view Em.TextField valueBinding='score'
-        label Status
-        view  Em.Select    contentBinding='App.PhoneStatusController' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='App.PhoneStatusController.selected' prompt='Status ...'
-        label Source
-        view  Em.Select    contentBinding='App.PhoneSourceController' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='App.PhoneSourceController.selected' prompt='Source ...'
-        label Consent
-        view  Em.Select    contentBinding='App.YesNoController' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='App.YesNoController.selected' prompt='Consent ...'
+        / label Type
+        view  Em.Select    contentBinding='controllers.phoneTypes' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.phoneTypes.selected' prompt='Type ...'
+        / label Country
+        view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' prompt='Country ...'
+        / label Phone
+        view Em.TextField valueBinding='phone' placeholder='Phone'
+        / label Extension
+        view Em.TextField valueBinding='extension' placeholder='Extension'
+        / label Score
+        view Em.TextField valueBinding='score' placeholder='Score'
+        / label Status
+        view  Em.Select    contentBinding='controllers.phoneStatuses' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.phoneStatuses.selected' prompt='Status ...'
+        / label Source
+        view  Em.Select    contentBinding='controllers.phoneSources' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.phoneSources.selected' prompt='Source ...'
+        / label Consent
+        view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Consent ...'
 
         button{action 'doneEditing'} Done

@@ -35,7 +35,6 @@ namespace hunter_warfield.Core.Domain
             Zip = person.Zip;
             County = person.County;
             Phone = person.Phone;
-
             DebtorId = person.DebtorId;
         }
 

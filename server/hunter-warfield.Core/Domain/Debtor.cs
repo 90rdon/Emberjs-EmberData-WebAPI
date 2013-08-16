@@ -31,7 +31,7 @@ namespace hunter_warfield.Core.Domain
 
         public string Email { get; set; }
 
-        public Int32? EmailValidity { get; set; }
+        public Int16? EmailValidity { get; set; }
 
         public string OptIn { get; set; }
 
@@ -71,8 +71,8 @@ namespace hunter_warfield.Core.Domain
 
         public virtual List<Historical> Historicals { get; set; }
 
-        [ForeignKey("Client")]
+        //[ForeignKey("Client")]
         public Int64 ClientId { get; set; }
-        public virtual Client Client { get; set; }
+        //public virtual Client Client { get; set; }
     }
 }

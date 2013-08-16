@@ -32,4 +32,4 @@ App.Debtor = DS.Model.extend
   employments:        DS.hasMany 'App.Employment'
   historicals:        DS.hasMany 'App.Historical'
 
-  client:             DS.belongsTo 'App.Client'
+  clientId:           DS.attr 'number'

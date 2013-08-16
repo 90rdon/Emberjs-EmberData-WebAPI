@@ -98,7 +98,7 @@ namespace hunter_warfield.Core.Domain
 
         public string Email { get; set; }
 
-        public Int32? EmailValidity { get; set; }
+        public Int16? EmailValidity { get; set; }
 
         public string OptIn { get; set; }
 

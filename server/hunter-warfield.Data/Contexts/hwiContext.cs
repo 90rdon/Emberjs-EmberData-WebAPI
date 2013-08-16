@@ -23,7 +23,8 @@ namespace hunter_warfield.Data.Contexts
         public DbSet<Employment> Employments { get; set; }
         public DbSet<Historical> Historicals { get; set; }
         public DbSet<Country> Countries { get; set; }
-        public DbSet<Client> Clients { get; set; }
+        public DbSet<Relationship> Relationship { get; set; }
+        public DbSet<Association> Association { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -33,13 +34,14 @@ namespace hunter_warfield.Data.Contexts
             modelBuilder.Configurations.Add(new EmploymentConfiguration());
             modelBuilder.Configurations.Add(new HistoricalConfiguration());
             modelBuilder.Configurations.Add(new CountryConfiguration());
-            modelBuilder.Configurations.Add(new ClientConfiguration());
+            modelBuilder.Configurations.Add(new RelationshipConfiguration());
+            modelBuilder.Configurations.Add(new AssociationConfiguration());
 
             
-            modelBuilder.Entity<Client>()
-                .HasMany(d => d.Debtors)
-                .WithOptional()
-                .HasForeignKey(f => f.ClientId);
+            //modelBuilder.Entity<Client>()
+            //    .HasMany(d => d.Debtors)
+            //    .WithOptional()
+            //    .HasForeignKey(f => f.ClientId);
 
             modelBuilder.Entity<Debtor>()
                 .HasMany(d => d.Contacts)

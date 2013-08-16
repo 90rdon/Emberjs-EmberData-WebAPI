@@ -1,5 +1,5 @@
 App.Employment = DS.Model.extend
-  relationship:       DS.attr 'number'
+  association:        DS.attr 'number'
   name:               DS.attr 'string'
   monthlyNetIncome:   DS.attr 'number'
   position:           DS.attr 'string'
@@ -21,5 +21,6 @@ App.Employment = DS.Model.extend
   state:              DS.attr 'string'
   zip:                DS.attr 'string'
   county:             DS.attr 'string'
+  debtorId:           DS.attr 'number'
 
   debtor:             DS.belongsTo 'App.Debtor'

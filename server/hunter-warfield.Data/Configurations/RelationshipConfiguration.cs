@@ -9,23 +9,23 @@ using hunter_warfield.Core.Domain;
 
 namespace hunter_warfield.Data.Configurations
 {
-    public class CountryConfiguration : EntityTypeConfiguration<Country>
+    public class RelationshipConfiguration : EntityTypeConfiguration<Relationship>
     {
-        public CountryConfiguration()
+        public RelationshipConfiguration()
         {
             this.HasKey(k => new { k.Id });
 
-            this.Property(p => p.Id).HasColumnName("cntry_cd");
-            this.Property(p => p.Label).HasColumnName("cntry_dscrptn_txt");
+            this.Property(p => p.Id).HasColumnName("rltd_prsn_rltnshp_cd");
+            this.Property(p => p.Label).HasColumnName("rltd_prsn_rltnshp_val_txt");
 
-            this.Map(cntry =>
+            this.Map(rltd =>
                 {
-                    cntry.Properties(p => new
+                    rltd.Properties(p => new
                     {
                         p.Id,
                         p.Label
                     });
-                    cntry.ToTable("Ref_cntry_cd");
+                    rltd.ToTable("Ref_rltd_prsn_rltnshp_cd");
                 });
         }
     }

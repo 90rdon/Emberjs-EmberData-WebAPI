@@ -121,12 +121,20 @@ window.require.register("controllers/columnSorterController", function(exports, 
 });
 window.require.register("controllers/contactController", function(exports, require, module) {
   App.ContactController = Em.ObjectController.extend({
-    needs: ['countries'],
+    needs: ['countries', 'phoneTypes', 'phoneStatuses', 'phoneSources', 'yesNo'],
+    loaded: (function() {
+      this.get('controllers.countries').setSelectedById(this.get('country'));
+      this.get('controllers.phoneTypes').setSelectedById(this.get('type'));
+      this.get('controllers.phoneStatuses').setSelectedById(this.get('status'));
+      this.get('controllers.phoneSources').setSelectedById(this.get('source'));
+      return this.get('controllers.yesNo').setSelectedById(this.get('consent'));
+    }).observes('@content.isloaded'),
     doneEditing: function() {
-      this.set('type', App.PhoneTypeController.getSelectedId());
-      this.set('status', App.PhoneStatusController.getSelectedId());
-      this.set('source', App.PhoneSourceController.getSelectedId());
-      this.set('consent', App.YesNoController.getSelectedId());
+      this.set('country', this.get('controllers.countries').getSelectedId());
+      this.set('type', this.get('controllers.phoneTypes').getSelectedId());
+      this.set('status', this.get('controllers.phoneStatuses').getSelectedId());
+      this.set('source', this.get('controllers.phoneSources').getSelectedId());
+      this.set('consent', this.get('controllers.yesNo').getSelectedId());
       this.get('store').commit();
       return this.transitionToRoute('debtor');
     }
@@ -254,6 +262,7 @@ window.require.register("controllers/debtorsController", function(exports, requi
 });
 window.require.register("controllers/employmentController", function(exports, require, module) {
   App.EmploymentController = Em.ObjectController.extend({
+    needs: ['associations', 'employmentStatuses', 'countries'],
     doneEditing: function() {
       this.get('store').commit();
       return this.transitionToRoute('debtor');
@@ -430,7 +439,7 @@ window.require.register("controllers/lookupDataController", function(exports, re
     ]
   });
 
-  App.PhoneTypeController = App.LookupDataController.extend({
+  App.PhoneTypesController = App.LookupDataController.extend({
     content: [
       Em.Object.create({
         id: 0,
@@ -454,7 +463,7 @@ window.require.register("controllers/lookupDataController", function(exports, re
     ]
   });
 
-  App.PhoneStatusController = App.LookupDataController.extend({
+  App.PhoneStatusesController = App.LookupDataController.extend({
     content: [
       Em.Object.create({
         id: 0,
@@ -475,7 +484,7 @@ window.require.register("controllers/lookupDataController", function(exports, re
     ]
   });
 
-  App.PhoneSourceController = App.LookupDataController.extend({
+  App.PhoneSourcesController = App.LookupDataController.extend({
     content: [
       Em.Object.create({
         id: 0,
@@ -496,12 +505,63 @@ window.require.register("controllers/lookupDataController", function(exports, re
     ]
   });
 
-  App.CountriesController = App.LookupDataController.extend();
+  App.AssociationsController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: '1',
+        label: 'Consumer'
+      }), Em.Object.create({
+        id: '2',
+        label: 'Spouse'
+      })
+    ]
+  });
+
+  App.EmploymentStatusesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 1,
+        label: 'Employed'
+      }), Em.Object.create({
+        id: 2,
+        label: 'Full Time'
+      }), Em.Object.create({
+        id: 3,
+        label: 'Part Time'
+      }), Em.Object.create({
+        id: 4,
+        label: 'Unemployed'
+      }), Em.Object.create({
+        id: 5,
+        label: 'Other'
+      }), Em.Object.create({
+        id: 6,
+        label: 'Self Employed'
+      })
+    ]
+  });
+
+  App.CountriesController = App.LookupDataController.extend({
+    loaded: (function() {
+      return this.set('sortAscending', true);
+    }).observes('@content.isloaded')
+  });
+
+  App.RelationshipsController = App.LookupDataController.extend();
   
 });
 window.require.register("controllers/personController", function(exports, require, module) {
   App.PersonController = Em.ObjectController.extend({
+    needs: ['countries', 'relationships', 'titles'],
+    loaded: (function() {
+      this.get('controllers.countries').setSelectedById(this.get('country'));
+      this.get('controllers.relationships').setSelectedById(this.get('relationship'));
+      return this.get('controllers.titles').setSelectedById(this.get('title'));
+    }).observes('@content.isloaded'),
     doneEditing: function() {
+      this.set('country', this.get('controllers.countries').getSelectedId());
+      this.set('relationship', this.get('controllers.relationships').getSelectedId());
+      this.set('title', this.get('controllers.titles').getSelectedId());
       this.get('store').commit();
       return this.transitionToRoute('debtor');
     }
@@ -642,7 +702,7 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('models/person');
 
-  require('models/client');
+  require('models/relationship');
 
   require('models/country');
 
@@ -715,8 +775,7 @@ window.require.register("initialize", function(exports, require, module) {
 });
 window.require.register("models/client", function(exports, require, module) {
   App.Client = DS.Model.extend({
-    description: DS.attr('string'),
-    debtors: DS.hasMany('App.Debtor')
+    description: DS.attr('string')
   });
   
 });
@@ -737,7 +796,7 @@ window.require.register("models/contact", function(exports, require, module) {
 });
 window.require.register("models/country", function(exports, require, module) {
   App.Country = DS.Model.extend({
-    desc: DS.attr('string')
+    label: DS.attr('string')
   });
   
 });
@@ -772,13 +831,13 @@ window.require.register("models/debtor", function(exports, require, module) {
     persons: DS.hasMany('App.Person'),
     employments: DS.hasMany('App.Employment'),
     historicals: DS.hasMany('App.Historical'),
-    client: DS.belongsTo('App.Client')
+    clientId: DS.attr('number')
   });
   
 });
 window.require.register("models/employment", function(exports, require, module) {
   App.Employment = DS.Model.extend({
-    relationship: DS.attr('number'),
+    association: DS.attr('number'),
     name: DS.attr('string'),
     monthlyNetIncome: DS.attr('number'),
     position: DS.attr('string'),
@@ -799,6 +858,7 @@ window.require.register("models/employment", function(exports, require, module) 
     state: DS.attr('string'),
     zip: DS.attr('string'),
     county: DS.attr('string'),
+    debtorId: DS.attr('number'),
     debtor: DS.belongsTo('App.Debtor')
   });
   
@@ -810,6 +870,7 @@ window.require.register("models/historical", function(exports, require, module) 
     resultCode: DS.attr('number'),
     user: DS.attr('number'),
     message: DS.attr('string'),
+    debtorId: DS.attr('number'),
     debtor: DS.belongsTo('App.Debtor')
   });
   
@@ -836,7 +897,14 @@ window.require.register("models/person", function(exports, require, module) {
     state: DS.attr('string'),
     zip: DS.attr('string'),
     county: DS.attr('string'),
+    debtorId: DS.attr('number'),
     debtor: DS.belongsTo('App.Debtor')
+  });
+  
+});
+window.require.register("models/relationship", function(exports, require, module) {
+  App.Relationship = DS.Model.extend({
+    label: DS.attr('string')
   });
   
 });
@@ -847,7 +915,8 @@ window.require.register("routes/debtorRoute", function(exports, require, module)
     },
     setupController: function(controller, model) {
       controller.set('model', model);
-      return this.controllerFor('countries').set('model', App.Country.find());
+      this.controllerFor('countries').set('model', App.Country.find());
+      return this.controllerFor('relationships').set('model', App.Relationship.find());
     }
   });
   
@@ -883,12 +952,6 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
     })
   });
 
-  DS.WebAPIAdapter.map('App.Client', {
-    debtors: {
-      embedded: 'load'
-    }
-  });
-
   DS.WebAPIAdapter.map('App.Debtor', {
     contacts: {
       embedded: 'load'
@@ -902,11 +965,6 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
     historicals: {
       embedded: 'load'
     }
-  });
-
-  DS.WebAPIAdapter.configure('App.Client', {
-    sideloadAs: 'client',
-    primaryKey: 'id'
   });
 
   DS.WebAPIAdapter.configure('App.Debtor', {
@@ -936,6 +994,11 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
 
   DS.WebAPIAdapter.configure('App.Country', {
     sideloadAs: 'country',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Relationship', {
+    sideloadAs: 'relationship',
     primaryKey: 'id'
   });
   
@@ -1202,62 +1265,67 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
     var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\"><label>Type</label>");
+    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("App.PhoneTypeController"),
+      'contentBinding': ("controllers.phoneTypes"),
       'optionLabelPath': ("content.label"),
       'optionValuePath': ("content.id"),
-      'selectionBinding': ("App.ContactController.type"),
+      'selectionBinding': ("controllers.phoneTypes.selected"),
       'prompt': ("Type ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Country</label><label>Phone</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("phone")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.countries"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'prompt': ("Country ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Extension</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("extension")
+      'valueBinding': ("phone"),
+      'placeholder': ("Phone")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Score</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("score")
+      'valueBinding': ("extension"),
+      'placeholder': ("Extension")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Status</label>");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("score"),
+      'placeholder': ("Score")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("App.PhoneStatusController"),
+      'contentBinding': ("controllers.phoneStatuses"),
       'optionLabelPath': ("content.label"),
       'optionValuePath': ("content.id"),
-      'selectionBinding': ("App.PhoneStatusController.selected"),
+      'selectionBinding': ("controllers.phoneStatuses.selected"),
       'prompt': ("Status ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Source</label>");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("App.PhoneSourceController"),
+      'contentBinding': ("controllers.phoneSources"),
       'optionLabelPath': ("content.label"),
       'optionValuePath': ("content.id"),
-      'selectionBinding': ("App.PhoneSourceController.selected"),
+      'selectionBinding': ("controllers.phoneSources.selected"),
       'prompt': ("Source ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Consent</label>");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("App.YesNoController"),
+      'contentBinding': ("controllers.yesNo"),
       'optionLabelPath': ("content.label"),
       'optionValuePath': ("content.id"),
-      'selectionBinding': ("App.YesNoController.selected"),
+      'selectionBinding': ("controllers.yesNo.selected"),
       'prompt': ("Consent ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<button ");
@@ -1468,7 +1536,7 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
     var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\"><label>Type</label>");
+    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -1477,7 +1545,6 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'optionValuePath': ("content.id"),
       'selectionBinding': ("controllers.consumerFlags.selected")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Title</label>");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -1487,49 +1554,57 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.titles.selected"),
       'prompt': ("Title ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Last Name</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("lastName")
+      'valueBinding': ("lastName"),
+      'placeholder': ("Last Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>First Name</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("firstName")
+      'valueBinding': ("firstName"),
+      'placeholder': ("First Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Middle Name</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("middleName")
+      'valueBinding': ("middleName"),
+      'placeholder': ("Middle Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Suffix</label><label>Date of Birth</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.suffixes"),
+      'optionLabelPath': ("content.id"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.suffixes.selected"),
+      'prompt': ("Suffix ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("dob")
+      'valueBinding': ("dob"),
+      'placeholder': ("Date of Birth")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>SSN</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("ssn")
+      'valueBinding': ("ssn"),
+      'placeholder': ("SSN")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Marital Status</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("maritalStatus")
+      'valueBinding': ("maritalStatus"),
+      'placeholder': ("Martial Status")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Email</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("email")
+      'valueBinding': ("email"),
+      'placeholder': ("Email")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Email Validity</label>");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -1539,7 +1614,6 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.validInvalid.selected"),
       'prompt': ("Email Validity ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Opted-In</label>");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -1549,92 +1623,93 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.yesNo.selected"),
       'prompt': ("Email Opt-in ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Commerical Contact</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("contact")
+      'valueBinding': ("contact"),
+      'placeholder': ("Commerical Contact")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"span6\"><label>Country</label>");
+    data.buffer.push("</div><div class=\"span6\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
       'contentBinding': ("controllers.countries"),
-      'optionLabelPath': ("content.desc"),
+      'optionLabelPath': ("content.label"),
       'optionValuePath': ("content.id"),
       'selectionBinding': ("controllers.countries.selected"),
       'prompt': ("Country ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("country")
+      'valueBinding': ("country"),
+      'placeholder': ("Country")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Address1</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("address1")
+      'valueBinding': ("address1"),
+      'placeholder': ("Address 1")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Address2</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("address2")
+      'valueBinding': ("address2"),
+      'placeholder': ("Address 2")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Address3</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("address3")
+      'valueBinding': ("address3"),
+      'placeholder': ("Address 3")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>City</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("city")
+      'valueBinding': ("city"),
+      'placeholder': ("City")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>State</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("state")
+      'valueBinding': ("state"),
+      'placeholder': ("State")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Zip Code</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("zip")
+      'valueBinding': ("zip"),
+      'placeholder': ("Zip code")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>County</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("county")
+      'valueBinding': ("county"),
+      'placeholder': ("County")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Driver License Issuer</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("dlIssuer")
+      'valueBinding': ("dlIssuer"),
+      'placeholder': ("Driver License Issuer")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Driver License Number</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("dlNumber")
+      'valueBinding': ("dlNumber"),
+      'placeholder': ("Driver License Number")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Passport</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("passport")
+      'valueBinding': ("passport"),
+      'placeholder': ("Passport Number")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>PIN</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("pin")
+      'valueBinding': ("pin"),
+      'placeholder': ("PIN")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</div><button ");
     hashTypes = {};
@@ -1785,131 +1860,142 @@ window.require.register("templates/employment/_edit", function(exports, require,
     var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\"><label>Relationship</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("relationship")
+    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.associations"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.associations.selected"),
+      'prompt': ("Relationship ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Employment Name</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("name")
+      'valueBinding': ("name"),
+      'placeholder': ("Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Position</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("position")
+      'valueBinding': ("position"),
+      'placeholder': ("Position")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Hire Date</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("hireDate")
+      'valueBinding': ("hireDate"),
+      'placeholder': ("Hire Date")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Termination Date</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("terminationDate")
+      'valueBinding': ("terminationDate"),
+      'placeholder': ("Termination Date")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Phone</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("phone")
+      'valueBinding': ("phone"),
+      'placeholder': ("Phone")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>WebSite</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("website")
+      'valueBinding': ("website"),
+      'placeholder': ("Website")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Status</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("status")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.employmentStatuses"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.employmentStatuses.selected"),
+      'prompt': ("Employment Status ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Source</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("source")
+      'valueBinding': ("source"),
+      'placeholder': ("Source")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Job Title</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("jobTitle")
+      'valueBinding': ("jobTitle"),
+      'placeholder': ("Job Title")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Yearly Income</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("yearlyIncome")
+      'valueBinding': ("yearlyIncome"),
+      'placeholder': ("Yearly Income")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Monthly Gross Income</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("monthlyGrossIncome")
+      'valueBinding': ("monthlyGrossIncome"),
+      'placeholder': ("Monthly Gross Income")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Monthly Net Income</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("monthlyNetIncome")
+      'valueBinding': ("monthlyNetIncome"),
+      'placeholder': ("Monthly Net Income")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"span6\"><label>Country</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("country")
+    data.buffer.push("</div><div class=\"span6\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.countries"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.countries.selected"),
+      'prompt': ("Country ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Address1</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("address1")
+      'valueBinding': ("address1"),
+      'placeholder': ("Address 1")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Address2</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("address2")
+      'valueBinding': ("address2"),
+      'placeholder': ("Address 2")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Address3</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("address3")
+      'valueBinding': ("address3"),
+      'placeholder': ("Address 3")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>City</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("city")
+      'valueBinding': ("city"),
+      'placeholder': ("City")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>State</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("state")
+      'valueBinding': ("state"),
+      'placeholder': ("State")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Zip Code</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("zip")
+      'valueBinding': ("zip"),
+      'placeholder': ("Zip")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>County</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("county")
+      'valueBinding': ("county"),
+      'placeholder': ("County")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</div><button ");
     hashTypes = {};
@@ -2200,125 +2286,139 @@ window.require.register("templates/person/_edit", function(exports, require, mod
     var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\"><label>Relationship</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("relationship")
+    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.relationships"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.relationships.selected"),
+      'prompt': ("Relationship ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Title</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("title")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.titles"),
+      'optionLabelPath': ("content.id"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.titles.selected"),
+      'prompt': ("Title ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Last Name</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("lastName")
+      'valueBinding': ("lastName"),
+      'placeholder': ("Last Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>First Name</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("firstName")
+      'valueBinding': ("firstName"),
+      'placeholder': ("First Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Middle Name</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("middleName")
+      'valueBinding': ("middleName"),
+      'placeholder': ("Middle Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Suffix</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("suffix")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.suffixes"),
+      'optionLabelPath': ("content.id"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.suffixes.selected"),
+      'prompt': ("Suffix ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Date of Birth</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("dob")
+      'valueBinding': ("dob"),
+      'placeholder': ("Date of Birth")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>SSN</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("ssn")
+      'valueBinding': ("ssn"),
+      'placeholder': ("SSN")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Relationship Start Date</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("startDate")
+      'valueBinding': ("startDate"),
+      'placeholder': ("Relationship Start Date")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Releationship End Date</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("endDate")
+      'valueBinding': ("endDate"),
+      'placeholder': ("Relationship End Date")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Claim Number</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("claimNumber")
+      'valueBinding': ("claimNumber"),
+      'placeholder': ("Claim Number")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Phone</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("phone")
+      'valueBinding': ("phone"),
+      'placeholder': ("Phone")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"span6\"><label>Country</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("country")
+    data.buffer.push("</div><div class=\"span6\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.countries"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.countries.selected"),
+      'prompt': ("Country ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Address1</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("address1")
+      'valueBinding': ("address1"),
+      'placeholder': ("Address 1")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Address2</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("address2")
+      'valueBinding': ("address2"),
+      'placeholder': ("Address 2")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Address3</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("address3")
+      'valueBinding': ("address3"),
+      'placeholder': ("Address 3")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>City</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("city")
+      'valueBinding': ("city"),
+      'placeholder': ("City")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>State</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("state")
+      'valueBinding': ("state"),
+      'placeholder': ("State")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Zip Code</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("zip")
+      'valueBinding': ("zip"),
+      'placeholder': ("Zip code")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>County</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("county")
+      'valueBinding': ("county"),
+      'placeholder': ("County")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</div><button ");
     hashTypes = {};
@@ -2432,8 +2532,4 @@ window.require.register("templates/persons", function(exports, require, module) 
     return buffer;
     
   });module.exports = module.id;
-});
-window.require.register("views/App.ContactView", function(exports, require, module) {
-  
-  
 });

@@ -112,5 +112,17 @@ namespace hunter_warfield.Data.Tests
                 Assert.IsTrue(client.Debtors.FirstOrDefault() != null);
             }
         }
+
+        [TestMethod]
+        public void GetRelationshipEntity()
+        {
+            using (var db = new hwiContext())
+            {
+                var entity = new EFRepository<Int16>();
+                var relationship = entity.All<Relationship>();
+
+                Assert.IsTrue(relationship.FirstOrDefault() != null);
+            }
+        }
     }
 }

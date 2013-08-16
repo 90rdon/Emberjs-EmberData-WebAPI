@@ -1,25 +1,26 @@
 App.ContactController = Em.ObjectController.extend
   needs: [
     'countries'
+    'phoneTypes'
+    'phoneStatuses'
+    'phoneSources'
+    'yesNo'
   ]
 
-  # Em.run.next @, ->
-  #   App.PhoneTypeController.setSelectedById(@get('type'))
-  #   App.PhoneStatusController.setSelectedById(@get('status'))
-  #   controllers.countries.setSelectedById(@get('country'))
-    
-  # init: ->
-  #   @_super()
-  #   # App.PhoneTypeController.setSelectedById(@get('type'))
-  #   # App.PhoneStatusController.setSelectedById(@get('status'))
-  #   App.PhoneSourceController.setSelectedById(@get('source'))
-  #   App.YesNoController.setSelectedById(@get('consent'))
+  loaded: (->
+    @get('controllers.countries').setSelectedById(@get('country'))
+    @get('controllers.phoneTypes').setSelectedById(@get('type'))
+    @get('controllers.phoneStatuses').setSelectedById(@get('status'))
+    @get('controllers.phoneSources').setSelectedById(@get('source'))
+    @get('controllers.yesNo').setSelectedById(@get('consent'))
+  ).observes('@content.isloaded')
 
   doneEditing: ->
-    @set('type', App.PhoneTypeController.getSelectedId())
-    @set('status', App.PhoneStatusController.getSelectedId())
-    @set('source', App.PhoneSourceController.getSelectedId())
-    @set('consent', App.YesNoController.getSelectedId())
+    @set('country', @get('controllers.countries').getSelectedId())
+    @set('type', @get('controllers.phoneTypes').getSelectedId())
+    @set('status', @get('controllers.phoneStatuses').getSelectedId())
+    @set('source', @get('controllers.phoneSources').getSelectedId())
+    @set('consent', @get('controllers.yesNo').getSelectedId())
 
     @get('store').commit()
     @transitionToRoute 'debtor'

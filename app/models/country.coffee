@@ -1,2 +1,2 @@
 App.Country = DS.Model.extend
-  desc: DS.attr 'string'
+  label: DS.attr 'string'

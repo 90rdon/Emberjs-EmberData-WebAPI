@@ -15,19 +15,18 @@ App.Store = DS.Store.extend
       plurals = @get('plurals')
       (plurals && plurals[name]) || name + 's'
 
-DS.WebAPIAdapter.map 'App.Client',
-  debtors:      embedded: 'load'
+# DS.WebAPIAdapter.map 'App.Client',
+#   debtors:      embedded: 'load'
 
 DS.WebAPIAdapter.map 'App.Debtor',
   contacts:     embedded: 'load'
   persons:      embedded: 'load'
   employments:  embedded: 'load'
   historicals:  embedded: 'load'
-  # countries:    embedded: 'load'
 
-DS.WebAPIAdapter.configure 'App.Client',
-    sideloadAs: 'client',
-    primaryKey: 'id'
+# DS.WebAPIAdapter.configure 'App.Client',
+#     sideloadAs: 'client',
+#     primaryKey: 'id'
 
 DS.WebAPIAdapter.configure 'App.Debtor',
     sideloadAs: 'debtor',
@@ -51,4 +50,8 @@ DS.WebAPIAdapter.configure 'App.Historical',
 
 DS.WebAPIAdapter.configure 'App.Country',
     sideloadAs: 'country',
+    primaryKey: 'id'
+
+DS.WebAPIAdapter.configure 'App.Relationship',
+    sideloadAs: 'relationship',
     primaryKey: 'id'

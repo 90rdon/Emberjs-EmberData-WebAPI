@@ -35,7 +35,7 @@ require 'models/debtor'
 require 'models/employment'
 require 'models/historical'
 require 'models/person'
-require 'models/client'
+require 'models/relationship'
 require 'models/country'
 
 #/////////////////////////////////

@@ -10,11 +10,11 @@ using hunter_warfield.Core.Interfaces;
 
 namespace hunter_warfield.Core.Domain
 {
-    public partial class CountryDto : IDataTransfer<Country>
+    public partial class AssociationDto : IDataTransfer<Association>
     {
-        public CountryDto() { }
+        public AssociationDto() { }
 
-        public CountryDto(Country country)
+        public AssociationDto(Association country)
         {
             if (country == null) return;
             Id = country.Id;
@@ -26,9 +26,9 @@ namespace hunter_warfield.Core.Domain
 
         public string Label { get; set; }
 
-        public Country ToEntity()
+        public Association ToEntity()
         {
-            return new Country
+            return new Association
             {
                 Id = Id,
                 Label = Label
