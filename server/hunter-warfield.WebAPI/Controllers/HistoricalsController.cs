@@ -5,7 +5,7 @@ using hunter_warfield.WebAPI.Helpers;
 
 namespace hunter_warfield.WebAPI.Controllers
 {
-    public class HistoricalsController : BaseApiController<Historical, HistoricalDto>
+    public class HistoricalsController : BaseApiController<Historical, HistoricalDto, Int64>
     {
         public HistoricalsController() { }
     }

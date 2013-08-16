@@ -1,1 +1,2 @@
-h1 Debtors
+/ render 'debtors' debtors
+outlet

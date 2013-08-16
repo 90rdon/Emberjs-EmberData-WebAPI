@@ -5,8 +5,8 @@ using hunter_warfield.WebAPI.Helpers;
 
 namespace hunter_warfield.WebAPI.Controllers
 {
-    public class EmploymentsController : BaseApiController<Employment, EmploymentDto, Int64>
+    public class ClientsController : BaseApiController<Client, ClientDto, Int64>
     {
-        public EmploymentsController() { }
+        public ClientsController() { Includes = new[] { "Debtors" }; }
     }
 }

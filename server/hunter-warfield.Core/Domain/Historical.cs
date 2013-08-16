@@ -7,7 +7,7 @@ using hunter_warfield.Core.Interfaces;
 
 namespace hunter_warfield.Core.Domain
 {
-    public partial class Historical : IIdentifier
+    public partial class Historical : IIdentifier<Int64>
     {
         public Int64 Id { get; set; }
 

@@ -3,9 +3,9 @@
     .row-fluid
       .span6
         label Type
-        view  Em.Select    contentBinding='App.ConsumerFlagsController' optionLabelPath='content.type' optionValuePath='content.id' selectionBinding='selectedType'
+        view  Em.Select    contentBinding='controllers.consumerFlags' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.consumerFlags.selected'
         label Title
-        view  Em.TextField valueBinding='title'
+        view  Em.Select    contentBinding='controllers.titles' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.titles.selected' prompt='Title ...'
         label Last Name
         view  Em.TextField valueBinding='lastName'
         label First Name
@@ -13,7 +13,7 @@
         label Middle Name
         view  Em.TextField valueBinding='middleName'
         label Suffix
-        view  Em.TextField valueBinding='suffix'
+        / view  Em.Select    contentBinding='App.SuffixesController.content' optionLabelPath='label' optionValuePath='id' selectionBinding='App.SuffixesController.selected' prompt='Suffix ...'
         label Date of Birth
         view  Em.TextField valueBinding='dob'
         label SSN
@@ -23,17 +23,15 @@
         label Email
         view  Em.TextField valueBinding='email'
         label Email Validity
-        / .span
-        /   view Ember.RadioButton name='emailvalidity' selectionBinding='emailValidity' value='true' | Valid
-        /   view Ember.RadioButton name='emailvalidity' selectionBinding='emailValidity' value='false' | Invalid
-        view Em.TextField valueBinding='emailValidity'
+        view  Em.Select    contentBinding='controllers.validInvalid' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.validInvalid.selected' prompt='Email Validity ...'
         label Opted-In
-        view Em.TextField valueBinding='optIn'
+        view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Email Opt-in ...'
         label Commerical Contact
         view Em.TextField valueBinding='contact'
 
       .span6
         label Country
+        view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.desc' optionValuePath='content.id' selectionBinding='controllers.countries.selected' prompt='Country ...'
         view Em.TextField valueBinding='country'
         label Address1
         view Em.TextField valueBinding='address1'

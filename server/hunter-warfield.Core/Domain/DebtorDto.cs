@@ -44,22 +44,35 @@ namespace hunter_warfield.Core.Domain
             Persons = new List<PersonDto>();
             Employments = new List<EmploymentDto>();
             Historicals = new List<HistoricalDto>();
-            foreach (Contact contact in debtor.Contacts)
+            if (debtor.Contacts != null)
             {
-                Contacts.Add(new ContactDto(contact));
+                foreach (Contact contact in debtor.Contacts)
+                {
+                    Contacts.Add(new ContactDto(contact));
+                }
             }
-            foreach (Person person in debtor.Persons)
+            if (debtor.Persons != null)
             {
-                Persons.Add(new PersonDto(person));
+                foreach (Person person in debtor.Persons)
+                {
+                    Persons.Add(new PersonDto(person));
+                }
             }
-            foreach (Employment employment in debtor.Employments)
+            if (debtor.Employments != null)
             {
-                Employments.Add(new EmploymentDto(employment));
+                foreach (Employment employment in debtor.Employments)
+                {
+                    Employments.Add(new EmploymentDto(employment));
+                }
             }
-            foreach (Historical historical in debtor.Historicals)
+            if (debtor.Historicals != null)
             {
-                Historicals.Add(new HistoricalDto(historical));
+                foreach (Historical historical in debtor.Historicals)
+                {
+                    Historicals.Add(new HistoricalDto(historical));
+                }
             }
+            ClientId = debtor.ClientId;
         }
 
         [Key]
@@ -125,6 +138,7 @@ namespace hunter_warfield.Core.Domain
 
         public virtual List<HistoricalDto> Historicals { get; set; }
 
+        public Int64 ClientId { get; set; }
 
         public Debtor ToEntity()
         {
@@ -159,7 +173,8 @@ namespace hunter_warfield.Core.Domain
                 Contacts = new List<Contact>(),
                 Persons = new List<Person>(),
                 Employments = new List<Employment>(),
-                Historicals = new List<Historical>()
+                Historicals = new List<Historical>(),
+                ClientId = ClientId
             };
 
             if (Contacts != null)

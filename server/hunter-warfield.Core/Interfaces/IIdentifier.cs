@@ -2,8 +2,8 @@
 
 namespace hunter_warfield.Core.Interfaces
 {
-    public interface IIdentifier
+    public interface IIdentifier<I>
     {
-        Int64 Id { get; set; }
+        I Id { get; set; }
     }
 }

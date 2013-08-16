@@ -6,12 +6,14 @@
     else
       button{action 'edit'} Edit
     .span12
-      .span4
+      .span6
         address
           h2
             =title
             |  
             =name
+            |  
+            =suffix
           h4 =ssn
           hr
           .intro
@@ -26,7 +28,7 @@
             h5 Email
             =email
 
-      .span8
+      .span6
         render 'contacts'     contacts
 
   hr

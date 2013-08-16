@@ -1,3 +1,7 @@
 App.IndexRoute = Em.Route.extend
-  redirect: ->
-    @transitionTo 'debtors'
+  setupController: (controller, model) ->
+    @controllerFor('debtors').set 'model', App.Debtor.find()
+
+  renderTemplate: ->
+    @render 'debtors',
+      controller: 'debtors'

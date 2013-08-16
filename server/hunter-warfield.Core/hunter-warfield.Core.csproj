@@ -42,6 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\ContactDto.cs" />
+    <Compile Include="Domain\Client.cs" />
+    <Compile Include="Domain\ClientDto.cs" />
+    <Compile Include="Domain\CountryDto.cs" />
+    <Compile Include="Domain\Country.cs" />
     <Compile Include="Domain\Debtor.cs" />
     <Compile Include="Domain\Contact.cs" />
     <Compile Include="Domain\DebtorDto.cs" />

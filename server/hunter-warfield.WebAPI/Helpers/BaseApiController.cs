@@ -14,8 +14,8 @@ namespace hunter_warfield.WebAPI.Helpers
 {
     // Class type T is the Entity Framework data object type
     // Class type O is the Data Transform Object(DTO) type
-    public class BaseApiController<T, O> : ApiController 
-        where T : class, IIdentifier
+    public class BaseApiController<T, O, I> : ApiController 
+        where T : class, IIdentifier<I>
         where O : new()
     {
         protected IGenericRepository DataStore { get; set; }
@@ -24,21 +24,21 @@ namespace hunter_warfield.WebAPI.Helpers
         public BaseApiController()
         {
             //TODO: USE DEPENDENCY INJECTION FOR DECOUPLING
-            this.DataStore = new EFRepository();
+            this.DataStore = new EFRepository<I>();
         }
 
         // GET api/<controller>
         public virtual IEnumerable<O> Get()
         {
-            return DataStore.All<T>(Includes).Take(25)
+            return DataStore.All<T>(Includes)
                 .AsEnumerable()
                 .Select(t => GetObject(t));
         }
 
         // GET api/<controller>/5
-        public virtual O Get(int id)
+        public virtual O Get(I id)
         {
-            return GetObject(DataStore.Find<T>(t => t.Id == id, Includes));
+            return GetObject(DataStore.Find<T>(t => (object)t.Id == (object)id, Includes));
         }
 
         // POST api/<controller>
@@ -61,9 +61,9 @@ namespace hunter_warfield.WebAPI.Helpers
         }
 
         // DELETE api/<controller>/5
-        public virtual void Delete(Int64 id)
+        public virtual void Delete(I id)
         {
-            DataStore.Delete<T>(t => t.Id == id);
+            DataStore.Delete<T>(t => t.Id.Equals(id));
         }
 
         public virtual void Delete([FromBody]O value)

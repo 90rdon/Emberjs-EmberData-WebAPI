@@ -35,13 +35,15 @@ require 'models/debtor'
 require 'models/employment'
 require 'models/historical'
 require 'models/person'
+require 'models/client'
+require 'models/country'
 
 #/////////////////////////////////
 #// Routes
 #/////////////////////////////////
 
 require 'routes/indexRoute'
-require 'routes/debtorsRoute'
+require 'routes/debtorRoute'
 
 #//////////////////////////////////
 #// Templates
@@ -90,13 +92,12 @@ require 'store/RESTfulAdapter'
 # )
 
 App.Router.map ->
-  @route          'index',      path: '/'
-  @route          'debtors'
-  @resource       'debtor',     path: '/debtor/:debtor_id', ->
-    @resource     'contact',    path: '/contact/:contact_id',
-    @resource     'person',     path: '/person/:person_id',
-    @resource     'employment', path: '/employment/:employment_id'
-    @resource     'historical', path: '/historical/:historical_id'
+  @route          'index',      path: '/', ->
+  @resource       'debtor',     path: 'debtor/:debtor_id', ->
+    @resource     'contact',    path: 'contact/:contact_id',
+    @resource     'person',     path: 'person/:person_id',
+    @resource     'employment', path: 'employment/:employment_id'
+    @resource     'historical', path: 'historical/:historical_id'
 
 
 

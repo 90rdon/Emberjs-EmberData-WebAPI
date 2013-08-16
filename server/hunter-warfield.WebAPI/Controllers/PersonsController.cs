@@ -5,7 +5,7 @@ using hunter_warfield.WebAPI.Helpers;
 
 namespace hunter_warfield.WebAPI.Controllers
 {
-    public class PersonsController : BaseApiController<Person, PersonDto>
+    public class PersonsController : BaseApiController<Person, PersonDto, Int64>
     {
         public PersonsController() { }
     }

@@ -3,9 +3,9 @@
     .row-fluid
       .span6
         label Type
-        view Em.TextField valueBinding='type'
+        view  Em.Select    contentBinding='App.PhoneTypeController' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='App.ContactController.type' prompt='Type ...'
         label Country
-        view Em.TextField valueBinding='country'
+        / view  Em.Select    contentBinding='App.CountriesController' optionLabelPath='content.desc' optionValuePath='content.id' selectionBinding='App.CountriesController.selected' prompt='Country ...'
         label Phone
         view Em.TextField valueBinding='phone'
         label Extension
@@ -13,10 +13,10 @@
         label Score
         view Em.TextField valueBinding='score'
         label Status
-        view Em.TextField valueBinding='status'
+        view  Em.Select    contentBinding='App.PhoneStatusController' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='App.PhoneStatusController.selected' prompt='Status ...'
         label Source
-        view Em.TextField valueBinding='source'
+        view  Em.Select    contentBinding='App.PhoneSourceController' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='App.PhoneSourceController.selected' prompt='Source ...'
         label Consent
-        view Em.TextField valueBinding='consent'
+        view  Em.Select    contentBinding='App.YesNoController' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='App.YesNoController.selected' prompt='Consent ...'
 
         button{action 'doneEditing'} Done

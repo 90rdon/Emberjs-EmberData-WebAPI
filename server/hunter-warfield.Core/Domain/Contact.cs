@@ -10,7 +10,7 @@ using hunter_warfield.Core.Interfaces;
 
 namespace hunter_warfield.Core.Domain
 {
-    public partial class Contact : IIdentifier
+    public partial class Contact : IIdentifier<Int64>
     {
         public Int64 Id { get; set; }
 

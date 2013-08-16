@@ -33,7 +33,7 @@ namespace hunter_warfield.Data.Tests
         {
             using (var db = new hwiContext())
             {
-                var entity = new EFRepository();
+                var entity = new EFRepository<Int64>();
                 var debtors = entity.All<Debtor>(new string[]{"Contacts"}).FirstOrDefault();
 
                 Assert.IsTrue(debtors != null);
@@ -45,7 +45,7 @@ namespace hunter_warfield.Data.Tests
         {
             using (var db = new hwiContext())
             {
-                var entity = new EFRepository();
+                var entity = new EFRepository<Int64>();
                 var contact = entity.All<Contact>().FirstOrDefault();
 
                 Assert.IsTrue(contact != null);
@@ -57,7 +57,7 @@ namespace hunter_warfield.Data.Tests
         {
             using (var db = new hwiContext())
             {
-                var entity = new EFRepository();
+                var entity = new EFRepository<Int64>();
                 var person = entity.All<Person>().FirstOrDefault();
 
                 Assert.IsTrue(person != null);
@@ -69,7 +69,7 @@ namespace hunter_warfield.Data.Tests
         {
             using (var db = new hwiContext())
             {
-                var entity = new EFRepository();
+                var entity = new EFRepository<Int64>();
                 var employment = entity.All<Employment>().FirstOrDefault();
 
                 Assert.IsTrue(employment != null);
@@ -81,10 +81,35 @@ namespace hunter_warfield.Data.Tests
         {
             using (var db = new hwiContext())
             {
-                var entity = new EFRepository();
+                var entity = new EFRepository<Int64>();
                 var historical = entity.All<Historical>().FirstOrDefault();
 
                 Assert.IsTrue(historical != null);
+            }
+        }
+
+        [TestMethod]
+        public void GetCountrysEntity()
+        {
+            using (var db = new hwiContext())
+            {
+                var entity = new EFRepository<Int16>();
+                var country = entity.All<Country>();
+
+                Assert.IsTrue(country != null);
+            }
+        }
+
+        [TestMethod]
+        public void GetClientEntity()
+        {
+            using (var db = new hwiContext())
+            {
+                var entity = new EFRepository<Int64>();
+                var client = entity.Find<Client>(c => c.Id.Equals(159), new string[] { "Debtors" });
+
+                Assert.IsTrue(client != null);
+                Assert.IsTrue(client.Debtors.FirstOrDefault() != null);
             }
         }
     }

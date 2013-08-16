@@ -7,7 +7,7 @@ using hunter_warfield.Core.Interfaces;
 
 namespace hunter_warfield.Core.Domain
 {
-    public partial class Employment : IIdentifier
+    public partial class Employment : IIdentifier<Int64>
     {
         public Int64 Id { get; set; }
 

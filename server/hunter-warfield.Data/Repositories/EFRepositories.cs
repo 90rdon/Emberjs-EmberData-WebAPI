@@ -13,7 +13,7 @@ namespace hunter_warfield.Data.Repositories
     /// Repository provider for Entity Framework
     /// See base class for method comments
     /// </summary>
-    public class EFRepository : IGenericRepository
+    public class EFRepository<I> : IGenericRepository
     {
         private hwiContext dbContext;
 
@@ -56,7 +56,7 @@ namespace hunter_warfield.Data.Repositories
                 foreach (var include in includes.Skip(1))
                     query = query.Include(include);
                 return query.FirstOrDefault<T>(predicate);
-            }
+            }            
 
             return dbContext.Set<T>().FirstOrDefault<T>(predicate);
         }
@@ -134,7 +134,7 @@ namespace hunter_warfield.Data.Repositories
             if (dbContext.Entry(TObject).State == EntityState.Detached)
             {
                 var set = dbContext.Set<T>();
-                T attachedEntity = set.Find((TObject as IIdentifier).Id);
+                T attachedEntity = set.Find((TObject as IIdentifier<I>).Id);
 
                 if (attachedEntity == null)
                 {

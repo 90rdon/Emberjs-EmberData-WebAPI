@@ -47,6 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configurations\ContactConfiguration.cs" />
+    <Compile Include="Configurations\ClientConfiguration.cs" />
+    <Compile Include="Configurations\CountryConfiguration.cs" />
     <Compile Include="Configurations\HistoricalConfiguration.cs" />
     <Compile Include="Configurations\EmploymentConfiguration.cs" />
     <Compile Include="Configurations\PersonConfiguration.cs" />

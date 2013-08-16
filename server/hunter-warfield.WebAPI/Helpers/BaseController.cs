@@ -7,14 +7,14 @@ using hunter_warfield.Data.Repositories;
 
 namespace hunter_warfield.WebAPI.Helpers
 {
-    public class BaseController : Controller
+    public class BaseController<I> : Controller
     {
         protected IGenericRepository DataStore { get; set; }
 
         public BaseController()
         {
             //TODO: USE DEPENDENCY INJECTION FOR DECOUPLING
-            this.DataStore = new EFRepository();
+            this.DataStore = new EFRepository<I>();
         }
 
         protected IEnumerable GetModelErrors()

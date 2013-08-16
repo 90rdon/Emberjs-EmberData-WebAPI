@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using hunter_warfield.Core.Domain;
 using hunter_warfield.Data.Contexts;
@@ -6,20 +8,27 @@ using hunter_warfield.WebAPI.Helpers;
 
 namespace hunter_warfield.WebAPI.Controllers
 {
-    public class DebtorsController : BaseApiController<Debtor, DebtorDto>
+    public class DebtorsController : BaseApiController<Debtor, DebtorDto, Int64>
     {
         public DebtorsController() { Includes = new[] { "Contacts", "Persons", "Employments", "Historicals" }; }  // 
 
-        //private hwiContext db = new hwiContext();
+        private hwiContext db = new hwiContext();
 
-        //// GET api/Debtors
-        ////[Queryable(PageSize = 25)]
-        //public IEnumerable<DebtorDto> GetDebtors()
-        //{
-        //    return db.Debtors.Take(25)
-        //        .AsEnumerable()
-        //        .Select(debtor => new DebtorDto(debtor));
-        //}
+        // GET api/Debtors
+        //[Queryable(PageSize = 25)]
+        public override IEnumerable<DebtorDto> Get()
+        {
+            var result = db.Set<Debtor>()
+                .Include("Contacts")
+                .Include("Persons")
+                .Include("Employments")
+                .Include("Historicals")
+                .Where(d => d.ClientId == 159)
+                .AsEnumerable()
+                .Select(d => new DebtorDto(d));
+                
+            return result;
+        }
 
         //// GET api/Debtors/5
         //public DebtorDto GetDebtor(long id)

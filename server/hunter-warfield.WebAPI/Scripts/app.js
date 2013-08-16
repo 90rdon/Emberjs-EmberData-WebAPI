@@ -121,7 +121,12 @@ window.require.register("controllers/columnSorterController", function(exports, 
 });
 window.require.register("controllers/contactController", function(exports, require, module) {
   App.ContactController = Em.ObjectController.extend({
+    needs: ['countries'],
     doneEditing: function() {
+      this.set('type', App.PhoneTypeController.getSelectedId());
+      this.set('status', App.PhoneStatusController.getSelectedId());
+      this.set('source', App.PhoneSourceController.getSelectedId());
+      this.set('consent', App.YesNoController.getSelectedId());
       this.get('store').commit();
       return this.transitionToRoute('debtor');
     }
@@ -168,29 +173,38 @@ window.require.register("controllers/contactsController", function(exports, requ
 });
 window.require.register("controllers/debtorController", function(exports, require, module) {
   App.DebtorController = Em.ObjectController.extend({
+    needs: ['countries', 'consumerFlags', 'titles', 'suffixes', 'validInvalid', 'yesNo'],
     name: (function() {
       var first, last, middle;
       first = this.get('firstName') || '';
       middle = this.get('middleName') || '';
       last = this.get('lastName') || '';
       return first + ' ' + middle + ' ' + last;
-    }).property('firstName', 'lastName', 'middleName', 'type'),
+    }).property('firstName', 'lastName', 'middleName'),
     isEditing: false,
-    emailv: false,
-    doneEditing: function() {
-      this.set('isEditing', false);
-      this.set('type', this.get('selectedType.id'));
-      return this.get('store').commit();
-    },
     edit: function() {
       this.set('isEditing', true);
-      return this.set('selectedType', App.ConsumerFlagsController.findProperty('id', this.get('type')));
+      this.get('controllers.consumerFlags').setSelectedById(this.get('type'));
+      this.get('controllers.titles').setSelectedById(this.get('title'));
+      this.get('controllers.suffixes').setSelectedById(this.get('suffix'));
+      this.get('controllers.validInvalid').setSelectedById(this.get('emailValidity'));
+      this.get('controllers.yesNo').setSelectedById(this.get('optIn'));
+      return this.get('controllers.countries').setSelectedById(this.get('country'));
+    },
+    doneEditing: function() {
+      this.set('isEditing', false);
+      this.set('type', this.get('controllers.consumerFlags').getSelectedId());
+      this.set('title', this.get('controllers.titles').getSelectedId());
+      this.set('suffix', this.get('controllers.suffixes').getSelectedId());
+      this.set('emailValidity', this.get('controllers.validInvalid').getSelectedId());
+      this.set('optIn', this.get('controllers.yesNo').getSelectedId());
+      this.set('country', this.get('controllers.countries').getSelectedId());
+      return this.get('store').commit();
     },
     back: function() {
       this.set('isEditing', false);
-      return this.transitionToRoute('debtors');
-    },
-    selectedType: null
+      return this.transitionToRoute('index');
+    }
   });
   
 });
@@ -330,25 +344,12 @@ window.require.register("controllers/historicalsController", function(exports, r
   
 });
 window.require.register("controllers/lookupDataController", function(exports, require, module) {
-  App.ConsumerFlagsController = Em.ArrayController.create({
-    content: [
-      Em.Object.create({
-        id: 'N',
-        type: 'Consumer'
-      }), Em.Object.create({
-        id: 'Y',
-        type: 'Commerical'
-      })
-    ]
-  });
-
-  App.TitlesController = Em.ArrayController.create({
+  App.LookupDataController = Em.ArrayController.extend({
     selected: null,
-    content: [
-      Em.Object.create({
-        title: ''
-      })
-    ],
+    content: [],
+    getSelectedId: function() {
+      return this.get('selected.id');
+    },
     getObjectById: function(id) {
       return this.get('content').filterProperty('id', id).get('firstObject');
     },
@@ -356,6 +357,146 @@ window.require.register("controllers/lookupDataController", function(exports, re
       return this.set('selected', this.getObjectById(id));
     }
   });
+
+  App.ConsumerFlagsController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 'N',
+        label: 'Consumer'
+      }), Em.Object.create({
+        id: 'Y',
+        label: 'Commerical'
+      })
+    ]
+  });
+
+  App.TitlesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 'Dr.'
+      }), Em.Object.create({
+        id: 'Miss'
+      }), Em.Object.create({
+        id: 'Mr.'
+      }), Em.Object.create({
+        id: 'Mrs.'
+      }), Em.Object.create({
+        id: 'Ms.'
+      }), Em.Object.create({
+        id: 'Prof'
+      })
+    ]
+  });
+
+  App.SuffixesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 'Jr.'
+      }), Em.Object.create({
+        id: 'Sr.'
+      }), Em.Object.create({
+        id: 'Esq.'
+      }), Em.Object.create({
+        id: 'I'
+      }), Em.Object.create({
+        id: 'II'
+      }), Em.Object.create({
+        id: 'III'
+      })
+    ]
+  });
+
+  App.ValidInvalidController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 1,
+        label: 'Valid'
+      }), Em.Object.create({
+        id: 2,
+        label: 'Invalid'
+      })
+    ]
+  });
+
+  App.YesNoController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 'Y',
+        label: 'Yes'
+      }), Em.Object.create({
+        id: 'N',
+        label: 'No'
+      })
+    ]
+  });
+
+  App.PhoneTypeController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 0,
+        label: 'Unknown'
+      }), Em.Object.create({
+        id: 1,
+        label: 'Home'
+      }), Em.Object.create({
+        id: 2,
+        label: 'Work'
+      }), Em.Object.create({
+        id: 3,
+        label: 'Cell'
+      }), Em.Object.create({
+        id: 4,
+        label: 'Fax'
+      }), Em.Object.create({
+        id: 5,
+        label: 'VOIP'
+      })
+    ]
+  });
+
+  App.PhoneStatusController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 0,
+        label: 'Unknown'
+      }), Em.Object.create({
+        id: 1,
+        label: 'Valid'
+      }), Em.Object.create({
+        id: 2,
+        label: 'Invalid'
+      }), Em.Object.create({
+        id: 3,
+        label: 'New'
+      }), Em.Object.create({
+        id: 4,
+        label: 'Valid - Do not call'
+      })
+    ]
+  });
+
+  App.PhoneSourceController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 0,
+        label: 'Unknown'
+      }), Em.Object.create({
+        id: 1,
+        label: 'Type In'
+      }), Em.Object.create({
+        id: 2,
+        label: 'Client'
+      }), Em.Object.create({
+        id: 3,
+        label: 'Skip Trance'
+      }), Em.Object.create({
+        id: 4,
+        label: 'Consumer Portal'
+      })
+    ]
+  });
+
+  App.CountriesController = App.LookupDataController.extend();
   
 });
 window.require.register("controllers/personController", function(exports, require, module) {
@@ -501,9 +642,13 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('models/person');
 
+  require('models/client');
+
+  require('models/country');
+
   require('routes/indexRoute');
 
-  require('routes/debtorsRoute');
+  require('routes/debtorRoute');
 
   require('templates/_well');
 
@@ -550,22 +695,28 @@ window.require.register("initialize", function(exports, require, module) {
   App.Router.map(function() {
     this.route('index', {
       path: '/'
-    });
-    this.route('debtors');
+    }, function() {});
     return this.resource('debtor', {
-      path: '/debtor/:debtor_id'
+      path: 'debtor/:debtor_id'
     }, function() {
       this.resource('contact', {
-        path: '/contact/:contact_id'
+        path: 'contact/:contact_id'
       }, this.resource('person', {
-        path: '/person/:person_id'
+        path: 'person/:person_id'
       }, this.resource('employment', {
-        path: '/employment/:employment_id'
+        path: 'employment/:employment_id'
       })));
       return this.resource('historical', {
-        path: '/historical/:historical_id'
+        path: 'historical/:historical_id'
       });
     });
+  });
+  
+});
+window.require.register("models/client", function(exports, require, module) {
+  App.Client = DS.Model.extend({
+    description: DS.attr('string'),
+    debtors: DS.hasMany('App.Debtor')
   });
   
 });
@@ -581,6 +732,12 @@ window.require.register("models/contact", function(exports, require, module) {
     consent: DS.attr('string'),
     debtorId: DS.attr('number'),
     debtor: DS.belongsTo('App.Debtor')
+  });
+  
+});
+window.require.register("models/country", function(exports, require, module) {
+  App.Country = DS.Model.extend({
+    desc: DS.attr('string')
   });
   
 });
@@ -614,7 +771,8 @@ window.require.register("models/debtor", function(exports, require, module) {
     contacts: DS.hasMany('App.Contact'),
     persons: DS.hasMany('App.Person'),
     employments: DS.hasMany('App.Employment'),
-    historicals: DS.hasMany('App.Historical')
+    historicals: DS.hasMany('App.Historical'),
+    client: DS.belongsTo('App.Client')
   });
   
 });
@@ -682,18 +840,27 @@ window.require.register("models/person", function(exports, require, module) {
   });
   
 });
-window.require.register("routes/debtorsRoute", function(exports, require, module) {
-  App.DebtorsRoute = Em.Route.extend({
-    model: function() {
-      return App.Debtor.find();
+window.require.register("routes/debtorRoute", function(exports, require, module) {
+  App.DebtorRoute = Em.Route.extend({
+    model: function(params) {
+      return App.Debtor.find(params.debtor_id);
+    },
+    setupController: function(controller, model) {
+      controller.set('model', model);
+      return this.controllerFor('countries').set('model', App.Country.find());
     }
   });
   
 });
 window.require.register("routes/indexRoute", function(exports, require, module) {
   App.IndexRoute = Em.Route.extend({
-    redirect: function() {
-      return this.transitionTo('debtors');
+    setupController: function(controller, model) {
+      return this.controllerFor('debtors').set('model', App.Debtor.find());
+    },
+    renderTemplate: function() {
+      return this.render('debtors', {
+        controller: 'debtors'
+      });
     }
   });
   
@@ -705,10 +872,21 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
       namespace: 'hunter-warfield/api',
       bulkCommit: false,
       antiForgeryTokenSelector: '#antiForgeryToken',
-      pluralize: function(string) {
-        return string + 's';
+      plurals: {
+        'country': 'countries'
+      },
+      pluralize: function(name) {
+        var plurals;
+        plurals = this.get('plurals');
+        return (plurals && plurals[name]) || name + 's';
       }
     })
+  });
+
+  DS.WebAPIAdapter.map('App.Client', {
+    debtors: {
+      embedded: 'load'
+    }
   });
 
   DS.WebAPIAdapter.map('App.Debtor', {
@@ -724,6 +902,11 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
     historicals: {
       embedded: 'load'
     }
+  });
+
+  DS.WebAPIAdapter.configure('App.Client', {
+    sideloadAs: 'client',
+    primaryKey: 'id'
   });
 
   DS.WebAPIAdapter.configure('App.Debtor', {
@@ -748,6 +931,11 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
 
   DS.WebAPIAdapter.configure('App.Historical', {
     sideloadAs: 'historical',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Country', {
+    sideloadAs: 'country',
     primaryKey: 'id'
   });
   
@@ -1015,18 +1203,16 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
 
 
     data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span6\"><label>Type</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("type")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("App.PhoneTypeController"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("App.ContactController.type"),
+      'prompt': ("Type ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Country</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("country")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Phone</label>");
+    data.buffer.push("<label>Country</label><label>Phone</label>");
     hashContexts = {'valueBinding': depth0};
     hashTypes = {'valueBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
@@ -1045,22 +1231,34 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
       'valueBinding': ("score")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<label>Status</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("status")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("App.PhoneStatusController"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("App.PhoneStatusController.selected"),
+      'prompt': ("Status ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<label>Source</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("source")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("App.PhoneSourceController"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("App.PhoneSourceController.selected"),
+      'prompt': ("Source ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<label>Consent</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("consent")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("App.YesNoController"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("App.YesNoController.selected"),
+      'prompt': ("Consent ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<button ");
     hashTypes = {};
@@ -1198,7 +1396,7 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashContexts = {};
     stack1 = helpers['if'].call(depth0, "isEditing", {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("<div class=\"span12\"><div class=\"span4\"><address><h2>");
+    data.buffer.push("<div class=\"span12\"><div class=\"span6\"><address><h2>");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "title", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -1206,6 +1404,10 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "suffix", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</h2><h4>");
     hashTypes = {};
     hashContexts = {};
@@ -1230,7 +1432,7 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "email", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></address></div><div class=\"span8\">");
+    data.buffer.push("</div></address></div><div class=\"span6\">");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
@@ -1270,16 +1472,20 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("App.ConsumerFlagsController"),
-      'optionLabelPath': ("content.type"),
+      'contentBinding': ("controllers.consumerFlags"),
+      'optionLabelPath': ("content.label"),
       'optionValuePath': ("content.id"),
-      'selectionBinding': ("selectedType")
+      'selectionBinding': ("controllers.consumerFlags.selected")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<label>Title</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("title")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.titles"),
+      'optionLabelPath': ("content.id"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.titles.selected"),
+      'prompt': ("Title ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<label>Last Name</label>");
     hashContexts = {'valueBinding': depth0};
@@ -1299,13 +1505,7 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("middleName")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Suffix</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("suffix")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Date of Birth</label>");
+    data.buffer.push("<label>Suffix</label><label>Date of Birth</label>");
     hashContexts = {'valueBinding': depth0};
     hashTypes = {'valueBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
@@ -1330,16 +1530,24 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'valueBinding': ("email")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<label>Email Validity</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("emailValidity")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.validInvalid"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.validInvalid.selected"),
+      'prompt': ("Email Validity ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<label>Opted-In</label>");
-    hashContexts = {'valueBinding': depth0};
-    hashTypes = {'valueBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("optIn")
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.yesNo"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.yesNo.selected"),
+      'prompt': ("Email Opt-in ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("<label>Commerical Contact</label>");
     hashContexts = {'valueBinding': depth0};
@@ -1348,6 +1556,15 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'valueBinding': ("contact")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</div><div class=\"span6\"><label>Country</label>");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.countries"),
+      'optionLabelPath': ("content.desc"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.countries.selected"),
+      'prompt': ("Country ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     hashContexts = {'valueBinding': depth0};
     hashTypes = {'valueBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
@@ -1950,10 +2167,12 @@ window.require.register("templates/index", function(exports, require, module) {
   Ember.TEMPLATES["index"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    
+    var hashTypes, hashContexts, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<h1>Debtors</h1>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     
   });module.exports = module.id;
 });
@@ -2213,4 +2432,8 @@ window.require.register("templates/persons", function(exports, require, module) 
     return buffer;
     
   });module.exports = module.id;
+});
+window.require.register("views/App.ContactView", function(exports, require, module) {
+  
+  
 });

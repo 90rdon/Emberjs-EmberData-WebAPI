@@ -31,3 +31,5 @@ App.Debtor = DS.Model.extend
   persons:            DS.hasMany 'App.Person'
   employments:        DS.hasMany 'App.Employment'
   historicals:        DS.hasMany 'App.Historical'
+
+  client:             DS.belongsTo 'App.Client'

@@ -73,6 +73,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Controllers\ClientsControllerTest.cs" />
+    <Compile Include="Controllers\CountriesControllerTest.cs" />
     <Compile Include="Controllers\DebtorsControllerTest.cs" />
     <Compile Include="Controllers\ContactsControllerTest.cs" />
     <Compile Include="Controllers\PersonsControllerTests.cs" />

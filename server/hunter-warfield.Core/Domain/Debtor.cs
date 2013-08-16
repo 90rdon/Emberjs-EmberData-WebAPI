@@ -7,7 +7,7 @@ using hunter_warfield.Core.Interfaces;
 
 namespace hunter_warfield.Core.Domain
 {
-    public partial class Debtor : IIdentifier
+    public partial class Debtor : IIdentifier<Int64>
     {
         public Int64 Id { get; set; }
 
@@ -70,5 +70,9 @@ namespace hunter_warfield.Core.Domain
         public virtual List<Employment> Employments { get; set; }
 
         public virtual List<Historical> Historicals { get; set; }
+
+        [ForeignKey("Client")]
+        public Int64 ClientId { get; set; }
+        public virtual Client Client { get; set; }
     }
 }
