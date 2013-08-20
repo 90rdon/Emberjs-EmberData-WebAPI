@@ -58,3 +58,4 @@
         view Em.TextField valueBinding='pin' placeholder='PIN'
 
       .btn.btn-success{action 'doneEditing'} Done
+      .btn{action 'cancelEditing'} Cancel

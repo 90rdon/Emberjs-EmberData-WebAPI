@@ -85,80 +85,29 @@ window.require.register("app", function(exports, require, module) {
   });
   
 });
-window.require.register("controllers/columnItemController", function(exports, require, module) {
-  App.ColumnItemController = Em.ObjectController.extend({
-    sortColumn: Em.computed.alias('parentController.sortedColumn'),
-    sortAscending: Em.computed.alias('parentController.sortAscending'),
-    sortDescending: Em.computed.not('sortAscending'),
-    isSorted: (function() {
-      return this.get('sortColumn') === this.get('column');
-    }).property('sortColumn', 'column'),
-    sortedAsc: Em.computed.and('sortAscending', 'isSorted'),
-    sortedDesc: Em.computed.and('sortDescending', 'isSorted')
-  });
-  
-});
-window.require.register("controllers/columnSorterController", function(exports, require, module) {
-  App.ColumnSorterController = Em.ArrayController.extend({
-    columns: [],
-    sortedColumn: (function() {
-      var properties;
-      properties = this.get('sortProperties');
-      if (!properties) {
-        return 'undefined';
-      }
-      return properties.get('firstObject');
-    }).property('sortProperties.[]'),
-    toggleSort: function(column) {
-      if (this.get('sortedColumn') === column) {
-        return this.toggleProperty('sortAscending');
-      } else {
-        this.set('sortProperties', [column]);
-        return this.set('sortAscending', true);
-      }
-    }
-  });
-  
-});
 window.require.register("controllers/contactController", function(exports, require, module) {
-  App.ContactController = Em.ObjectController.extend({
+  App.ContactController = App.EditObjectController.extend({
     needs: ['debtor', 'countries', 'phoneTypes', 'phoneStatuses', 'phoneSources', 'yesNo'],
-    loaded: (function() {
+    setSelections: function() {
       this.get('controllers.countries').setSelectedById(this.get('country'));
       this.get('controllers.phoneTypes').setSelectedById(this.get('type'));
       this.get('controllers.phoneStatuses').setSelectedById(this.get('status'));
       this.get('controllers.phoneSources').setSelectedById(this.get('source'));
       return this.get('controllers.yesNo').setSelectedById(this.get('consent'));
-    }).observes('@content.isLoaded'),
-    dirtied: (function() {
-      if (this.get('transaction') === null && this.get('isDirty') === true) {
-        return this.set('transaction', this.get('store').transaction());
-      }
-    }).observes('isDirty'),
-    doneEditing: function() {
+    },
+    getSelections: function() {
       this.set('country', this.get('controllers.countries').getSelectedId());
       this.set('type', this.get('controllers.phoneTypes').getSelectedId());
       this.set('status', this.get('controllers.phoneStatuses').getSelectedId());
       this.set('source', this.get('controllers.phoneSources').getSelectedId());
-      this.set('consent', this.get('controllers.yesNo').getSelectedId());
-      if (this.get('transaction') !== null) {
-        this.get('transaction').commit();
-        this.get('store').commit();
-      }
-      return this.transitionToRoute('debtor');
-    },
-    cancelEditing: function() {
-      if (this.get('transaction') !== null) {
-        this.get('transaction').rollback();
-      }
-      return this.transitionToRoute('debtor');
+      return this.set('consent', this.get('controllers.yesNo').getSelectedId());
     }
   });
   
 });
 window.require.register("controllers/contactsController", function(exports, require, module) {
   App.ContactsController = App.ColumnSorterController.extend({
-    needs: ['debtor', 'phoneTypes', 'contact'],
+    needs: ['debtor', 'contact'],
     columns: (function() {
       return [
         Em.Object.create({
@@ -179,17 +128,13 @@ window.require.register("controllers/contactsController", function(exports, requ
         'debtor': this.get('controllers.debtor').content,
         'debtorId': this.get('controllers.debtor').content.id
       }));
-    },
-    "delete": function(contact) {
-      contact.deleteRecord();
-      return this.get('store').commit();
     }
   });
   
 });
 window.require.register("controllers/debtorController", function(exports, require, module) {
-  App.DebtorController = Em.ObjectController.extend({
-    needs: ['countries', 'consumerFlags', 'titles', 'suffixes', 'validInvalid', 'yesNo'],
+  App.DebtorController = App.EditObjectController.extend({
+    needs: ['contacts', 'employments', 'persons', 'historicals', 'countries', 'consumerFlags', 'titles', 'suffixes', 'validInvalid', 'yesNo'],
     name: (function() {
       var first, last, middle;
       first = this.get('firstName') || '';
@@ -197,9 +142,7 @@ window.require.register("controllers/debtorController", function(exports, requir
       last = this.get('lastName') || '';
       return first + ' ' + middle + ' ' + last;
     }).property('firstName', 'lastName', 'middleName'),
-    isEditing: false,
-    edit: function() {
-      this.set('isEditing', true);
+    setSelections: function() {
       this.get('controllers.consumerFlags').setSelectedById(this.get('type'));
       this.get('controllers.titles').setSelectedById(this.get('title'));
       this.get('controllers.suffixes').setSelectedById(this.get('suffix'));
@@ -207,15 +150,13 @@ window.require.register("controllers/debtorController", function(exports, requir
       this.get('controllers.yesNo').setSelectedById(this.get('optIn'));
       return this.get('controllers.countries').setSelectedById(this.get('country'));
     },
-    doneEditing: function() {
-      this.set('isEditing', false);
+    getSelections: function() {
       this.set('type', this.get('controllers.consumerFlags').getSelectedId());
       this.set('title', this.get('controllers.titles').getSelectedId());
       this.set('suffix', this.get('controllers.suffixes').getSelectedId());
       this.set('emailValidity', this.get('controllers.validInvalid').getSelectedId());
       this.set('optIn', this.get('controllers.yesNo').getSelectedId());
-      this.set('country', this.get('controllers.countries').getSelectedId());
-      return this.get('store').commit();
+      return this.set('country', this.get('controllers.countries').getSelectedId());
     },
     back: function() {
       this.set('isEditing', false);
@@ -254,17 +195,24 @@ window.require.register("controllers/debtorsController", function(exports, requi
   
 });
 window.require.register("controllers/employmentController", function(exports, require, module) {
-  App.EmploymentController = Em.ObjectController.extend({
-    needs: ['associations', 'employmentStatuses', 'countries'],
-    doneEditing: function() {
-      this.get('store').commit();
-      return this.transitionToRoute('debtor');
+  App.EmploymentController = App.EditObjectController.extend({
+    needs: ['debtor', 'associations', 'employmentStatuses', 'countries'],
+    setSelections: function() {
+      this.get('controllers.associations').setSelectedById(this.get('association'));
+      this.get('controllers.countries').setSelectedById(this.get('country'));
+      return this.get('controllers.employmentStatuses').setSelectedById(this.get('status'));
+    },
+    getSelections: function() {
+      this.set('country', this.get('controllers.countries').getSelectedId());
+      this.set('status', this.get('controllers.employmentStatuses').getSelectedId());
+      return this.set('association', this.get('controllers.associations').getSelectedId());
     }
   });
   
 });
 window.require.register("controllers/employmentsController", function(exports, require, module) {
   App.EmploymentsController = App.ColumnSorterController.extend({
+    needs: ['debtor', 'employment'],
     columns: (function() {
       return [
         Em.Object.create({
@@ -281,7 +229,88 @@ window.require.register("controllers/employmentsController", function(exports, r
           column: 'hireDate'
         })
       ];
-    }).property()
+    }).property(),
+    create: function() {
+      var transaction;
+      transaction = this.get('store').transaction();
+      return this.transitionToRoute('employment', transaction.createRecord(App.Employment, {
+        'debtor': this.get('controllers.debtor').content,
+        'debtorId': this.get('controllers.debtor').content.id
+      }));
+    }
+  });
+  
+});
+window.require.register("controllers/helpers/columnItemController", function(exports, require, module) {
+  App.ColumnItemController = Em.ObjectController.extend({
+    sortColumn: Em.computed.alias('parentController.sortedColumn'),
+    sortAscending: Em.computed.alias('parentController.sortAscending'),
+    sortDescending: Em.computed.not('sortAscending'),
+    isSorted: (function() {
+      return this.get('sortColumn') === this.get('column');
+    }).property('sortColumn', 'column'),
+    sortedAsc: Em.computed.and('sortAscending', 'isSorted'),
+    sortedDesc: Em.computed.and('sortDescending', 'isSorted')
+  });
+  
+});
+window.require.register("controllers/helpers/columnSorterController", function(exports, require, module) {
+  App.ColumnSorterController = Em.ArrayController.extend({
+    columns: [],
+    sortedColumn: (function() {
+      var properties;
+      properties = this.get('sortProperties');
+      if (!properties) {
+        return 'undefined';
+      }
+      return properties.get('firstObject');
+    }).property('sortProperties.[]'),
+    toggleSort: function(column) {
+      if (this.get('sortedColumn') === column) {
+        return this.toggleProperty('sortAscending');
+      } else {
+        this.set('sortProperties', [column]);
+        return this.set('sortAscending', true);
+      }
+    },
+    "delete": function(record) {
+      record.deleteRecord();
+      return this.get('store').commit();
+    }
+  });
+  
+});
+window.require.register("controllers/helpers/editObjectController", function(exports, require, module) {
+  App.EditObjectController = Em.ObjectController.extend({
+    isEditing: false,
+    loaded: (function() {
+      return this.setSelections();
+    }).observes('@content.isLoaded'),
+    dirtied: (function() {
+      if (this.get('transaction') === null && this.get('isDirty') === true) {
+        return this.set('transaction', this.get('store').transaction());
+      }
+    }).observes('isDirty'),
+    edit: function() {
+      this.set('isEditing', true);
+      return this.setSelection;
+    },
+    doneEditing: function() {
+      this.getSelections();
+      if (this.get('transaction') !== null) {
+        this.get('transaction').commit();
+      }
+      this.set('isEditing', false);
+      return this.transitionToRoute('debtor');
+    },
+    cancelEditing: function() {
+      this.setSelections();
+      if (this.get('transaction') !== null) {
+        this.get('transaction').rollback();
+      }
+      this.set('isEditing', false);
+      return this.transitionToRoute('debtor');
+    }
   });
   
 });
@@ -316,7 +345,6 @@ window.require.register("controllers/historicalsController", function(exports, r
 window.require.register("controllers/lookupDataController", function(exports, require, module) {
   App.LookupDataController = Em.ArrayController.extend({
     selected: null,
-    content: [],
     getSelectedId: function() {
       return this.get('selected.id');
     },
@@ -515,25 +543,24 @@ window.require.register("controllers/lookupDataController", function(exports, re
   
 });
 window.require.register("controllers/personController", function(exports, require, module) {
-  App.PersonController = Em.ObjectController.extend({
+  App.PersonController = App.EditObjectController.extend({
     needs: ['countries', 'relationships', 'titles'],
-    loaded: (function() {
+    setSelections: function() {
       this.get('controllers.countries').setSelectedById(this.get('country'));
       this.get('controllers.relationships').setSelectedById(this.get('relationship'));
       return this.get('controllers.titles').setSelectedById(this.get('title'));
-    }).observes('@content.isloaded'),
-    doneEditing: function() {
+    },
+    getSelections: function() {
       this.set('country', this.get('controllers.countries').getSelectedId());
       this.set('relationship', this.get('controllers.relationships').getSelectedId());
-      this.set('title', this.get('controllers.titles').getSelectedId());
-      this.get('store').commit();
-      return this.transitionToRoute('debtor');
+      return this.set('title', this.get('controllers.titles').getSelectedId());
     }
   });
   
 });
 window.require.register("controllers/personsController", function(exports, require, module) {
   App.PersonsController = App.ColumnSorterController.extend({
+    needs: ['debtor', 'person'],
     columns: (function() {
       return [
         Em.Object.create({
@@ -550,7 +577,15 @@ window.require.register("controllers/personsController", function(exports, requi
           column: 'comment'
         })
       ];
-    }).property()
+    }).property(),
+    create: function() {
+      var transaction;
+      transaction = this.get('store').transaction();
+      return this.transitionToRoute('person', transaction.createRecord(App.Person, {
+        'debtor': this.get('controllers.debtor').content,
+        'debtorId': this.get('controllers.debtor').content.id
+      }));
+    }
   });
   
 });
@@ -654,9 +689,11 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('helpers/datePicker');
 
-  require('controllers/columnItemController');
+  require('controllers/helpers/columnItemController');
 
-  require('controllers/columnSorterController');
+  require('controllers/helpers/columnSorterController');
+
+  require('controllers/helpers/editObjectController');
 
   require('controllers/contactController');
 
@@ -770,7 +807,7 @@ window.require.register("models/client", function(exports, require, module) {
 window.require.register("models/contact", function(exports, require, module) {
   App.Contact = DS.Model.extend({
     type: DS.attr('number'),
-    country: DS.attr('number'),
+    country: DS.attr('string'),
     phone: DS.attr('string'),
     extension: DS.attr('string'),
     score: DS.attr('number'),
@@ -903,8 +940,8 @@ window.require.register("routes/debtorRoute", function(exports, require, module)
     },
     setupController: function(controller, model) {
       controller.set('model', model);
-      this.controllerFor('countries').set('model', App.Country.find());
-      return this.controllerFor('relationships').set('model', App.Relationship.find());
+      this.controllerFor('countries').set('content', App.Country.find());
+      return this.controllerFor('relationships').set('content', App.Relationship.find());
     }
   });
   
@@ -952,6 +989,12 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
     },
     historicals: {
       embedded: 'load'
+    }
+  });
+
+  DS.WebAPIAdapter.map('App.Contact', {
+    countries: {
+      embedded: 'always'
     }
   });
 
@@ -1263,12 +1306,13 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
       'selectionBinding': ("controllers.phoneTypes.selected"),
       'prompt': ("Type ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'prompt': depth0};
-    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'prompt': "STRING"};
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
       'contentBinding': ("controllers.countries"),
       'optionLabelPath': ("content.label"),
       'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.countries.selected"),
       'prompt': ("Country ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
@@ -1718,7 +1762,11 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</div></div></div></div>");
+    data.buffer.push(">Done</div><div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Cancel</div></div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -2015,7 +2063,11 @@ window.require.register("templates/employment/_edit", function(exports, require,
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</div></div></div></div>");
+    data.buffer.push(">Done</div><div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Cancel</div></div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -2024,7 +2076,7 @@ window.require.register("templates/employments", function(exports, require, modu
   Ember.TEMPLATES["employments"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', stack1, hashContexts, hashTypes, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+    var buffer = '', stack1, hashTypes, hashContexts, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
 
   function program1(depth0,data) {
     
@@ -2070,7 +2122,11 @@ window.require.register("templates/employments", function(exports, require, modu
   function program8(depth0,data) {
     
     var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
-    data.buffer.push("<tr><td>");
+    data.buffer.push("<tr><td><div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", "", {hash:{},contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">-</div></td><td>");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},inverse:self.program(4, program4, data),fn:self.program(9, program9, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
@@ -2107,7 +2163,11 @@ window.require.register("templates/employments", function(exports, require, modu
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     }
 
-    data.buffer.push("<div class=\"row-fluid\"><div class=\"span9\"><h4>Employment Records</h4><table class=\"table\"><thead><tr>");
+    data.buffer.push("<div class=\"row-fluid\"><div class=\"span9\"><h4>Employment Records</h4><table class=\"table\"><thead><tr><th><div class=\"btn btn-primary\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "create", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">+</div></th>");
     hashContexts = {'itemController': depth0};
     hashTypes = {'itemController': "STRING"};
     stack1 = helpers.each.call(depth0, "columns", {hash:{
@@ -2435,7 +2495,11 @@ window.require.register("templates/person/_edit", function(exports, require, mod
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</div></div></div></div>");
+    data.buffer.push(">Done</div><div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Cancel</div></div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -2444,7 +2508,7 @@ window.require.register("templates/persons", function(exports, require, module) 
   Ember.TEMPLATES["persons"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', stack1, hashContexts, hashTypes, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+    var buffer = '', stack1, hashTypes, hashContexts, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
 
   function program1(depth0,data) {
     
@@ -2490,7 +2554,11 @@ window.require.register("templates/persons", function(exports, require, module) 
   function program8(depth0,data) {
     
     var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
-    data.buffer.push("<tr><td>");
+    data.buffer.push("<tr><td><div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", "", {hash:{},contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">-</div></td><td>");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},inverse:self.program(4, program4, data),fn:self.program(9, program9, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
@@ -2527,7 +2595,11 @@ window.require.register("templates/persons", function(exports, require, module) 
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "firstName", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     }
 
-    data.buffer.push("<div class=\"row-fluid\"><div class=\"span9\"><h4>Related Persons</h4><table class=\"table\"><thead><tr>");
+    data.buffer.push("<div class=\"row-fluid\"><div class=\"span9\"><h4>Related Persons</h4><table class=\"table\"><thead><tr><th><div class=\"btn btn-primary\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "create", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">+</div></th>");
     hashContexts = {'itemController': depth0};
     hashTypes = {'itemController': "STRING"};
     stack1 = helpers.each.call(depth0, "columns", {hash:{
@@ -2543,4 +2615,11 @@ window.require.register("templates/persons", function(exports, require, module) 
     return buffer;
     
   });module.exports = module.id;
+});
+window.require.register("views/countriesView", function(exports, require, module) {
+  App.CountriesView = Em.SelectView.extend({
+    contentBinding: 'controllers.countries',
+    optionLabelPath: content.label
+  });
+  
 });

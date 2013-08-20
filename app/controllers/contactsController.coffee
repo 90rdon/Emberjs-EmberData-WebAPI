@@ -1,7 +1,6 @@
 App.ContactsController = App.ColumnSorterController.extend
   needs: [
     'debtor'
-    'phoneTypes'
     'contact'
   ]
 
@@ -17,8 +16,3 @@ App.ContactsController = App.ColumnSorterController.extend
   create: ->
     transaction = @get('store').transaction()
     @transitionToRoute 'contact', transaction.createRecord(App.Contact, 'debtor': @get('controllers.debtor').content, 'debtorId': @get('controllers.debtor').content.id)
-
-
-  delete: (contact) ->
-    contact.deleteRecord()
-    @get('store').commit()

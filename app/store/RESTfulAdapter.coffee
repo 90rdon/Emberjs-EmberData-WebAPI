@@ -24,6 +24,9 @@ DS.WebAPIAdapter.map 'App.Debtor',
   employments:  embedded: 'load'
   historicals:  embedded: 'load'
 
+DS.WebAPIAdapter.map 'App.Contact',
+  countries:    embedded: 'always'
+
 # DS.WebAPIAdapter.configure 'App.Client',
 #     sideloadAs: 'client',
 #     primaryKey: 'id'

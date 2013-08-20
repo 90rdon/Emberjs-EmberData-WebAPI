@@ -1,6 +1,5 @@
 App.LookupDataController = Em.ArrayController.extend
   selected: null
-  content: []
   getSelectedId: ->
     return @get('selected.id')
 
@@ -101,6 +100,7 @@ App.CountriesController = App.LookupDataController.extend
   loaded: (->
     @set('sortAscending', true)
   ).observes('@content.isloaded')
+
 
 App.RelationshipsController = App.LookupDataController.extend()
     

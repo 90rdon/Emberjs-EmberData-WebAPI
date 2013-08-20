@@ -12,8 +12,9 @@ require 'helpers/datePicker'
 #// Controllers
 #/////////////////////////////////
 
-require 'controllers/columnItemController'
-require 'controllers/columnSorterController'
+require 'controllers/helpers/columnItemController'
+require 'controllers/helpers/columnSorterController'
+require 'controllers/helpers/editObjectController'
 require 'controllers/contactController'
 require 'controllers/contactsController'
 require 'controllers/debtorController'

@@ -23,5 +23,18 @@ namespace hunter_warfield.WebAPI.Controllers
 
             return new EmploymentDto(DataStore.Create<Employment>(employment));
         }
+
+        public override void Put(EmploymentDto value)
+        {
+            if (value.DebtorId <= 0) return;
+
+            var employment = value.ToEntity();
+            employment.soft_comp_id = soft_comp_id_default;
+            employment.trnsctn_nmbr = trnsctn_nmbr_default;
+            employment.upsertDateTime = DateTime.UtcNow;
+            employment.upsertUserId = 1;
+
+            DataStore.Update<Employment>(employment);
+        }
     }
 }

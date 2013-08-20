@@ -5,7 +5,7 @@
         / label Type
         view  Em.Select    contentBinding='controllers.phoneTypes' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.phoneTypes.selected' prompt='Type ...'
         / label Country
-        view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' prompt='Country ...'
+        view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.countries.selected' prompt='Country ...'
         / label Phone
         view Em.TextField valueBinding='phone' placeholder='Phone'
         / label Extension

@@ -1,6 +1,6 @@
 App.Contact = DS.Model.extend
   type:        		DS.attr 'number'
-  country:       	DS.attr 'number'
+  country:       	DS.attr 'string'
   phone:					DS.attr 'string'
   extension:		  DS.attr 'string'
   score:					DS.attr 'number'

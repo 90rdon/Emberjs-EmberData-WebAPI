@@ -4,6 +4,8 @@
     table.table
       thead
         tr
+          th
+            .btn.btn-primary{action create} +
           each columns itemController="columnItem"
             th{action toggleSort column}
               =humanize column
@@ -15,6 +17,8 @@
       tbody
         each controller
           tr
+            td
+              .btn{action delete this} -
             td
               linkTo 'person' this
                 =firstName

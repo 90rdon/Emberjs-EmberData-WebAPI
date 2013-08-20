@@ -49,3 +49,4 @@
         view Em.TextField valueBinding='county' placeholder='County'
 
       .btn.btn-success{action 'doneEditing'} Done
+      .btn{action 'cancelEditing'} Cancel

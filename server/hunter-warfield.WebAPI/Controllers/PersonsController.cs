@@ -23,5 +23,18 @@ namespace hunter_warfield.WebAPI.Controllers
 
             return new PersonDto(DataStore.Create<Person>(person));
         }
+
+        public override void Put(PersonDto value)
+        {
+            if (value.DebtorId <= 0) return;
+
+            var person = value.ToEntity();
+            person.soft_comp_id = soft_comp_id_default;
+            person.trnsctn_nmbr = trnsctn_nmbr_default;
+            person.upsertDateTime = DateTime.UtcNow;
+            person.upsertUserId = 1;
+
+            DataStore.Update<Person>(person);
+        }
     }
 }

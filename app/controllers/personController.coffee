@@ -1,20 +1,16 @@
-App.PersonController = Em.ObjectController.extend
+App.PersonController = App.EditObjectController.extend
   needs: [
     'countries'
     'relationships'
     'titles'
   ]
 
-  loaded: (->
+  setSelections: ->
     @get('controllers.countries').setSelectedById(@get('country'))
     @get('controllers.relationships').setSelectedById(@get('relationship'))
     @get('controllers.titles').setSelectedById(@get('title'))
-  ).observes('@content.isloaded')
 
-  doneEditing: ->
+  getSelections: ->
     @set('country', @get('controllers.countries').getSelectedId())
     @set('relationship', @get('controllers.relationships').getSelectedId())
     @set('title', @get('controllers.titles').getSelectedId())
-
-    @get('store').commit()
-    @transitionToRoute 'debtor'
