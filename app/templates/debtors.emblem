@@ -1,8 +1,7 @@
 .container-fluid
   .row-fluid
     .pull-right 
-      view Em.TextField valueBinding='filterId' placeholder='filter by Id ...'
-      .btn{action 'filter'} Find
+      view Em.TextField valueBinding='controller.search' placeholder='filter by Id ...'
 
     table.table.table-striped
       thead
@@ -16,7 +15,7 @@
               if sortedDesc
                 i class="icon-chevron-down"
       tbody
-        each controller
+        each filtered
           tr
             td
               linkTo 'debtor' this

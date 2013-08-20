@@ -11,4 +11,16 @@ App.DebtorsController = App.ColumnSorterController.extend
     Em.Object.create(column: 'zip')
   ]).property()
 
-  filterId: null
+  loaded: (->
+    @get('filtered')
+  ).observes('@content.isLoaded')
+
+  filtering: (->
+    @get('filtered')
+  ).observes('search')
+
+  filtered: (->
+    regexp = new RegExp(@get('search'))
+    @get('content').filter (item) ->
+      regexp.test item.get('id')
+  ).property('search', 'content.@each.id')

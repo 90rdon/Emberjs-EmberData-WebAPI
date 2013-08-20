@@ -25,7 +25,7 @@
             td
               =extension
             td
-              =type
+              =typeLabel
             td
               =status
     hr

@@ -107,7 +107,10 @@ window.require.register("controllers/contactController", function(exports, requi
 });
 window.require.register("controllers/contactsController", function(exports, require, module) {
   App.ContactsController = App.ColumnSorterController.extend({
-    needs: ['debtor', 'contact'],
+    needs: ['debtor', 'contact', 'phoneTypes'],
+    typeLabel: (function() {
+      return this.set('type', this.get('controllers.phoneTypes').getSelectedId());
+    }).property('@content.@each.type'),
     columns: (function() {
       return [
         Em.Object.create({
@@ -190,7 +193,19 @@ window.require.register("controllers/debtorsController", function(exports, requi
         })
       ];
     }).property(),
-    filterId: null
+    loaded: (function() {
+      return this.get('filtered');
+    }).observes('@content.isLoaded'),
+    filtering: (function() {
+      return this.get('filtered');
+    }).observes('search'),
+    filtered: (function() {
+      var regexp;
+      regexp = new RegExp(this.get('search'));
+      return this.get('content').filter(function(item) {
+        return regexp.test(item.get('id'));
+      });
+    }).property('search', 'content.@each.id')
   });
   
 });
@@ -287,7 +302,7 @@ window.require.register("controllers/helpers/editObjectController", function(exp
       return this.setSelections();
     }).observes('@content.isLoaded'),
     dirtied: (function() {
-      if (this.get('transaction') === null && this.get('isDirty') === true) {
+      if ((this.get('transaction') === null || this.get('transaction') === void 0) && this.get('isDirty') === true) {
         return this.set('transaction', this.get('store').transaction());
       }
     }).observes('isDirty'),
@@ -297,7 +312,7 @@ window.require.register("controllers/helpers/editObjectController", function(exp
     },
     doneEditing: function() {
       this.getSelections();
-      if (this.get('transaction') !== null) {
+      if (this.get('transaction') !== null || this.get('transaction') === void 0) {
         this.get('transaction').commit();
       }
       this.set('isEditing', false);
@@ -305,7 +320,7 @@ window.require.register("controllers/helpers/editObjectController", function(exp
     },
     cancelEditing: function() {
       this.setSelections();
-      if (this.get('transaction') !== null) {
+      if (this.get('transaction') !== null || this.get('transaction') === void 0) {
         this.get('transaction').rollback();
       }
       this.set('isEditing', false);
@@ -1440,7 +1455,7 @@ window.require.register("templates/contacts", function(exports, require, module)
     data.buffer.push("</td><td>");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "type", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "typeLabel", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</td><td>");
     hashTypes = {};
     hashContexts = {};
@@ -1874,14 +1889,10 @@ window.require.register("templates/debtors", function(exports, require, module) 
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("filterId"),
+      'valueBinding': ("controller.search"),
       'placeholder': ("filter by Id ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<div class=\"btn\" ");
-    hashTypes = {};
-    hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "filter", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Find</div></div><table class=\"table table-striped\"><thead><tr>");
+    data.buffer.push("</div><table class=\"table table-striped\"><thead><tr>");
     hashContexts = {'itemController': depth0};
     hashTypes = {'itemController': "STRING"};
     stack1 = helpers.each.call(depth0, "columns", {hash:{
@@ -1891,7 +1902,7 @@ window.require.register("templates/debtors", function(exports, require, module) 
     data.buffer.push("</tr></thead><tbody>");
     hashTypes = {};
     hashContexts = {};
-    stack1 = helpers.each.call(depth0, "controller", {hash:{},inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    stack1 = helpers.each.call(depth0, "filtered", {hash:{},inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
     data.buffer.push("</tbody></table></div></div>");
     return buffer;
@@ -2615,11 +2626,4 @@ window.require.register("templates/persons", function(exports, require, module) 
     return buffer;
     
   });module.exports = module.id;
-});
-window.require.register("views/countriesView", function(exports, require, module) {
-  App.CountriesView = Em.SelectView.extend({
-    contentBinding: 'controllers.countries',
-    optionLabelPath: content.label
-  });
-  
 });

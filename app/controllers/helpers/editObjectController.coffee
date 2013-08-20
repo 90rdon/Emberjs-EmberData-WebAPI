@@ -6,7 +6,7 @@ App.EditObjectController = Em.ObjectController.extend
   ).observes('@content.isLoaded')
 
   dirtied: (->
-    if @get('transaction') == null && @get('isDirty') == true
+    if (@get('transaction') == null || @get('transaction') == undefined) && @get('isDirty') == true
       @set('transaction', @get('store').transaction())
   ).observes('isDirty')
 
@@ -17,7 +17,7 @@ App.EditObjectController = Em.ObjectController.extend
   doneEditing: ->
     @getSelections()
     
-    if (@get('transaction') != null)
+    if @get('transaction') != null || @get('transaction') == undefined
       @get('transaction').commit()
 
     @set('isEditing', false)
@@ -26,7 +26,7 @@ App.EditObjectController = Em.ObjectController.extend
   cancelEditing: ->
     @setSelections()
 
-    if (@get('transaction') != null)
+    if @get('transaction') != null || @get('transaction') == undefined
       @get('transaction').rollback()
 
     @set('isEditing', false)
