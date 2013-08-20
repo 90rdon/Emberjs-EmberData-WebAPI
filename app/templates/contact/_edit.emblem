@@ -19,4 +19,5 @@
         / label Consent
         view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Consent ...'
 
-        button{action 'doneEditing'} Done
+        .btn.btn-success{action 'doneEditing'} Done
+        .btn{action 'cancelEditing'} Cancel

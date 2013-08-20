@@ -100,6 +100,7 @@ window.require.register("controllers/columnItemController", function(exports, re
 });
 window.require.register("controllers/columnSorterController", function(exports, require, module) {
   App.ColumnSorterController = Em.ArrayController.extend({
+    columns: [],
     sortedColumn: (function() {
       var properties;
       properties = this.get('sortProperties');
@@ -121,28 +122,43 @@ window.require.register("controllers/columnSorterController", function(exports, 
 });
 window.require.register("controllers/contactController", function(exports, require, module) {
   App.ContactController = Em.ObjectController.extend({
-    needs: ['countries', 'phoneTypes', 'phoneStatuses', 'phoneSources', 'yesNo'],
+    needs: ['debtor', 'countries', 'phoneTypes', 'phoneStatuses', 'phoneSources', 'yesNo'],
     loaded: (function() {
       this.get('controllers.countries').setSelectedById(this.get('country'));
       this.get('controllers.phoneTypes').setSelectedById(this.get('type'));
       this.get('controllers.phoneStatuses').setSelectedById(this.get('status'));
       this.get('controllers.phoneSources').setSelectedById(this.get('source'));
       return this.get('controllers.yesNo').setSelectedById(this.get('consent'));
-    }).observes('@content.isloaded'),
+    }).observes('@content.isLoaded'),
+    dirtied: (function() {
+      if (this.get('transaction') === null && this.get('isDirty') === true) {
+        return this.set('transaction', this.get('store').transaction());
+      }
+    }).observes('isDirty'),
     doneEditing: function() {
       this.set('country', this.get('controllers.countries').getSelectedId());
       this.set('type', this.get('controllers.phoneTypes').getSelectedId());
       this.set('status', this.get('controllers.phoneStatuses').getSelectedId());
       this.set('source', this.get('controllers.phoneSources').getSelectedId());
       this.set('consent', this.get('controllers.yesNo').getSelectedId());
-      this.get('store').commit();
+      if (this.get('transaction') !== null) {
+        this.get('transaction').commit();
+        this.get('store').commit();
+      }
+      return this.transitionToRoute('debtor');
+    },
+    cancelEditing: function() {
+      if (this.get('transaction') !== null) {
+        this.get('transaction').rollback();
+      }
       return this.transitionToRoute('debtor');
     }
   });
   
 });
 window.require.register("controllers/contactsController", function(exports, require, module) {
-  App.ContactsController = Em.ArrayController.extend({
+  App.ContactsController = App.ColumnSorterController.extend({
+    needs: ['debtor', 'phoneTypes', 'contact'],
     columns: (function() {
       return [
         Em.Object.create({
@@ -152,29 +168,21 @@ window.require.register("controllers/contactsController", function(exports, requ
         }), Em.Object.create({
           column: 'type'
         }), Em.Object.create({
-          column: 'score'
-        }), Em.Object.create({
-          column: 'source'
-        }), Em.Object.create({
           column: 'status'
         })
       ];
     }).property(),
-    sortedColumn: (function() {
-      var properties;
-      properties = this.get('sortProperties');
-      if (!properties) {
-        return 'undefined';
-      }
-      return properties.get('firstObject');
-    }).property('sortProperties.[]'),
-    toggleSort: function(column) {
-      if (this.get('sortedColumn') === column) {
-        return this.toggleProperty('sortAscending');
-      } else {
-        this.set('sortProperties', [column]);
-        return this.set('sortAscending', true);
-      }
+    create: function() {
+      var transaction;
+      transaction = this.get('store').transaction();
+      return this.transitionToRoute('contact', transaction.createRecord(App.Contact, {
+        'debtor': this.get('controllers.debtor').content,
+        'debtorId': this.get('controllers.debtor').content.id
+      }));
+    },
+    "delete": function(contact) {
+      contact.deleteRecord();
+      return this.get('store').commit();
     }
   });
   
@@ -217,7 +225,7 @@ window.require.register("controllers/debtorController", function(exports, requir
   
 });
 window.require.register("controllers/debtorsController", function(exports, require, module) {
-  App.DebtorsController = Em.ArrayController.extend({
+  App.DebtorsController = App.ColumnSorterController.extend({
     columns: (function() {
       return [
         Em.Object.create({
@@ -241,22 +249,7 @@ window.require.register("controllers/debtorsController", function(exports, requi
         })
       ];
     }).property(),
-    sortedColumn: (function() {
-      var properties;
-      properties = this.get('sortProperties');
-      if (!properties) {
-        return 'undefined';
-      }
-      return properties.get('firstObject');
-    }).property('sortProperties.[]'),
-    toggleSort: function(column) {
-      if (this.get('sortedColumn') === column) {
-        return this.toggleProperty('sortAscending');
-      } else {
-        this.set('sortProperties', [column]);
-        return this.set('sortAscending', true);
-      }
-    }
+    filterId: null
   });
   
 });
@@ -271,7 +264,7 @@ window.require.register("controllers/employmentController", function(exports, re
   
 });
 window.require.register("controllers/employmentsController", function(exports, require, module) {
-  App.EmploymentsController = Em.ArrayController.extend({
+  App.EmploymentsController = App.ColumnSorterController.extend({
     columns: (function() {
       return [
         Em.Object.create({
@@ -288,23 +281,7 @@ window.require.register("controllers/employmentsController", function(exports, r
           column: 'hireDate'
         })
       ];
-    }).property(),
-    sortedColumn: (function() {
-      var properties;
-      properties = this.get('sortProperties');
-      if (!properties) {
-        return 'undefined';
-      }
-      return properties.get('firstObject');
-    }).property('sortProperties.[]'),
-    toggleSort: function(column) {
-      if (this.get('sortedColumn') === column) {
-        return this.toggleProperty('sortAscending');
-      } else {
-        this.set('sortProperties', [column]);
-        return this.set('sortAscending', true);
-      }
-    }
+    }).property()
   });
   
 });
@@ -317,7 +294,7 @@ window.require.register("controllers/historicalController", function(exports, re
   
 });
 window.require.register("controllers/historicalsController", function(exports, require, module) {
-  App.HistoricalsController = Em.ArrayController.extend({
+  App.HistoricalsController = App.ColumnSorterController.extend({
     columns: (function() {
       return [
         Em.Object.create({
@@ -332,23 +309,7 @@ window.require.register("controllers/historicalsController", function(exports, r
           column: 'message'
         })
       ];
-    }).property(),
-    sortedColumn: (function() {
-      var properties;
-      properties = this.get('sortProperties');
-      if (!properties) {
-        return 'undefined';
-      }
-      return properties.get('firstObject');
-    }).property('sortProperties.[]'),
-    toggleSort: function(column) {
-      if (this.get('sortedColumn') === column) {
-        return this.toggleProperty('sortAscending');
-      } else {
-        this.set('sortProperties', [column]);
-        return this.set('sortAscending', true);
-      }
-    }
+    }).property()
   });
   
 });
@@ -361,6 +322,9 @@ window.require.register("controllers/lookupDataController", function(exports, re
     },
     getObjectById: function(id) {
       return this.get('content').filterProperty('id', id).get('firstObject');
+    },
+    getLabelById: function(id) {
+      return this.get('content').filterProperty('id', id).get('firstObject.type');
     },
     setSelectedById: function(id) {
       return this.set('selected', this.getObjectById(id));
@@ -569,7 +533,7 @@ window.require.register("controllers/personController", function(exports, requir
   
 });
 window.require.register("controllers/personsController", function(exports, require, module) {
-  App.PersonsController = Em.ArrayController.extend({
+  App.PersonsController = App.ColumnSorterController.extend({
     columns: (function() {
       return [
         Em.Object.create({
@@ -586,23 +550,43 @@ window.require.register("controllers/personsController", function(exports, requi
           column: 'comment'
         })
       ];
-    }).property(),
-    sortedColumn: (function() {
-      var properties;
-      properties = this.get('sortProperties');
-      if (!properties) {
-        return 'undefined';
-      }
-      return properties.get('firstObject');
-    }).property('sortProperties.[]'),
-    toggleSort: function(column) {
-      if (this.get('sortedColumn') === column) {
-        return this.toggleProperty('sortAscending');
+    }).property()
+  });
+  
+});
+window.require.register("helpers/datePicker", function(exports, require, module) {
+  App.DatePicker = Em.TextField.extend({
+    classNames: ['date-picker'],
+    textToDateTransform: (function(key, value) {
+      var date, month, parts;
+      if (arguments.length === 2) {
+        if (value && /\d{4}-\d{2}-\d{2}/.test(value)) {
+          parts = value.split('-');
+          date = new Date();
+          date.setYear(parts[0]);
+          date.setMonth(parts[1] - 1);
+          date.setDate(parts[2]);
+          return this.set('date', date);
+        } else {
+          return this.set('date', null);
+        }
+      } else if (!value && this.get('date')) {
+        month = this.get('date').getMonth() + 1;
+        date = this.get('date').getDate();
+        if (month < 10) {
+          month = "0" + month;
+        }
+        if (date < 10) {
+          date = "0" + date;
+        }
+        return "%@-%@-%@".fmt(this.get('date').getFullYear(), month, date);
       } else {
-        this.set('sortProperties', [column]);
-        return this.set('sortAscending', true);
+        return value;
       }
-    }
+    }).property(),
+    placeholder: "yyyy-mm-dd",
+    size: 8,
+    valueBinding: "textToDateTransform"
   });
   
 });
@@ -668,7 +652,11 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('helpers/radioButton');
 
+  require('helpers/datePicker');
+
   require('controllers/columnItemController');
+
+  require('controllers/columnSorterController');
 
   require('controllers/contactController');
 
@@ -1328,11 +1316,15 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
       'selectionBinding': ("controllers.yesNo.selected"),
       'prompt': ("Consent ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("<button ");
+    data.buffer.push("<div class=\"btn btn-success\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</button></div></div></div></div>");
+    data.buffer.push(">Done</div><div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Cancel</div></div></div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -1341,7 +1333,7 @@ window.require.register("templates/contacts", function(exports, require, module)
   Ember.TEMPLATES["contacts"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', stack1, hashContexts, hashTypes, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+    var buffer = '', stack1, hashTypes, hashContexts, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
 
   function program1(depth0,data) {
     
@@ -1387,7 +1379,11 @@ window.require.register("templates/contacts", function(exports, require, module)
   function program8(depth0,data) {
     
     var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
-    data.buffer.push("<tr><td>");
+    data.buffer.push("<tr><td><div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", "", {hash:{},contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">-</div></td><td>");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},inverse:self.program(4, program4, data),fn:self.program(9, program9, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
@@ -1401,6 +1397,10 @@ window.require.register("templates/contacts", function(exports, require, module)
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "type", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "status", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</td></tr>");
     return buffer;
     }
@@ -1412,7 +1412,11 @@ window.require.register("templates/contacts", function(exports, require, module)
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "phone", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     }
 
-    data.buffer.push("<div class=\"row-fluid\"><div class=\"span9\"><h4>Contact Phone Records</h4><table class=\"table\"><thead><tr>");
+    data.buffer.push("<div class=\"row-fluid\"><div class=\"span9\"><h4>Contact Phone Records</h4><table class=\"table\"><thead><tr><th><div class=\"btn btn-primary\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "create", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">+</div></th>");
     hashContexts = {'itemController': depth0};
     hashTypes = {'itemController': "STRING"};
     stack1 = helpers.each.call(depth0, "columns", {hash:{
@@ -1447,24 +1451,15 @@ window.require.register("templates/debtor", function(exports, require, module) {
   function program3(depth0,data) {
     
     var buffer = '', hashTypes, hashContexts;
-    data.buffer.push("<button ");
+    data.buffer.push("<div class=\"btn\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "edit", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Edit</button>");
+    data.buffer.push(">Edit</div>");
     return buffer;
     }
 
-    data.buffer.push("<div class=\"container-fluid\"><div class=\"row-fluid\"><button ");
-    hashTypes = {};
-    hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "back", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Back</button>");
-    hashTypes = {};
-    hashContexts = {};
-    stack1 = helpers['if'].call(depth0, "isEditing", {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
-    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("<div class=\"span12\"><div class=\"span6\"><address><h2>");
+    data.buffer.push("<div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span12\"><div class=\"span6\"><address><h2>");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "title", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -1476,7 +1471,16 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "suffix", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</h2><h4>");
+    data.buffer.push("<div class=\"span3 pull-right\"><div class=\"btn btn-primary\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "back", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Back</div>");
+    hashTypes = {};
+    hashContexts = {};
+    stack1 = helpers['if'].call(depth0, "isEditing", {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</div></h2><h4>");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "ssn", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -1500,7 +1504,7 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "email", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></address></div><div class=\"span6\">");
+    data.buffer.push("</div><div class=\"span4 pull-right\"><div class=\"btn btn-danger\">Cancellation</div><div class=\"btn btn-warning\">Hold Account</div></div></address></div><div class=\"span6\">");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
@@ -1581,11 +1585,10 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.suffixes.selected"),
       'prompt': ("Suffix ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
-    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("dob"),
-      'placeholder': ("Date of Birth")
+    hashContexts = {'dateBinding': depth0};
+    hashTypes = {'dateBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePicker", {hash:{
+      'dateBinding': ("dob")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
@@ -1711,11 +1714,11 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'valueBinding': ("pin"),
       'placeholder': ("PIN")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><button ");
+    data.buffer.push("</div><div class=\"btn btn-success\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</button></div></div></div>");
+    data.buffer.push(">Done</div></div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -1819,7 +1822,18 @@ window.require.register("templates/debtors", function(exports, require, module) 
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "id", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     }
 
-    data.buffer.push("<div class=\"container-fluid\"><div class=\"row-fluid\"><table class=\"table table-striped\"><thead><tr>");
+    data.buffer.push("<div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"pull-right\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("filterId"),
+      'placeholder': ("filter by Id ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("<div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "filter", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Find</div></div><table class=\"table table-striped\"><thead><tr>");
     hashContexts = {'itemController': depth0};
     hashTypes = {'itemController': "STRING"};
     stack1 = helpers.each.call(depth0, "columns", {hash:{
@@ -1997,11 +2011,11 @@ window.require.register("templates/employment/_edit", function(exports, require,
       'valueBinding': ("county"),
       'placeholder': ("County")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><button ");
+    data.buffer.push("</div><div class=\"btn btn-success\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</button></div></div></div>");
+    data.buffer.push(">Done</div></div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -2332,11 +2346,10 @@ window.require.register("templates/person/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.suffixes.selected"),
       'prompt': ("Suffix ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
-    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("dob"),
-      'placeholder': ("Date of Birth")
+    hashContexts = {'dateBinding': depth0};
+    hashTypes = {'dateBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePicker", {hash:{
+      'dateBinding': ("dob")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
@@ -2344,17 +2357,15 @@ window.require.register("templates/person/_edit", function(exports, require, mod
       'valueBinding': ("ssn"),
       'placeholder': ("SSN")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
-    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("startDate"),
-      'placeholder': ("Relationship Start Date")
+    hashContexts = {'dateBinding': depth0};
+    hashTypes = {'dateBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePicker", {hash:{
+      'dateBinding': ("startDate")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
-    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("endDate"),
-      'placeholder': ("Relationship End Date")
+    hashContexts = {'dateBinding': depth0};
+    hashTypes = {'dateBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePicker", {hash:{
+      'dateBinding': ("endDate")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
@@ -2420,11 +2431,11 @@ window.require.register("templates/person/_edit", function(exports, require, mod
       'valueBinding': ("county"),
       'placeholder': ("County")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><button ");
+    data.buffer.push("</div><div class=\"btn btn-success\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Done</button></div></div></div>");
+    data.buffer.push(">Done</div></div></div></div>");
     return buffer;
     
   });module.exports = module.id;

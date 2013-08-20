@@ -1,4 +1,4 @@
-App.HistoricalsController = Em.ArrayController.extend
+App.HistoricalsController = App.ColumnSorterController.extend
   columns: (-> [
     Em.Object.create(column: 'time')
     Em.Object.create(column: 'actionCode')
@@ -6,16 +6,3 @@ App.HistoricalsController = Em.ArrayController.extend
     Em.Object.create(column: 'user')
     Em.Object.create(column: 'message')
   ]).property()
-
-  sortedColumn: (->
-    properties = @get('sortProperties')
-    return 'undefined'  unless properties
-    return properties.get 'firstObject'
-  ).property('sortProperties.[]')
-
-  toggleSort: (column) ->
-    if @get('sortedColumn') is column
-      @toggleProperty 'sortAscending'
-    else
-      @set('sortProperties', [column])
-      @set('sortAscending', true)

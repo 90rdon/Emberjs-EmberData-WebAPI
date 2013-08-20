@@ -1,4 +1,6 @@
 App.ColumnSorterController = Em.ArrayController.extend
+  columns: []
+  
   sortedColumn: (->
     properties = @get('sortProperties')
     return 'undefined'  unless properties

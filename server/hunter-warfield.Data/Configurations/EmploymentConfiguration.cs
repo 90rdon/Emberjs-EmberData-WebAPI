@@ -38,6 +38,10 @@ namespace hunter_warfield.Data.Configurations
             this.Property(p => p.YearlyIncome).HasColumnName("emplyr_incm_yrly_amnt");
             this.Property(p => p.MonthlyGrossIncome).HasColumnName("emplyr_incm_mnthly_grss_amnt");
             this.Property(p => p.DebtorId).HasColumnName("cnsmr_id");
+            this.Property(p => p.soft_comp_id).HasColumnName("upsrt_soft_comp_id");
+            this.Property(p => p.trnsctn_nmbr).HasColumnName("upsrt_trnsctn_nmbr");
+            this.Property(p => p.upsertDateTime).HasColumnName("upsrt_dttm");
+            this.Property(p => p.upsertUserId).HasColumnName("upsrt_usr_id");
 
             this.Map(emplyr =>
                 {
@@ -65,7 +69,11 @@ namespace hunter_warfield.Data.Configurations
                         p.TerminationDate,
                         p.YearlyIncome,
                         p.MonthlyGrossIncome,
-                        p.DebtorId
+                        p.DebtorId,
+                        p.soft_comp_id,
+                        p.trnsctn_nmbr,
+                        p.upsertDateTime,
+                        p.upsertUserId
                     });
                     emplyr.ToTable("emplyr");
                 });

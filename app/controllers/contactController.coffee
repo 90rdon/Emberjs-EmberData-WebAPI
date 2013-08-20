@@ -1,5 +1,6 @@
 App.ContactController = Em.ObjectController.extend
   needs: [
+    'debtor'
     'countries'
     'phoneTypes'
     'phoneStatuses'
@@ -7,13 +8,20 @@ App.ContactController = Em.ObjectController.extend
     'yesNo'
   ]
 
+  # transaction: null
+
   loaded: (->
     @get('controllers.countries').setSelectedById(@get('country'))
     @get('controllers.phoneTypes').setSelectedById(@get('type'))
     @get('controllers.phoneStatuses').setSelectedById(@get('status'))
     @get('controllers.phoneSources').setSelectedById(@get('source'))
     @get('controllers.yesNo').setSelectedById(@get('consent'))
-  ).observes('@content.isloaded')
+  ).observes('@content.isLoaded')
+
+  dirtied: (->
+    if @get('transaction') == null && @get('isDirty') == true
+      @set('transaction', @get('store').transaction())
+  ).observes('isDirty')
 
   doneEditing: ->
     @set('country', @get('controllers.countries').getSelectedId())
@@ -22,5 +30,12 @@ App.ContactController = Em.ObjectController.extend
     @set('source', @get('controllers.phoneSources').getSelectedId())
     @set('consent', @get('controllers.yesNo').getSelectedId())
 
-    @get('store').commit()
+    if (@get('transaction') != null)
+      @get('transaction').commit()
+      @get('store').commit()
+    @transitionToRoute 'debtor'
+
+  cancelEditing: ->
+    if (@get('transaction') != null)
+      @get('transaction').rollback()
     @transitionToRoute 'debtor'

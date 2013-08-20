@@ -42,9 +42,9 @@ namespace hunter_warfield.WebAPI.Helpers
         }
 
         // POST api/<controller>
-        public virtual void Post([FromBody]O value)
+        public virtual O Post([FromBody]O value)
         {
-            DataStore.Create<T>((value as IDataTransfer<T>).ToEntity());
+            return GetObject(DataStore.Create<T>((value as IDataTransfer<T>).ToEntity()));
         }
 
         // PUT api/<controller>
@@ -63,7 +63,7 @@ namespace hunter_warfield.WebAPI.Helpers
         // DELETE api/<controller>/5
         public virtual void Delete(I id)
         {
-            DataStore.Delete<T>(t => t.Id.Equals(id));
+            DataStore.Delete<T>(t => (object)t.Id == (object)id);
         }
 
         public virtual void Delete([FromBody]O value)

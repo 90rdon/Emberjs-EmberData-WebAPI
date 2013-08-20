@@ -19,4 +19,14 @@ rm vendor/scripts/ember-data-latest.js
 cp tmp/data/dist/ember-data.js vendor/scripts/ember-data-latest.js
 rm -rf tmp/data
 
+cd tmp
+git clone https://github.com/emberjs/list-view.git
+cd list-view
+bundle
+bundle exec rake dist
+cd ../..
+rm vendor/scripts/list-view.js
+cp tmp/list-view/dist/modules/list-view.js vendor/scripts/list-view.js
+rm -rf tmp/list-view
+
 rmdir tmp

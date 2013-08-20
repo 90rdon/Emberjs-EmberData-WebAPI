@@ -7,8 +7,8 @@ App.LookupDataController = Em.ArrayController.extend
   getObjectById: (id) ->
     return @get('content').filterProperty('id', id).get('firstObject')
 
-  # getLabelById: (id) ->
-  #   return @get('content').filterProperty('id', id).get('firstObject.type')
+  getLabelById: (id) ->
+    return @get('content').filterProperty('id', id).get('firstObject.type')
 
   setSelectedById: (id) ->
     @set('selected', @getObjectById(id))

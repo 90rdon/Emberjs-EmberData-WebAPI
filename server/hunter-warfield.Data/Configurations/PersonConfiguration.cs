@@ -37,6 +37,10 @@ namespace hunter_warfield.Data.Configurations
             this.Property(p => p.County).HasColumnName("rltd_prsn_addrss_cnty_txt");
             this.Property(p => p.DebtorId).HasColumnName("cnsmr_id");
             this.Property(p => p.Phone).HasColumnName("rltd_prsn_phn_nmbr_home_txt");
+            this.Property(p => p.soft_comp_id).HasColumnName("upsrt_soft_comp_id");
+            this.Property(p => p.trnsctn_nmbr).HasColumnName("upsrt_trnsctn_nmbr");
+            this.Property(p => p.upsertDateTime).HasColumnName("upsrt_dttm");
+            this.Property(p => p.upsertUserId).HasColumnName("upsrt_usr_id");
 
             this.Map(prsn =>
                 {
@@ -63,7 +67,11 @@ namespace hunter_warfield.Data.Configurations
                         p.Zip,
                         p.County,
                         p.DebtorId,
-                        p.Phone
+                        p.Phone,
+                        p.soft_comp_id,
+                        p.trnsctn_nmbr,
+                        p.upsertDateTime,
+                        p.upsertUserId
                     });
                     prsn.ToTable("Rltd_Prsn");
                 });

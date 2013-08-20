@@ -6,13 +6,14 @@ window.App = require 'app'
 
 require 'helpers/handlebarsHelpers'
 require 'helpers/radioButton'
+require 'helpers/datePicker'
 
 #/////////////////////////////////
 #// Controllers
 #/////////////////////////////////
 
 require 'controllers/columnItemController'
-# require 'controllers/columnSorterController'
+require 'controllers/columnSorterController'
 require 'controllers/contactController'
 require 'controllers/contactsController'
 require 'controllers/debtorController'

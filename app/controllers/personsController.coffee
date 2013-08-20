@@ -1,4 +1,4 @@
-App.PersonsController = Em.ArrayController.extend
+App.PersonsController = App.ColumnSorterController.extend
   columns: (-> [
     Em.Object.create(column: 'name')
     Em.Object.create(column: 'relationship')
@@ -7,16 +7,3 @@ App.PersonsController = Em.ArrayController.extend
     Em.Object.create(column: 'state')
     Em.Object.create(column: 'comment')
   ]).property()
-
-  sortedColumn: (->
-    properties = @get('sortProperties')
-    return 'undefined'  unless properties
-    return properties.get 'firstObject'
-  ).property('sortProperties.[]')
-
-  toggleSort: (column) ->
-    if @get('sortedColumn') is column
-      @toggleProperty 'sortAscending'
-    else
-      @set('sortProperties', [column])
-      @set('sortAscending', true)

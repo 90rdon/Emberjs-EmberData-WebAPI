@@ -1,5 +1,9 @@
 .container-fluid
   .row-fluid
+    .pull-right 
+      view Em.TextField valueBinding='filterId' placeholder='filter by Id ...'
+      .btn{action 'filter'} Find
+
     table.table.table-striped
       thead
         tr

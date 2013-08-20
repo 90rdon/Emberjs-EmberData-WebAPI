@@ -69,14 +69,19 @@ namespace hunter_warfield.server.Tests.Controllers
             SetupControllerForTests(controller);
 
             //// Act
-            var contact = new Contact();
-            //Debtor debtor = new Debtor();
+            var contact = new ContactDto();
+            contact.Consent = "Y";
+            contact.Country = 231;
+            contact.DebtorId = 4103752;
+            contact.Phone = "987654321";
+            contact.Extension = "987";
+            contact.Type = 1;
+            contact.Score = 1;
 
-
-            //controller.PostDebtor("value");
+            var result = controller.Post(contact);
 
             // Assert
-
+            Assert.IsTrue(result != null);
         }
 
         [TestMethod]
@@ -112,12 +117,27 @@ namespace hunter_warfield.server.Tests.Controllers
         {
             // Arrange
             ContactsController controller = new ContactsController();
+            SetupControllerForTests(controller);
 
             // Act
-            //controller.DeleteDebtor(5);
+            var contact = new ContactDto();
+            contact.Consent = "Y";
+            contact.Country = 231;
+            contact.DebtorId = 4103752;
+            contact.Phone = "987654321";
+            contact.Extension = "987";
+            contact.Type = 1;
+            contact.Score = 1;
+
+            var added = controller.Post(contact);
+            var id = added.Id;
+
+            controller.Delete(added);
+
+            var result = controller.Get(id);
 
             // Assert
-            Assert.IsTrue(true);
+            Assert.IsTrue(result.Id > 0);
         }
     }
 }

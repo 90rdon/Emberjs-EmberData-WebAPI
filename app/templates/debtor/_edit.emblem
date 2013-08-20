@@ -15,7 +15,8 @@
         / label Suffix
         view  Em.Select    contentBinding='controllers.suffixes' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.suffixes.selected' prompt='Suffix ...'
         / label Date of Birth
-        view  Em.TextField valueBinding='dob' placeholder='Date of Birth'
+        / view  Em.TextField valueBinding='dob' placeholder='Date of Birth'
+        view App.DatePicker dateBinding='dob'
         / label SSN
         view  Em.TextField valueBinding='ssn' placeholder='SSN'
         / label Marital Status
@@ -56,4 +57,4 @@
         / label PIN
         view Em.TextField valueBinding='pin' placeholder='PIN'
 
-      button{action 'doneEditing'} Done
+      .btn.btn-success{action 'doneEditing'} Done

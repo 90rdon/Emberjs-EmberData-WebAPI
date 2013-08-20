@@ -1,22 +1,24 @@
-App.ContactsController = Em.ArrayController.extend
+App.ContactsController = App.ColumnSorterController.extend
+  needs: [
+    'debtor'
+    'phoneTypes'
+    'contact'
+  ]
+
   columns: (-> [
     Em.Object.create(column: 'phone')
     Em.Object.create(column: 'extension')
     Em.Object.create(column: 'type')
-    Em.Object.create(column: 'score')
-    Em.Object.create(column: 'source')
+    # Em.Object.create(column: 'score')
+    # Em.Object.create(column: 'source')
     Em.Object.create(column: 'status')
   ]).property()
 
-  sortedColumn: (->
-    properties = @get('sortProperties')
-    return 'undefined'  unless properties
-    return properties.get 'firstObject'
-  ).property('sortProperties.[]')
+  create: ->
+    transaction = @get('store').transaction()
+    @transitionToRoute 'contact', transaction.createRecord(App.Contact, 'debtor': @get('controllers.debtor').content, 'debtorId': @get('controllers.debtor').content.id)
 
-  toggleSort: (column) ->
-    if @get('sortedColumn') is column
-      @toggleProperty 'sortAscending'
-    else
-      @set('sortProperties', [column])
-      @set('sortAscending', true)
+
+  delete: (contact) ->
+    contact.deleteRecord()
+    @get('store').commit()

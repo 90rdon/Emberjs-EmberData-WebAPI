@@ -1,4 +1,4 @@
-App.DebtorsController = Em.ArrayController.extend
+App.DebtorsController = App.ColumnSorterController.extend
   columns: (-> [
     Em.Object.create(column: 'id')
     Em.Object.create(column: 'firstName')
@@ -11,15 +11,4 @@ App.DebtorsController = Em.ArrayController.extend
     Em.Object.create(column: 'zip')
   ]).property()
 
-  sortedColumn: (->
-    properties = @get('sortProperties')
-    return 'undefined'  unless properties
-    return properties.get 'firstObject'
-  ).property('sortProperties.[]')
-
-  toggleSort: (column) ->
-    if @get('sortedColumn') is column
-      @toggleProperty 'sortAscending'
-    else
-      @set('sortProperties', [column])
-      @set('sortAscending', true)
+  filterId: null

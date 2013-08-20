@@ -15,13 +15,16 @@
         / label Suffix
         view  Em.Select    contentBinding='controllers.suffixes' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.suffixes.selected' prompt='Suffix ...'
         / label Date of Birth
-        view Em.TextField valueBinding='dob' placeholder='Date of Birth'
+        view App.DatePicker dateBinding='dob'
+        / view Em.TextField valueBinding='dob' placeholder='Date of Birth'
         / label SSN
         view Em.TextField valueBinding='ssn' placeholder='SSN'
         / label Relationship Start Date
-        view Em.TextField valueBinding='startDate' placeholder='Relationship Start Date'
+        view App.DatePicker dateBinding='startDate'
+        / view Em.TextField valueBinding='startDate' placeholder='Relationship Start Date'
         / label Releationship End Date
-        view Em.TextField valueBinding='endDate' placeholder='Relationship End Date'
+        view App.DatePicker dateBinding='endDate'
+        / view Em.TextField valueBinding='endDate' placeholder='Relationship End Date'
         / label Claim Number
         view Em.TextField valueBinding='claimNumber' placeholder='Claim Number'
         / label Phone
@@ -45,4 +48,4 @@
         / label County
         view Em.TextField valueBinding='county' placeholder='County'
 
-      button{action 'doneEditing'} Done
+      .btn.btn-success{action 'doneEditing'} Done

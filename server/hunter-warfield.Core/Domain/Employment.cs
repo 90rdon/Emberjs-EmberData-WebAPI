@@ -53,6 +53,12 @@ namespace hunter_warfield.Core.Domain
 
         public decimal MonthlyGrossIncome { get; set; }
 
+        // none null fields
+        public DateTime upsertDateTime { get; set; }
+        public int soft_comp_id { get; set; }
+        public int trnsctn_nmbr { get; set; }
+        public Int64 upsertUserId { get; set; }
+
         [ForeignKey("Debtor")]
         public Int64 DebtorId { get; set; }
         public virtual Debtor Debtor { get; set; }

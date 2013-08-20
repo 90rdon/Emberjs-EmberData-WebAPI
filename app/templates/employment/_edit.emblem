@@ -46,4 +46,4 @@
         / label County
         view Em.TextField valueBinding='county' placeholder='County'
 
-      button{action 'doneEditing'} Done
+      .btn.btn-success{action 'doneEditing'} Done

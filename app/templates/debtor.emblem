@@ -1,10 +1,5 @@
 .container-fluid
   .row-fluid
-    button{action 'back'} Back
-    if isEditing
-      partial 'debtor/edit'
-    else
-      button{action 'edit'} Edit
     .span12
       .span6
         address
@@ -14,6 +9,12 @@
             =name
             |  
             =suffix
+            .span3.pull-right
+              .btn.btn-primary{action 'back'} Back
+              if isEditing
+                partial 'debtor/edit'
+              else
+                .btn{action 'edit'} Edit
           h4 =ssn
           hr
           .intro
@@ -27,6 +28,10 @@
             =zip
             h5 Email
             =email
+
+          .span4.pull-right
+            .btn.btn-danger Cancellation
+            .btn.btn-warning Hold Account
 
       .span6
         render 'contacts'     contacts

@@ -1,4 +1,4 @@
-App.EmploymentsController = Em.ArrayController.extend
+App.EmploymentsController = App.ColumnSorterController.extend
   columns: (-> [
     Em.Object.create(column: 'name')
     Em.Object.create(column: 'status')
@@ -7,16 +7,3 @@ App.EmploymentsController = Em.ArrayController.extend
     Em.Object.create(column: 'title')
     Em.Object.create(column: 'hireDate')
   ]).property()
-
-  sortedColumn: (->
-    properties = @get('sortProperties')
-    return 'undefined'  unless properties
-    return properties.get 'firstObject'
-  ).property('sortProperties.[]')
-
-  toggleSort: (column) ->
-    if @get('sortedColumn') is column
-      @toggleProperty 'sortAscending'
-    else
-      @set('sortProperties', [column])
-      @set('sortAscending', true)

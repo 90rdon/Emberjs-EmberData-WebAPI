@@ -25,6 +25,11 @@ namespace hunter_warfield.Data.Configurations
             this.Property(p => p.Source).HasColumnName("cnsmr_phn_src_cd");
             this.Property(p => p.Consent).HasColumnName("cnsmr_phn_cnsnt_flg");
             this.Property(p => p.DebtorId).HasColumnName("cnsmr_id");
+            this.Property(p => p.sft_dlt_flg).HasColumnName("cnsmr_phn_sft_dlt_flg");
+            this.Property(p => p.soft_comp_id).HasColumnName("upsrt_soft_comp_id");
+            this.Property(p => p.trnsctn_nmbr).HasColumnName("upsrt_trnsctn_nmbr");
+            this.Property(p => p.upsertDateTime).HasColumnName("upsrt_dttm");
+            this.Property(p => p.upsertUserId).HasColumnName("upsrt_usr_id");
 
             this.Map(cnsmr_Phn =>
                 {
@@ -39,7 +44,12 @@ namespace hunter_warfield.Data.Configurations
                         p.Status,
                         p.Source,
                         p.Consent,
-                        p.DebtorId
+                        p.DebtorId,
+                        p.sft_dlt_flg,
+                        p.soft_comp_id,
+                        p.trnsctn_nmbr,
+                        p.upsertDateTime,
+                        p.upsertUserId
                     });
                     cnsmr_Phn.ToTable("cnsmr_Phn");
                 });
