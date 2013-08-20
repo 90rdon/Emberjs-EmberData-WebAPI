@@ -1,4 +1,4 @@
-App.HistoricalsController = App.ColumnSorterController.extend
+App.NotesController = App.ColumnSorterController.extend
   columns: (-> [
     Em.Object.create(column: 'time')
     Em.Object.create(column: 'actionCode')

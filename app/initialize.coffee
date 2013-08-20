@@ -23,8 +23,8 @@ require 'controllers/personsController'
 require 'controllers/personController'
 require 'controllers/employmentController'
 require 'controllers/employmentsController'
-require 'controllers/historicalController'
-require 'controllers/historicalsController'
+require 'controllers/noteController'
+require 'controllers/notesController'
 
 require 'controllers/lookupDataController'
 
@@ -35,7 +35,7 @@ require 'controllers/lookupDataController'
 require 'models/contact'
 require 'models/debtor'
 require 'models/employment'
-require 'models/historical'
+require 'models/note'
 require 'models/person'
 require 'models/relationship'
 require 'models/country'
@@ -67,8 +67,8 @@ require 'templates/persons'
 require 'templates/employment/_edit'
 require 'templates/employment'
 require 'templates/employments'
-require 'templates/historical'
-require 'templates/historicals'
+require 'templates/note'
+require 'templates/notes'
 
 #/////////////////////////////////
 #// Views
@@ -99,7 +99,7 @@ App.Router.map ->
     @resource     'contact',    path: 'contact/:contact_id',
     @resource     'person',     path: 'person/:person_id',
     @resource     'employment', path: 'employment/:employment_id'
-    @resource     'historical', path: 'historical/:historical_id'
+    @resource     'note',       path: 'note/:note_id'
 
 
 

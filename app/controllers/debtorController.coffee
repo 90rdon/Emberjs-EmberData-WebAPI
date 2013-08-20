@@ -3,7 +3,7 @@ App.DebtorController = App.EditObjectController.extend
     'contacts'
     'employments'
     'persons'
-    'historicals'
+    'notes'
     'countries'
     'consumerFlags'
     'titles'

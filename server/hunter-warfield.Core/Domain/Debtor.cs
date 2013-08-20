@@ -69,7 +69,9 @@ namespace hunter_warfield.Core.Domain
 
         public virtual List<Employment> Employments { get; set; }
 
-        public virtual List<Historical> Historicals { get; set; }
+        //public virtual List<Historical> Historicals { get; set; }
+
+        public virtual List<Note> Notes { get; set; }
 
         //[ForeignKey("Client")]
         public Int64 ClientId { get; set; }

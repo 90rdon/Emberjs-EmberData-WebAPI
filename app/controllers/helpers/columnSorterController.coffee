@@ -13,7 +13,3 @@ App.ColumnSorterController = Em.ArrayController.extend
     else
       @set('sortProperties', [column])
       @set('sortAscending', true)
-
-  delete: (record) ->
-    record.deleteRecord()
-    @get('store').commit()

@@ -22,7 +22,7 @@ DS.WebAPIAdapter.map 'App.Debtor',
   contacts:     embedded: 'load'
   persons:      embedded: 'load'
   employments:  embedded: 'load'
-  historicals:  embedded: 'load'
+  notes:        embedded: 'load'
 
 DS.WebAPIAdapter.map 'App.Contact',
   countries:    embedded: 'always'
@@ -47,8 +47,8 @@ DS.WebAPIAdapter.configure 'App.Employment',
     sideloadAs: 'employment',
     primaryKey: 'id'
 
-DS.WebAPIAdapter.configure 'App.Historical',
-    sideloadAs: 'historical',
+DS.WebAPIAdapter.configure 'App.Note',
+    sideloadAs: 'note',
     primaryKey: 'id'
 
 DS.WebAPIAdapter.configure 'App.Country',

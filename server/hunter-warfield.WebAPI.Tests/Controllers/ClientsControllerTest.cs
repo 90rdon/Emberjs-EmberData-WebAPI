@@ -47,18 +47,18 @@ namespace hunter_warfield.server.Tests.Controllers
         //    Assert.IsNotNull(result.FirstOrDefault().Id);
         //}
 
-        [TestMethod]
-        public void GetClientsDtoById()
-        {
-            // Arrange
-            ClientsController controller = new ClientsController();
+        //[TestMethod]
+        //public void GetClientsDtoById()
+        //{
+        //    // Arrange
+        //    ClientsController controller = new ClientsController();
 
-            // Act
-            var result = controller.Get(id);
+        //    // Act
+        //    var result = controller.Get(id);
 
-            // Assert
-            Assert.IsTrue(result.Debtors.Count() == 21);
-        }
+        //    // Assert
+        //    Assert.IsTrue(result.Debtors.Count() == 21);
+        //}
 
         //[TestMethod]
         //public void PostClientsDto()

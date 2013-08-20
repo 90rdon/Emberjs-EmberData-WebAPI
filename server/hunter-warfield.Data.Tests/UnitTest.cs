@@ -77,14 +77,14 @@ namespace hunter_warfield.Data.Tests
         }
 
         [TestMethod]
-        public void GetHistoricalEntity()
+        public void GetNoteEntity()
         {
             using (var db = new hwiContext())
             {
                 var entity = new EFRepository<Int64>();
-                var historical = entity.All<Historical>().FirstOrDefault();
+                var note = entity.All<Note>().FirstOrDefault();
 
-                Assert.IsTrue(historical != null);
+                Assert.IsTrue(note != null);
             }
         }
 
@@ -100,18 +100,18 @@ namespace hunter_warfield.Data.Tests
             }
         }
 
-        [TestMethod]
-        public void GetClientEntity()
-        {
-            using (var db = new hwiContext())
-            {
-                var entity = new EFRepository<Int64>();
-                var client = entity.Find<Client>(c => c.Id.Equals(159), new string[] { "Debtors" });
+        //[TestMethod]
+        //public void GetClientEntity()
+        //{
+        //    using (var db = new hwiContext())
+        //    {
+        //        var entity = new EFRepository<Int64>();
+        //        var client = entity.Find<Client>(c => c.Id.Equals(159), new string[] { "Debtors" });
 
-                Assert.IsTrue(client != null);
-                Assert.IsTrue(client.Debtors.FirstOrDefault() != null);
-            }
-        }
+        //        Assert.IsTrue(client != null);
+        //        Assert.IsTrue(client.Debtors.FirstOrDefault() != null);
+        //    }
+        //}
 
         [TestMethod]
         public void GetRelationshipEntity()

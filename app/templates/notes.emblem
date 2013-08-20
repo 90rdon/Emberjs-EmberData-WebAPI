@@ -16,7 +16,7 @@
         each controller
           tr
             td
-              linkTo 'historical' this
+              linkTo 'note' this
                 date time
             td
               =actionCode

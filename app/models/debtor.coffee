@@ -30,6 +30,6 @@ App.Debtor = DS.Model.extend
   contacts: 					DS.hasMany 'App.Contact'
   persons:            DS.hasMany 'App.Person'
   employments:        DS.hasMany 'App.Employment'
-  historicals:        DS.hasMany 'App.Historical'
+  notes:              DS.hasMany 'App.Note'
 
   clientId:           DS.attr 'number'

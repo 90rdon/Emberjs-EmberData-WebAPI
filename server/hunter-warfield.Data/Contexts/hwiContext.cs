@@ -21,10 +21,11 @@ namespace hunter_warfield.Data.Contexts
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Person> Persons { get; set; }
         public DbSet<Employment> Employments { get; set; }
-        public DbSet<Historical> Historicals { get; set; }
+        //public DbSet<Historical> Historicals { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Relationship> Relationship { get; set; }
         public DbSet<Association> Association { get; set; }
+        public DbSet<Note> Note { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -32,10 +33,11 @@ namespace hunter_warfield.Data.Contexts
             modelBuilder.Configurations.Add(new ContactConfiguration());
             modelBuilder.Configurations.Add(new PersonConfiguration());
             modelBuilder.Configurations.Add(new EmploymentConfiguration());
-            modelBuilder.Configurations.Add(new HistoricalConfiguration());
+            //modelBuilder.Configurations.Add(new HistoricalConfiguration());
             modelBuilder.Configurations.Add(new CountryConfiguration());
             modelBuilder.Configurations.Add(new RelationshipConfiguration());
             modelBuilder.Configurations.Add(new AssociationConfiguration());
+            modelBuilder.Configurations.Add(new NoteConfiguration());
 
             
             //modelBuilder.Entity<Client>()
@@ -58,8 +60,13 @@ namespace hunter_warfield.Data.Contexts
                 .WithOptional()
                 .HasForeignKey(f => f.DebtorId);
 
+            //modelBuilder.Entity<Debtor>()
+            //    .HasMany(d => d.Historicals)
+            //    .WithOptional()
+            //    .HasForeignKey(f => f.DebtorId);
+
             modelBuilder.Entity<Debtor>()
-                .HasMany(d => d.Historicals)
+                .HasMany(d => d.Notes)
                 .WithOptional()
                 .HasForeignKey(f => f.DebtorId);
 

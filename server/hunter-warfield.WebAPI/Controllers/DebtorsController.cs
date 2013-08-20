@@ -10,7 +10,7 @@ namespace hunter_warfield.WebAPI.Controllers
 {
     public class DebtorsController : BaseApiController<Debtor, DebtorDto, Int64>
     {
-        public DebtorsController() { Includes = new[] { "Contacts", "Persons", "Employments", "Historicals" }; }  // 
+        public DebtorsController() { Includes = new[] { "Contacts", "Persons", "Employments", "Notes" }; }  // 
 
         private hwiContext db = new hwiContext();
 
@@ -22,7 +22,7 @@ namespace hunter_warfield.WebAPI.Controllers
                 .Include("Contacts")
                 .Include("Persons")
                 .Include("Employments")
-                .Include("Historicals")
+                .Include("Notes")
                 .Where(d => d.ClientId == 159)
                 .AsEnumerable()
                 .Select(d => new DebtorDto(d));

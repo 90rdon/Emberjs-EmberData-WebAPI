@@ -43,7 +43,8 @@ namespace hunter_warfield.Core.Domain
             Contacts = new List<ContactDto>();
             Persons = new List<PersonDto>();
             Employments = new List<EmploymentDto>();
-            Historicals = new List<HistoricalDto>();
+            //Historicals = new List<HistoricalDto>();
+            Notes = new List<NoteDto>();
             if (debtor.Contacts != null)
             {
                 foreach (Contact contact in debtor.Contacts)
@@ -65,11 +66,18 @@ namespace hunter_warfield.Core.Domain
                     Employments.Add(new EmploymentDto(employment));
                 }
             }
-            if (debtor.Historicals != null)
+            //if (debtor.Historicals != null)
+            //{
+            //    foreach (Historical historical in debtor.Historicals)
+            //    {
+            //        Historicals.Add(new HistoricalDto(historical));
+            //    }
+            //}
+            if (debtor.Notes != null)
             {
-                foreach (Historical historical in debtor.Historicals)
+                foreach (Note note in debtor.Notes)
                 {
-                    Historicals.Add(new HistoricalDto(historical));
+                    Notes.Add(new NoteDto(note));
                 }
             }
             ClientId = debtor.ClientId;
@@ -136,7 +144,9 @@ namespace hunter_warfield.Core.Domain
 
         public virtual List<EmploymentDto> Employments { get; set; }
 
-        public virtual List<HistoricalDto> Historicals { get; set; }
+        //public virtual List<HistoricalDto> Historicals { get; set; }
+
+        public virtual List<NoteDto> Notes { get; set; }
 
         public Int64 ClientId { get; set; }
 
@@ -173,7 +183,8 @@ namespace hunter_warfield.Core.Domain
                 Contacts = new List<Contact>(),
                 Persons = new List<Person>(),
                 Employments = new List<Employment>(),
-                Historicals = new List<Historical>(),
+                //Historicals = new List<Historical>(),
+                Notes = new List<Note>(),
                 ClientId = ClientId
             };
 
@@ -201,11 +212,19 @@ namespace hunter_warfield.Core.Domain
                 }
             }
 
-            if (Historicals != null)
+            //if (Historicals != null)
+            //{
+            //    foreach (HistoricalDto historical in Historicals)
+            //    {
+            //        debtor.Historicals.Add(historical.ToEntity());
+            //    }
+            //}
+
+            if (Notes != null)
             {
-                foreach (HistoricalDto historical in Historicals)
+                foreach (NoteDto note in Notes)
                 {
-                    debtor.Historicals.Add(historical.ToEntity());
+                    debtor.Notes.Add(note.ToEntity());
                 }
             }
 

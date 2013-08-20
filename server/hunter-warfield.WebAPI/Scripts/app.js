@@ -131,13 +131,17 @@ window.require.register("controllers/contactsController", function(exports, requ
         'debtor': this.get('controllers.debtor').content,
         'debtorId': this.get('controllers.debtor').content.id
       }));
+    },
+    "delete": function(item) {
+      item.deleteRecord();
+      return this.get('store').commit();
     }
   });
   
 });
 window.require.register("controllers/debtorController", function(exports, require, module) {
   App.DebtorController = App.EditObjectController.extend({
-    needs: ['contacts', 'employments', 'persons', 'historicals', 'countries', 'consumerFlags', 'titles', 'suffixes', 'validInvalid', 'yesNo'],
+    needs: ['contacts', 'employments', 'persons', 'notes', 'countries', 'consumerFlags', 'titles', 'suffixes', 'validInvalid', 'yesNo'],
     name: (function() {
       var first, last, middle;
       first = this.get('firstName') || '';
@@ -252,6 +256,10 @@ window.require.register("controllers/employmentsController", function(exports, r
         'debtor': this.get('controllers.debtor').content,
         'debtorId': this.get('controllers.debtor').content.id
       }));
+    },
+    "delete": function(item) {
+      item.deleteRecord();
+      return this.get('store').commit();
     }
   });
   
@@ -287,10 +295,6 @@ window.require.register("controllers/helpers/columnSorterController", function(e
         this.set('sortProperties', [column]);
         return this.set('sortAscending', true);
       }
-    },
-    "delete": function(record) {
-      record.deleteRecord();
-      return this.get('store').commit();
     }
   });
   
@@ -326,34 +330,6 @@ window.require.register("controllers/helpers/editObjectController", function(exp
       this.set('isEditing', false);
       return this.transitionToRoute('debtor');
     }
-  });
-  
-});
-window.require.register("controllers/historicalController", function(exports, require, module) {
-  App.HistoricalController = Em.ObjectController.extend({
-    close: function() {
-      return this.transitionToRoute('debtor');
-    }
-  });
-  
-});
-window.require.register("controllers/historicalsController", function(exports, require, module) {
-  App.HistoricalsController = App.ColumnSorterController.extend({
-    columns: (function() {
-      return [
-        Em.Object.create({
-          column: 'time'
-        }), Em.Object.create({
-          column: 'actionCode'
-        }), Em.Object.create({
-          column: 'resultCode'
-        }), Em.Object.create({
-          column: 'user'
-        }), Em.Object.create({
-          column: 'message'
-        })
-      ];
-    }).property()
   });
   
 });
@@ -557,6 +533,34 @@ window.require.register("controllers/lookupDataController", function(exports, re
   App.RelationshipsController = App.LookupDataController.extend();
   
 });
+window.require.register("controllers/noteController", function(exports, require, module) {
+  App.NoteController = Em.ObjectController.extend({
+    close: function() {
+      return this.transitionToRoute('debtor');
+    }
+  });
+  
+});
+window.require.register("controllers/notesController", function(exports, require, module) {
+  App.NotesController = App.ColumnSorterController.extend({
+    columns: (function() {
+      return [
+        Em.Object.create({
+          column: 'time'
+        }), Em.Object.create({
+          column: 'actionCode'
+        }), Em.Object.create({
+          column: 'resultCode'
+        }), Em.Object.create({
+          column: 'user'
+        }), Em.Object.create({
+          column: 'message'
+        })
+      ];
+    }).property()
+  });
+  
+});
 window.require.register("controllers/personController", function(exports, require, module) {
   App.PersonController = App.EditObjectController.extend({
     needs: ['countries', 'relationships', 'titles'],
@@ -600,6 +604,13 @@ window.require.register("controllers/personsController", function(exports, requi
         'debtor': this.get('controllers.debtor').content,
         'debtorId': this.get('controllers.debtor').content.id
       }));
+    },
+    "delete": function(item) {
+      var transaction;
+      transaction = this.get('store').transaction();
+      transaction.add(item);
+      item.deleteRecord();
+      return transaction.commit();
     }
   });
   
@@ -643,6 +654,9 @@ window.require.register("helpers/datePicker", function(exports, require, module)
 window.require.register("helpers/handlebarsHelpers", function(exports, require, module) {
   Em.Handlebars.helper('titleize', function(value, options) {
     var escaped, title;
+    if (value === null || value === void 0) {
+      return value;
+    }
     title = value.replace(/^([a-z])/, function(match) {
       return match.toUpperCase();
     });
@@ -652,6 +666,9 @@ window.require.register("helpers/handlebarsHelpers", function(exports, require, 
 
   Em.Handlebars.helper('humanize', function(value, options) {
     var escaped;
+    if (value === null || value === void 0) {
+      return value;
+    }
     value = value.replace(/([A-Z]+|[0-9]+)/g, " $1").replace(/^./, function(str) {
       return str.toUpperCase();
     });
@@ -661,19 +678,28 @@ window.require.register("helpers/handlebarsHelpers", function(exports, require, 
 
   Em.Handlebars.helper('date', function(value, options) {
     var escaped;
+    if (value === null || value === void 0) {
+      return value;
+    }
     escaped = Handlebars.Utils.escapeExpression(value.toLocaleDateString());
     return new Handlebars.SafeString(escaped);
   });
 
   Em.Handlebars.helper('currency', function(value, options) {
     var escaped;
+    if (value === null || value === void 0) {
+      return value;
+    }
     escaped = Handlebars.Utils.escapeExpression('$' + value.toFixed(2));
     return new Handlebars.SafeString(escaped);
   });
 
   Em.Handlebars.helper('summarize', function(value, oprions) {
     var escaped;
-    value = value.substr(0, 255) + '...';
+    if (value === null || value === void 0) {
+      return value;
+    }
+    value = value.substr(0, 255) + ' ...';
     escaped = Handlebars.Utils.escapeExpression(value);
     return new Handlebars.SafeString(escaped);
   });
@@ -726,9 +752,9 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('controllers/employmentsController');
 
-  require('controllers/historicalController');
+  require('controllers/noteController');
 
-  require('controllers/historicalsController');
+  require('controllers/notesController');
 
   require('controllers/lookupDataController');
 
@@ -738,7 +764,7 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('models/employment');
 
-  require('models/historical');
+  require('models/note');
 
   require('models/person');
 
@@ -782,9 +808,9 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('templates/employments');
 
-  require('templates/historical');
+  require('templates/note');
 
-  require('templates/historicals');
+  require('templates/notes');
 
   require('store/webapi/serializer');
 
@@ -806,8 +832,8 @@ window.require.register("initialize", function(exports, require, module) {
       }, this.resource('employment', {
         path: 'employment/:employment_id'
       })));
-      return this.resource('historical', {
-        path: 'historical/:historical_id'
+      return this.resource('note', {
+        path: 'note/:note_id'
       });
     });
   });
@@ -870,7 +896,7 @@ window.require.register("models/debtor", function(exports, require, module) {
     contacts: DS.hasMany('App.Contact'),
     persons: DS.hasMany('App.Person'),
     employments: DS.hasMany('App.Employment'),
-    historicals: DS.hasMany('App.Historical'),
+    notes: DS.hasMany('App.Note'),
     clientId: DS.attr('number')
   });
   
@@ -903,13 +929,14 @@ window.require.register("models/employment", function(exports, require, module) 
   });
   
 });
-window.require.register("models/historical", function(exports, require, module) {
-  App.Historical = DS.Model.extend({
+window.require.register("models/note", function(exports, require, module) {
+  App.Note = DS.Model.extend({
     time: DS.attr('date'),
     actionCode: DS.attr('number'),
     resultCode: DS.attr('number'),
-    user: DS.attr('number'),
     message: DS.attr('string'),
+    userid: DS.attr('number'),
+    clientId: DS.attr('number'),
     debtorId: DS.attr('number'),
     debtor: DS.belongsTo('App.Debtor')
   });
@@ -1002,7 +1029,7 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
     employments: {
       embedded: 'load'
     },
-    historicals: {
+    notes: {
       embedded: 'load'
     }
   });
@@ -1033,8 +1060,8 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
     primaryKey: 'id'
   });
 
-  DS.WebAPIAdapter.configure('App.Historical', {
-    sideloadAs: 'historical',
+  DS.WebAPIAdapter.configure('App.Note', {
+    sideloadAs: 'note',
     primaryKey: 'id'
   });
 
@@ -1582,7 +1609,7 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
-    data.buffer.push(escapeExpression(((stack1 = helpers.render),stack1 ? stack1.call(depth0, "historicals", "historicals", options) : helperMissing.call(depth0, "render", "historicals", "historicals", options))));
+    data.buffer.push(escapeExpression(((stack1 = helpers.render),stack1 ? stack1.call(depth0, "notes", "notes", options) : helperMissing.call(depth0, "render", "notes", "notes", options))));
     data.buffer.push("</div></div>");
     hashTypes = {};
     hashContexts = {};
@@ -2195,8 +2222,21 @@ window.require.register("templates/employments", function(exports, require, modu
     
   });module.exports = module.id;
 });
-window.require.register("templates/historical", function(exports, require, module) {
-  Ember.TEMPLATES["historical"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+window.require.register("templates/index", function(exports, require, module) {
+  Ember.TEMPLATES["index"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [3,'>= 1.0.0-rc.4'];
+  helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+    var hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/note", function(exports, require, module) {
+  Ember.TEMPLATES["note"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
     var buffer = '', stack1, hashTypes, hashContexts, options, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
@@ -2232,8 +2272,8 @@ window.require.register("templates/historical", function(exports, require, modul
     
   });module.exports = module.id;
 });
-window.require.register("templates/historicals", function(exports, require, module) {
-  Ember.TEMPLATES["historicals"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+window.require.register("templates/notes", function(exports, require, module) {
+  Ember.TEMPLATES["notes"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
     var buffer = '', stack1, hashContexts, hashTypes, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
@@ -2286,7 +2326,7 @@ window.require.register("templates/historicals", function(exports, require, modu
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},inverse:self.program(4, program4, data),fn:self.program(9, program9, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
-    stack2 = ((stack1 = helpers.linkTo),stack1 ? stack1.call(depth0, "historical", "", options) : helperMissing.call(depth0, "linkTo", "historical", "", options));
+    stack2 = ((stack1 = helpers.linkTo),stack1 ? stack1.call(depth0, "note", "", options) : helperMissing.call(depth0, "linkTo", "note", "", options));
     if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
     data.buffer.push("</td><td>");
     hashTypes = {};
@@ -2331,19 +2371,6 @@ window.require.register("templates/historicals", function(exports, require, modu
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
     data.buffer.push("</tbody></table><hr /></div></div>");
     return buffer;
-    
-  });module.exports = module.id;
-});
-window.require.register("templates/index", function(exports, require, module) {
-  Ember.TEMPLATES["index"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [3,'>= 1.0.0-rc.4'];
-  helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var hashTypes, hashContexts, escapeExpression=this.escapeExpression;
-
-
-    hashTypes = {};
-    hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     
   });module.exports = module.id;
 });

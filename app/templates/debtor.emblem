@@ -44,6 +44,6 @@
         render 'persons'      persons
       .span6
         render 'employments'  employments
-      render 'historicals'  historicals
+      render 'notes'  notes
 
   outlet

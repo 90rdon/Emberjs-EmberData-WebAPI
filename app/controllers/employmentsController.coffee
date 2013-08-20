@@ -15,3 +15,7 @@ App.EmploymentsController = App.ColumnSorterController.extend
   create: ->
     transaction = @get('store').transaction()
     @transitionToRoute 'employment', transaction.createRecord(App.Employment, 'debtor': @get('controllers.debtor').content, 'debtorId': @get('controllers.debtor').content.id)
+
+  delete: (item) ->
+    item.deleteRecord()
+    @get('store').commit()

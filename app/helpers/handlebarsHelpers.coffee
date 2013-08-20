@@ -1,4 +1,5 @@
 Em.Handlebars.helper 'titleize', (value, options) ->
+  return value if value is null or value is undefined
   title = value.replace(/^([a-z])/, (match) ->
     match.toUpperCase()
   )
@@ -6,6 +7,7 @@ Em.Handlebars.helper 'titleize', (value, options) ->
   new Handlebars.SafeString(escaped)
 
 Em.Handlebars.helper 'humanize', (value, options) ->
+  return value if value is null or value is undefined
   value = value.replace(/([A-Z]+|[0-9]+)/g, " $1").replace(/^./, (str) ->
     str.toUpperCase())
 
@@ -13,15 +15,18 @@ Em.Handlebars.helper 'humanize', (value, options) ->
   new Handlebars.SafeString(escaped)
 
 Em.Handlebars.helper 'date', (value, options) ->
+  return value if value is null or value is undefined
   escaped = Handlebars.Utils.escapeExpression(value.toLocaleDateString())
   new Handlebars.SafeString(escaped)
 
 Em.Handlebars.helper 'currency', (value, options) ->
+  return value if value is null or value is undefined
   escaped = Handlebars.Utils.escapeExpression('$' + value.toFixed(2))
   new Handlebars.SafeString(escaped)
 
 Em.Handlebars.helper 'summarize', (value, oprions) ->
-  value = value.substr(0, 255) + '...'
+  return value if value is null or value is undefined
+  value = value.substr(0, 255) + ' ...'
 
   escaped = Handlebars.Utils.escapeExpression(value)
   new Handlebars.SafeString(escaped)
