@@ -1,31 +1,29 @@
-.row-fluid
-  .span9
-    h4 Contact Phone Records
-    table.table
-      thead
-        tr
-          th
-            .btn.btn-primary{action create} +
-          each columns itemController="columnItem"
-            th{action toggleSort column}
-              =humanize column
-              if sortedAsc
-                i class="icon-chevron-up"
+h4 Contact Phone Records
+table.table
+  thead
+    tr
+      th
+        .btn.btn-primary{action create} +
+      each columns itemController="columnItem"
+        th{action toggleSort column}
+          =humanize column
+          if sortedAsc
+            i class="icon-chevron-up"
 
-              if sortedDesc
-                i class="icon-chevron-down"
-      tbody
-        each controller
-          tr
-            td
-              .btn{action delete this} -
-            td
-              linkTo 'contact' this
-                =phone
-            td
-              =extension
-            td
-              =typeLabel
-            td
-              =status
-    hr
+          if sortedDesc
+            i class="icon-chevron-down"
+  tbody
+    each controller itemController="contact"
+      tr
+        td
+          .btn{action delete this} -
+        td
+          linkTo 'contact' this
+            =phone
+        td
+          =extension
+        td
+          =labelPhoneType
+        td
+          =labelPhoneStatus
+hr

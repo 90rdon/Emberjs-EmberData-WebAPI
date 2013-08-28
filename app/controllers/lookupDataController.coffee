@@ -1,13 +1,14 @@
 App.LookupDataController = Em.ArrayController.extend
   selected: null
+  
   getSelectedId: ->
-    return @get('selected.id')
+    @get('selected.id')
 
   getObjectById: (id) ->
-    return @get('content').filterProperty('id', id).get('firstObject')
+    @get('content').filterProperty('id', id).get('firstObject')
 
   getLabelById: (id) ->
-    return @get('content').filterProperty('id', id).get('firstObject.type')
+    @get('content').filterProperty('id', id).get('firstObject.type')
 
   setSelectedById: (id) ->
     @set('selected', @getObjectById(id))
@@ -71,7 +72,7 @@ App.PhoneStatusesController = App.LookupDataController.extend
     Em.Object.create({id: 4, label: 'Valid - Do not call'})
   ]
 
-App.PhoneSourcesController = App.LookupDataController.extend
+App.SourcesController = App.LookupDataController.extend
   content: [
     Em.Object.create({id: 0, label: 'Unknown'})
     Em.Object.create({id: 1, label: 'Type In'})
@@ -97,12 +98,36 @@ App.EmploymentStatusesController = App.LookupDataController.extend
   ]
 
 App.CountriesController = App.LookupDataController.extend
+  getObjectByIdStr: (id) ->
+    @get('content').filterProperty('idStr', id).get('firstObject')
+
+  setSelectedByIdStr: (id) ->
+    @set('selected', @getObjectByIdStr(id))
+
   loaded: (->
     @set('sortAscending', true)
   ).observes('@content.isloaded')
 
 
-App.RelationshipsController = App.LookupDataController.extend()
+App.RelationshipsController = App.LookupDataController.extend
+  getObjectByIdNum: (id) ->
+    @get('content').filterProperty('idNum', id).get('firstObject')
+
+  setSelectedByIdNum: (id) ->
+    @set('selected', @getObjectByIdNum(id))
     
+App.ActionCodesController = App.LookupDataController.extend
+  loaded: (->
+    @set('sortAscending', true)
+  ).observes('@content.isloaded')
+
+App.ResultCodesController = App.LookupDataController.extend
+  loaded: (->
+    @set('sortAscending', true)
+  ).observes('@content.isloaded')
+
+
+
+
 
 

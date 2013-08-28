@@ -1,5 +1,6 @@
 App.Contact = DS.Model.extend
   type:        		DS.attr 'number'
+  typeLabel:      DS.attr 'string'
   country:       	DS.attr 'string'
   phone:					DS.attr 'string'
   extension:		  DS.attr 'string'

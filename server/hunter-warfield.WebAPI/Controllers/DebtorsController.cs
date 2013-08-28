@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data;
 
 using hunter_warfield.Core.Domain;
 using hunter_warfield.Data.Contexts;
+using hunter_warfield.Data.Repositories;
 using hunter_warfield.WebAPI.Helpers;
 
 namespace hunter_warfield.WebAPI.Controllers
@@ -13,6 +15,7 @@ namespace hunter_warfield.WebAPI.Controllers
         public DebtorsController() { Includes = new[] { "Contacts", "Persons", "Employments", "Notes" }; }  // 
 
         private hwiContext db = new hwiContext();
+        private hwiRepositories entity = new hwiRepositories();
 
         // GET api/Debtors
         //[Queryable(PageSize = 25)]
@@ -26,8 +29,28 @@ namespace hunter_warfield.WebAPI.Controllers
                 .Where(d => d.ClientId == 159)
                 .AsEnumerable()
                 .Select(d => new DebtorDto(d));
-                
+
             return result;
+        }
+
+        public override void Put(DebtorDto value)
+        {
+            Debtor debtor = value.ToEntity();
+
+            if (debtor.SSN != null && 
+                debtor.SSN.Length == 9)
+            {
+                debtor.SSNKey = entity.Encryption(debtor.SSN);
+                debtor.SSN = debtor.SSN.Substring(debtor.SSN.Length - 4, debtor.SSN.Length);
+            }
+            try
+            {
+                DataStore.Update<Debtor>(debtor);
+            }
+            catch (OptimisticConcurrencyException ex)
+            {
+                throw ex;
+            }
         }
 
         //// GET api/Debtors/5

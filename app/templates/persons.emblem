@@ -1,36 +1,35 @@
 .row-fluid
-  .span9
-    h4 Related Persons
-    table.table
-      thead
+  h4 Related Persons
+  table.table
+    thead
+      tr
+        th
+          .btn.btn-primary{action create} +
+        each columns itemController="columnItem"
+          th{action toggleSort column}
+            =humanize column
+            if sortedAsc
+              i class="icon-chevron-up"
+
+            if sortedDesc
+              i class="icon-chevron-down"
+    tbody
+      each controller itemController="person"
         tr
-          th
-            .btn.btn-primary{action create} +
-          each columns itemController="columnItem"
-            th{action toggleSort column}
-              =humanize column
-              if sortedAsc
-                i class="icon-chevron-up"
+          td
+            .btn{action delete this} -
+          td
+            linkTo 'person' this
+              =fullName
+          td
+            =labelRelationship
+          td
+            =phone
+          td
+            =city
+          td
+            =state
+          td
+            =comment
 
-              if sortedDesc
-                i class="icon-chevron-down"
-      tbody
-        each controller
-          tr
-            td
-              .btn{action delete this} -
-            td
-              linkTo 'person' this
-                =firstName
-            td
-              =relationship
-            td
-              =phone
-            td
-              =city
-            td
-              =state
-            td
-              =comment
-
-    hr
+  hr

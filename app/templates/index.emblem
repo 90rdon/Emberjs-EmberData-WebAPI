@@ -1,2 +1,29 @@
-/ render 'debtors' debtors
-outlet
+.container-fluid
+  .pull-right
+    .search-query
+      view Em.TextField valueBinding='controller.search' placeholder='filter by Id ...'
+
+.row-fluid
+  table.table.table-striped
+    thead
+      tr
+        each columns itemController="columnItem"
+          th{action toggleSort column}
+            =humanize label
+            if sortedAsc
+              i class="icon-chevron-up"
+
+            if sortedDesc
+              i class="icon-chevron-down"
+    tbody
+      each currentContent
+        tr
+          td
+            linkTo 'debtor' this
+              =id
+          td
+            =fullNameWithTitle
+          td
+            =fullAddress
+
+hr

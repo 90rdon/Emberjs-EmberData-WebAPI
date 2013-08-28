@@ -10,16 +10,9 @@ App.DebtorController = App.EditObjectController.extend
     'suffixes'
     'validInvalid'
     'yesNo'
+    'actionCodes'
+    'resultCodes'
   ]
-
-  name: (->
-    first   = @get('firstName') || ''
-    middle  = @get('middleName') || ''
-    last    = @get('lastName') || ''
-
-    # return first + ' ' + last   unless middle
-    return first + ' ' + middle + ' ' + last
-  ).property('firstName', 'lastName', 'middleName')
     
   setSelections: ->
     @get('controllers.consumerFlags').setSelectedById(@get('type'))
@@ -40,3 +33,11 @@ App.DebtorController = App.EditObjectController.extend
   back: ->
     @set('isEditing', false)
     @transitionToRoute 'index'
+
+  makePayment: ->
+    window.open App.paymentPostingUrl
+
+  toCancel: false
+
+  cancellation: ->
+    @toggleProperty('toCancel')

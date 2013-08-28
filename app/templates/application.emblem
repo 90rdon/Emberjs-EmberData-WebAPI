@@ -1,9 +1,9 @@
 /! application
 .container-fluid
-  .navbar
-    .navbar-inner
-      linkTo "index" class="brand" | Hunter Warfield
-      ul.nav
+  / .navbar
+  /   .navbar-inner
+  /     linkTo "index" class="brand" | Hunter Warfield
+  /     ul.nav
         / linkTo "index" tagName="li"
         /   a href="{{view.href}}"
         /     | Home

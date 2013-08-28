@@ -1,26 +1,27 @@
 .modal
-  .container-fluid
-    .row-fluid
-      .span9
-        .span3
-          h2
-            =user
-        .span3
-          h4 =date time
-        
-        .intro
+  p
+    .container-fluid
+      .row-fluid
+        .span9
           .span3
-            h5 
-              | Action Code 
-              =actionCode
+            h2
+              =user
           .span3
-            h5 
-              | Result Code 
-              =resultCode
-    hr
+            h4 =date time
+          
+          .intro
+            .span3
+              h5 
+                | Action Code 
+                =actionCode
+            .span3
+              h5 
+                | Result Code 
+                =resultCode
+      hr
 
-    dl.dl-horizontal
-      dt Message
-      dd =message
+      dl.dl-horizontal
+        dt Message
+        dd =message
 
-    button{action 'close'} Close
+      button{action 'close'} Close

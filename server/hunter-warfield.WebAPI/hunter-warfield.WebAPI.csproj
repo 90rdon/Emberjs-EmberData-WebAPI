@@ -204,15 +204,17 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\CancellationController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\ClientsController.cs" />
     <Compile Include="Controllers\AssociationsController.cs" />
+    <Compile Include="Controllers\ActionCodesController.cs" />
+    <Compile Include="Controllers\ResultCodesController.cs" />
     <Compile Include="Controllers\NotesController.cs" />
     <Compile Include="Controllers\RelationshipController.cs" />
     <Compile Include="Controllers\CountriesController.cs" />
     <Compile Include="Controllers\DebtorsController.cs" />
     <Compile Include="Controllers\EmploymentsController.cs" />
-    <Compile Include="Controllers\HistoricalsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HtmlHelperExtensions.cs" />
     <Compile Include="Controllers\PersonsController.cs" />
@@ -223,6 +225,7 @@
     </Compile>
     <Compile Include="Helpers\BaseApiController.cs" />
     <Compile Include="Helpers\BaseController.cs" />
+    <Compile Include="Helpers\TitaniumAPIController.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

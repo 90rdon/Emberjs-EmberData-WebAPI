@@ -45,7 +45,10 @@ exports.config =
         'test/stylesheets/test.css':                                    /^test/
       order:
         before:         ['vendor/styles/normalize.css']
-        after:          ['vendor/styles/helpers.css']
+        after:          [
+          'vendor/styles/helpers.css'
+          'vendor/styles/hwi.css'
+        ]
 
     templates:
       precompile:       true

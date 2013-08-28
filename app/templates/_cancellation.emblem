@@ -1,0 +1,18 @@
+.modal
+  .form.form-horizontal
+    .control-group.span6
+      p
+        .label.control-label Action Code
+        .controls
+          view  Em.Select    contentBinding='controllers.actionCodes' optionLabelPath='content.value' optionValuePath='content.id' selectionBinding='controllers.actionCodes.selected'
+
+    .control-group.span6
+      p
+        .label.control-label Result Code
+        .controls
+          view  Em.Select    contentBinding='controllers.resultCodes' optionLabelPath='content.value' optionValuePath='content.id' selectionBinding='controllers.resultCodes.selected'
+
+    .span4.pull-right
+      p
+        .btn.btn-danger Send Cancellation
+        .btn{action cancellation} Abort

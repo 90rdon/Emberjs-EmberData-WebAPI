@@ -15,7 +15,7 @@ namespace hunter_warfield.Data.Repositories
     /// </summary>
     public class EFRepository<I> : IGenericRepository
     {
-        private hwiContext dbContext;
+        protected hwiContext dbContext;
 
         public EFRepository()
         {

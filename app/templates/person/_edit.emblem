@@ -1,52 +1,55 @@
 .modal
   .container-fluid
-    .row-fluid
-      .span6
-        / label Relationship
-        view  Em.Select    contentBinding='controllers.relationships' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.relationships.selected' prompt='Relationship ...'
-        / label Title
-        view  Em.Select    contentBinding='controllers.titles' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.titles.selected' prompt='Title ...'
-        / label Last Name
-        view Em.TextField valueBinding='lastName' placeholder='Last Name'
-        / label First Name
-        view Em.TextField valueBinding='firstName' placeholder='First Name'
-        / label Middle Name
-        view Em.TextField valueBinding='middleName' placeholder='Middle Name'
-        / label Suffix
-        view  Em.Select    contentBinding='controllers.suffixes' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.suffixes.selected' prompt='Suffix ...'
-        / label Date of Birth
-        view App.DatePicker dateBinding='dob'
-        / view Em.TextField valueBinding='dob' placeholder='Date of Birth'
-        / label SSN
-        view Em.TextField valueBinding='ssn' placeholder='SSN'
-        / label Relationship Start Date
-        view App.DatePicker dateBinding='startDate'
-        / view Em.TextField valueBinding='startDate' placeholder='Relationship Start Date'
-        / label Releationship End Date
-        view App.DatePicker dateBinding='endDate'
-        / view Em.TextField valueBinding='endDate' placeholder='Relationship End Date'
-        / label Claim Number
-        view Em.TextField valueBinding='claimNumber' placeholder='Claim Number'
-        / label Phone
-        view Em.TextField valueBinding='phone' placeholder='Phone'
+    p
+      .row-fluid
+        .span6
+          / label Relationship
+          view  Em.Select    contentBinding='controllers.relationships' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.relationships.selected' prompt='Relationship ...'
+          / label Title
+          view  Em.Select    contentBinding='controllers.titles' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.titles.selected' prompt='Title ...'
+          / label Last Name
+          view Em.TextField valueBinding='lastName' placeholder='Last Name'
+          / label First Name
+          view Em.TextField valueBinding='firstName' placeholder='First Name'
+          / label Middle Name
+          view Em.TextField valueBinding='middleName' placeholder='Middle Name'
+          / label Suffix
+          view  Em.Select    contentBinding='controllers.suffixes' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.suffixes.selected' prompt='Suffix ...'
+          / label Date of Birth
+          view App.DatePicker dateBinding='dob' placeholder="Date of Birth"
+          / view Em.TextField valueBinding='dob' placeholder='Date of Birth'
+          / label SSN
+          view Em.TextField valueBinding='ssn' placeholder='SSN'
+          / label Relationship Start Date
+          view App.DatePicker dateBinding='startDate' placeholder='Relationship Started On'
+          / view Em.TextField valueBinding='startDate' placeholder='Relationship Start Date'
+          / label Releationship End Date
+          view App.DatePicker dateBinding='endDate' placeholder="Relationship Ended On"
+          / view Em.TextField valueBinding='endDate' placeholder='Relationship End Date'
+          / label Claim Number
+          view Em.TextField valueBinding='claimNumber' placeholder='Claim Number'
+          / label Phone
+          view Em.TextField valueBinding='phone' placeholder='Phone'
 
-      .span6
-        / label Country
-        view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.countries.selected' prompt='Country ...'
-        / label Address1
-        view Em.TextField valueBinding='address1' placeholder='Address 1'
-        / label Address2
-        view Em.TextField valueBinding='address2' placeholder='Address 2'
-        / label Address3
-        view Em.TextField valueBinding='address3' placeholder='Address 3'
-        / label City
-        view Em.TextField valueBinding='city' placeholder='City'
-        / label State
-        view Em.TextField valueBinding='state' placeholder='State'
-        / label Zip Code
-        view Em.TextField valueBinding='zip' placeholder='Zip code'
-        / label County
-        view Em.TextField valueBinding='county' placeholder='County'
+        .span6
+          / label Country
+          view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.countries.selected' prompt='Country ...'
+          / label Address1
+          view Em.TextField valueBinding='address1' placeholder='Address 1'
+          / label Address2
+          view Em.TextField valueBinding='address2' placeholder='Address 2'
+          / label Address3
+          view Em.TextField valueBinding='address3' placeholder='Address 3'
+          / label City
+          view Em.TextField valueBinding='city' placeholder='City'
+          / label State
+          view Em.TextField valueBinding='state' placeholder='State'
+          / label Zip Code
+          view Em.TextField valueBinding='zip' placeholder='Zip code'
+          / label County
+          view Em.TextField valueBinding='county' placeholder='County'
 
-      .btn.btn-success{action 'doneEditing'} Done
-      .btn{action 'cancelEditing'} Cancel
+          view Em.TextArea valueBinding='comment' placeholder='Comment'
+
+        .btn.btn-success{action 'doneEditing'} Done
+        .btn{action 'cancelEditing'} Cancel

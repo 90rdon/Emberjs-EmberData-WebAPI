@@ -23,9 +23,11 @@ namespace hunter_warfield.Data.Contexts
         public DbSet<Employment> Employments { get; set; }
         //public DbSet<Historical> Historicals { get; set; }
         public DbSet<Country> Countries { get; set; }
-        public DbSet<Relationship> Relationship { get; set; }
-        public DbSet<Association> Association { get; set; }
-        public DbSet<Note> Note { get; set; }
+        public DbSet<Relationship> Relationships { get; set; }
+        public DbSet<Association> Associations { get; set; }
+        public DbSet<Note> Notes { get; set; }
+        public DbSet<ActionCode> ActionCodes { get; set; }
+        public DbSet<ResultCode> ResultCodes { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -38,6 +40,8 @@ namespace hunter_warfield.Data.Contexts
             modelBuilder.Configurations.Add(new RelationshipConfiguration());
             modelBuilder.Configurations.Add(new AssociationConfiguration());
             modelBuilder.Configurations.Add(new NoteConfiguration());
+            modelBuilder.Configurations.Add(new ActionCodeConfiguration());
+            modelBuilder.Configurations.Add(new ResultCodeConfiguration());
 
             
             //modelBuilder.Entity<Client>()

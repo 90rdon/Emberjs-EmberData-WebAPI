@@ -7,6 +7,7 @@ App.Debtor = DS.Model.extend
   suffix:  						DS.attr 'string'
   dob:								DS.attr 'date'
   ssn:								DS.attr 'string'
+  ein:                DS.attr 'string'
   martialStatus:			DS.attr 'string'
   email:							DS.attr 'string'
   emailValidity:			DS.attr 'number'
@@ -33,3 +34,41 @@ App.Debtor = DS.Model.extend
   notes:              DS.hasMany 'App.Note'
 
   clientId:           DS.attr 'number'
+
+
+  fullName: (->
+    first   = @get('firstName') || ''
+    middle  = @get('middleName') || ''
+    last    = @get('lastName') || ''
+
+    return first + ' ' + middle + ' ' + last
+  ).property('firstName', 'lastName', 'middleName')
+
+  fullNameWithTitle: (->
+    title   = @get('title') || ''
+    first   = @get('firstName') || ''
+    middle  = @get('middleName') || ''
+    last    = @get('lastName') || ''
+    suffix  = @get('suffix') || ''
+
+    return title + ' ' + first + ' ' + middle + ' ' + last + ' ' + suffix
+  ).property('title', 'firstName', 'lastName', 'middleName', 'suffix')
+
+  fullAddress: (->
+    address1   = @get('address1') || ''
+    address2   = @get('address2') || ''
+    address3   = @get('address3') || ''
+    city       = @get('city') || ''
+    state      = @get('state') || ''
+    zip        = @get('zip') || ''
+
+    return address1 + ' ' + address2 + ' ' + address3 +
+      city + ' ' + state + ' ' + zip
+  ).property(
+    'address1',
+    'address2',
+    'address3',
+    'city',
+    'state',
+    'zip' )
+

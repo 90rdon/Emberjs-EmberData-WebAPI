@@ -22,11 +22,14 @@ namespace hunter_warfield.Core.Domain
             LastName = debtor.LastName;
             Suffix = debtor.Suffix;
             DOB = debtor.DOB;
-            SSN = debtor.SSN;
             MaritalStatus = debtor.MaritalStatus;
             Email = debtor.Email;
             EmailValidity = debtor.EmailValidity;
             OptIn = debtor.OptIn;
+            if (debtor.Type.Equals("Y"))
+                EIN = debtor.SSN;
+            else
+                SSN = debtor.SSN;
             CommContact = debtor.Contact;
             Country = debtor.Country;
             Address1 = debtor.Address1;
@@ -110,7 +113,7 @@ namespace hunter_warfield.Core.Domain
 
         public string OptIn { get; set; }
 
-        //public string EIN { get; set; }
+        public string EIN { get; set; }
 
         public string CommContact { get; set; }
 
@@ -152,6 +155,11 @@ namespace hunter_warfield.Core.Domain
 
         public Debtor ToEntity()
         {
+            string value = null;
+            if (Type.Equals("Y"))
+                value = EIN;
+            else
+                value = SSN;
             Debtor debtor = new Debtor
             {
                 Id = Id,
@@ -162,11 +170,11 @@ namespace hunter_warfield.Core.Domain
                 LastName = LastName,
                 Suffix = Suffix,
                 DOB = DOB,
-                SSN = SSN,
                 MaritalStatus = MaritalStatus,
                 Email = Email,
                 EmailValidity = EmailValidity,
                 OptIn = OptIn,
+                SSN = value,
                 Contact = CommContact,
                 Country = Country,
                 Address1 = Address1,

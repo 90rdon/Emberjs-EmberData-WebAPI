@@ -1,7 +1,5 @@
 App.IndexRoute = Em.Route.extend
   setupController: (controller, model) ->
-    @controllerFor('debtors').set 'model', App.Debtor.find()
-
-  renderTemplate: ->
-    @render 'debtors',
-      controller: 'debtors'
+    controller.set 'model', App.Debtor.find()
+    @controllerFor('countries').set 'content', App.Country.find()
+    @controllerFor('relationships').set 'content', App.Relationship.find()

@@ -6,3 +6,5 @@ App.DebtorRoute = Em.Route.extend
     controller.set 'model', model
     @controllerFor('countries').set 'content', App.Country.find()
     @controllerFor('relationships').set 'content', App.Relationship.find()
+    @controllerFor('actionCodes').set 'content', App.ActionCode.find()
+    @controllerFor('resultCodes').set 'content', App.ResultCode.find()

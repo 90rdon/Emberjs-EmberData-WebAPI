@@ -1,0 +1,14 @@
+.row
+  .span2
+    linkTo 'debtor' this
+      =id
+  .span4
+    =title
+    |  
+    =fullName
+    |  
+    =suffix
+  .span6
+    / =fullAddress
+    =zip
+hr

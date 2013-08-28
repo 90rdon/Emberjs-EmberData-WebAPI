@@ -27,6 +27,8 @@ namespace hunter_warfield.Core.Domain
 
         public string SSN { get; set; }
 
+        public string SSNKey { get; set; }
+
         public Int16 MaritalStatus { get; set; }
 
         public string Email { get; set; }

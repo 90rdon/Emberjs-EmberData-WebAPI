@@ -46,6 +46,10 @@
     <Compile Include="Domain\ClientDto.cs" />
     <Compile Include="Domain\Association.cs" />
     <Compile Include="Domain\AssociationDto.cs" />
+    <Compile Include="Domain\ActionCode.cs" />
+    <Compile Include="Domain\ActionCodeDto.cs" />
+    <Compile Include="Domain\ResultCode.cs" />
+    <Compile Include="Domain\ResultCodeDto.cs" />
     <Compile Include="Domain\Note.cs" />
     <Compile Include="Domain\NoteDto.cs" />
     <Compile Include="Domain\Relationship.cs" />

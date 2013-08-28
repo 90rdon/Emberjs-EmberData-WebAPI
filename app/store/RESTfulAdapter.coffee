@@ -1,15 +1,13 @@
 App.Store = DS.Store.extend
   adapter:                    DS.WebAPIAdapter.extend
-    url:                      'http://10.211.55.4'
-    namespace:                'hunter-warfield/api'
+    url:                      App.serverUrl
+    namespace:                App.serverNamespace
     bulkCommit:               false,
     antiForgeryTokenSelector: '#antiForgeryToken'
 
-    # pluralize: (string) ->
-    #   string + 's'
-
     plurals:
       'country': 'countries'
+      'cancellation': 'cancellation'
 
     pluralize: (name) ->
       plurals = @get('plurals')

@@ -6,7 +6,7 @@
           h2
             =title
             |  
-            =name
+            =fullName
             |  
             =suffix
             .span3.pull-right
@@ -29,9 +29,10 @@
             h5 Email
             =email
 
-          .span4.pull-right
-            .btn.btn-danger Cancellation
+          .span2.pull-right
+            .btn.btn-danger{action 'cancellation'} Cancel Account
             .btn.btn-warning Hold Account
+            .btn.btn-success{action 'makePayment'} Make Payment
 
       .span6
         render 'contacts'     contacts
@@ -44,6 +45,14 @@
         render 'persons'      persons
       .span6
         render 'employments'  employments
+
+  hr
+  
+  .row-fluid
+    .span12
       render 'notes'  notes
+
+  if toCancel
+    partial 'cancellation'
 
   outlet

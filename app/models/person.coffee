@@ -23,3 +23,21 @@ App.Person = DS.Model.extend
   debtorId:       DS.attr 'number'
 
   debtor:         DS.belongsTo 'App.Debtor'
+
+  fullName: (->
+    first   = @get('firstName') || ''
+    middle  = @get('middleName') || ''
+    last    = @get('lastName') || ''
+
+    return first + ' ' + middle + ' ' + last
+  ).property('firstName', 'lastName', 'middleName')
+
+  fullNameWithTitle: (->
+    title   = @get('title') || ''
+    first   = @get('firstName') || ''
+    middle  = @get('middleName') || ''
+    last    = @get('lastName') || ''
+    suffix  = @get('suffix') || ''
+
+    return title + ' ' + first + ' ' + middle + ' ' + last + ' ' + suffix
+  ).property('title', 'firstName', 'lastName', 'middleName', 'suffix')

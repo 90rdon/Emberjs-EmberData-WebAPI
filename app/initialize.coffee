@@ -19,12 +19,14 @@ require 'controllers/contactController'
 require 'controllers/contactsController'
 require 'controllers/debtorController'
 require 'controllers/debtorsController'
+require 'controllers/indexController'
 require 'controllers/personsController'
 require 'controllers/personController'
 require 'controllers/employmentController'
 require 'controllers/employmentsController'
 require 'controllers/noteController'
 require 'controllers/notesController'
+# require 'controllers/cancellationController'
 
 require 'controllers/lookupDataController'
 
@@ -39,6 +41,9 @@ require 'models/note'
 require 'models/person'
 require 'models/relationship'
 require 'models/country'
+require 'models/phoneTypes'
+require 'models/actionCode'
+require 'models/resultCode'
 
 #/////////////////////////////////
 #// Routes
@@ -57,9 +62,10 @@ require 'templates/application'
 require 'templates/contact/_edit'
 require 'templates/contact'
 require 'templates/contacts'
+require 'templates/contactDetail'
 require 'templates/debtor/_edit'
 require 'templates/debtor'
-require 'templates/debtors'
+require 'templates/debtorDetail'
 require 'templates/index'
 require 'templates/person/_edit'
 require 'templates/person'
@@ -69,12 +75,16 @@ require 'templates/employment'
 require 'templates/employments'
 require 'templates/note'
 require 'templates/notes'
+require 'templates/_cancellation'
+# require 'templates/rowItem'
 
 #/////////////////////////////////
 #// Views
 #/////////////////////////////////
 
-
+require 'views/debtorsListView'
+require 'views/contactsListView'
+require 'views/scrollView'
 
 #/////////////////////////////////
 #// Store
@@ -98,7 +108,7 @@ App.Router.map ->
   @resource       'debtor',     path: 'debtor/:debtor_id', ->
     @resource     'contact',    path: 'contact/:contact_id',
     @resource     'person',     path: 'person/:person_id',
-    @resource     'employment', path: 'employment/:employment_id'
+    @resource     'employment', path: 'employment/:employment_id',
     @resource     'note',       path: 'note/:note_id'
 
 
