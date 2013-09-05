@@ -12,7 +12,7 @@ namespace hunter_warfield.WebAPI.Controllers
     {
         public CancellationController() { }
 
-        public string Post()
+        public string Post(Cancellation codes)
         {
             string shortname = "A-CBC";
             string accountid = "4267614";
@@ -31,7 +31,5 @@ namespace hunter_warfield.WebAPI.Controllers
 
             return result.InnerText;
         }
-
-
     }
 }

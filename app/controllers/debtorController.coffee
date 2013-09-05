@@ -38,6 +38,20 @@ App.DebtorController = App.EditObjectController.extend
     window.open App.paymentPostingUrl
 
   toCancel: false
+  confirmationNumber: null
+
+  sendCancellation: ->
+    @set('toCancel', false)
+    $.ajax
+      url: '/api/cancellation'
+      dataType: 'json'
+      type: 'POST'
+      data:
+        actionCode: 13
+        resultCode: 21
+      success: (response) ->
+        @set('confirmationNumber', response)
+    
 
   cancellation: ->
     @toggleProperty('toCancel')

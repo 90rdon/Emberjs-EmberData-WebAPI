@@ -19,7 +19,7 @@ namespace hunter_warfield.Core.Domain
             Name = employment.Name;
             MonthlyNetIncome = employment.MonthlyNetIncome;
             Position = employment.Position;
-            HireDate = employment.HireDate;
+            HireDate = Convert.ToDateTime(employment.HireDate).ToShortDateString();
             Phone = employment.Phone;
             Website = employment.Website;
             Status = employment.Status;
@@ -33,7 +33,7 @@ namespace hunter_warfield.Core.Domain
             Zip = employment.Zip;
             County = employment.County;
             JobTitle = employment.JobTitle;
-            TerminationDate = employment.TerminationDate;
+            TerminationDate = Convert.ToDateTime(employment.TerminationDate).ToShortDateString();
             YearlyIncome = employment.YearlyIncome;
             MonthlyGrossIncome = employment.MonthlyGrossIncome;
             DebtorId = employment.DebtorId;
@@ -50,7 +50,7 @@ namespace hunter_warfield.Core.Domain
 
         public string Position { get; set; }
 
-        public DateTime? HireDate { get; set; }
+        public string HireDate { get; set; }
 
         public string Phone { get; set; }
 
@@ -78,7 +78,7 @@ namespace hunter_warfield.Core.Domain
 
         public string JobTitle { get; set; }
 
-        public DateTime? TerminationDate { get; set; }
+        public string TerminationDate { get; set; }
 
         public decimal YearlyIncome { get; set; }
 
@@ -95,7 +95,7 @@ namespace hunter_warfield.Core.Domain
                 Name = Name,
                 MonthlyNetIncome = MonthlyNetIncome,
                 Position = Position,
-                HireDate = HireDate,
+                HireDate = Convert.ToDateTime(HireDate),
                 Phone = Phone,
                 Website = Website,
                 Status = Status,
@@ -109,7 +109,7 @@ namespace hunter_warfield.Core.Domain
                 Zip = Zip,
                 County = County,
                 JobTitle = JobTitle,
-                TerminationDate = TerminationDate,
+                TerminationDate = Convert.ToDateTime(TerminationDate),
                 YearlyIncome = YearlyIncome,
                 MonthlyGrossIncome = MonthlyGrossIncome,
                 DebtorId = DebtorId

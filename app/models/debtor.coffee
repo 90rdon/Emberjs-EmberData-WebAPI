@@ -5,7 +5,7 @@ App.Debtor = DS.Model.extend
   firstName:     			DS.attr 'string'
   middleName:         DS.attr 'string'
   suffix:  						DS.attr 'string'
-  dob:								DS.attr 'date'
+  dob:								DS.attr 'isodate'
   ssn:								DS.attr 'string'
   ein:                DS.attr 'string'
   martialStatus:			DS.attr 'string'

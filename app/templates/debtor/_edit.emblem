@@ -1,35 +1,47 @@
 .modal
-  .container-fluid
-    p
-      .row-fluid
+  .form.form-horizontal
+    .control-group.span6
+      p
         .span6
-          / label Type
-          view  Em.Select    contentBinding='controllers.consumerFlags' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.consumerFlags.selected'
-          / label Title
-          view  Em.Select    contentBinding='controllers.titles' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.titles.selected' prompt='Title ...'
-          / label Last Name
-          view  Em.TextField valueBinding='lastName' placeholder='Last Name'
-          / label First Name
-          view  Em.TextField valueBinding='firstName' placeholder='First Name'
-          / label Middle Name
-          view  Em.TextField valueBinding='middleName' placeholder='Middle Name'
-          / label Suffix
-          view  Em.Select    contentBinding='controllers.suffixes' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.suffixes.selected' prompt='Suffix ...'
-          / label Date of Birth
-          / view  Em.TextField valueBinding='dob' placeholder='Date of Birth'
-          view App.DatePicker dateBinding='dob'
-          / label SSN
-          view  Em.TextField valueBinding='ssn' placeholder='SSN'
-          / label Marital Status
-          view  Em.TextField valueBinding='maritalStatus' placeholder='Martial Status'
-          / label Email
-          view  Em.TextField valueBinding='email' placeholder='Email'
-          / label Email Validity
-          view  Em.Select    contentBinding='controllers.validInvalid' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.validInvalid.selected' prompt='Email Validity ...'
-          / label Opted-In
-          view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Email Opt-in ...'
-          / label Commerical Contact
-          view Em.TextField valueBinding='contact' placeholder='Commerical Contact'
+          .label.control-label Type
+          .controls
+            view  Em.Select    contentBinding='controllers.consumerFlags' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.consumerFlags.selected'
+          .label.control-label Title
+          .controls      
+            view  Em.Select    contentBinding='controllers.titles' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.titles.selected' prompt='Title ...'
+          .label.control-label Last Name
+          .controls
+            view  Em.TextField valueBinding='lastName' placeholder='Last Name'
+          .label.control-label First Name
+          .controls
+            view  Em.TextField valueBinding='firstName' placeholder='First Name'
+          .label.control-label Middle Name
+          .controls
+            view  Em.TextField valueBinding='middleName' placeholder='Middle Name'
+          .label.control-label Suffix
+          .controls
+            view  Em.Select    contentBinding='controllers.suffixes' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.suffixes.selected' prompt='Suffix ...'
+          .label.control-label Date of Birth
+          .controls
+            view App.DatePickerField  valueBinding='dob'
+          .label.control-label SSN
+          .controls
+            view  Em.TextField valueBinding='ssn' placeholder='SSN'
+          .label.control-label Martial Status
+          .controls
+            view  Em.TextField valueBinding='maritalStatus' placeholder='Martial Status'
+          .label.control-label Email
+          .controls
+            view  Em.TextField valueBinding='email' placeholder='Email'
+          .label.control-label Email Validity
+          .controls
+            view  Em.Select    contentBinding='controllers.validInvalid' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.validInvalid.selected' prompt='Email Validity ...'
+          .label.control-label Opt-In
+          .controls
+            view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Email Opt-in ...'
+          .label.control-label Commerical Contact
+          .controls
+            view Em.TextField valueBinding='contact' placeholder='Commerical Contact'
 
         .span6
           / label Country

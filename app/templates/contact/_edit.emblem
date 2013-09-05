@@ -1,24 +1,35 @@
 .modal
-  .container-fluid
-    p
-      .row-fluid
-        .span6
-          / label Type
-          view  Em.Select    contentBinding='controllers.phoneTypes' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.phoneTypes.selected' prompt='Type ...'
-          / label Country
-          view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.countries.selected' prompt='Country ...'
-          / label Phone
-          view Em.TextField valueBinding='phone' placeholder='Phone'
-          / label Extension
-          view Em.TextField valueBinding='extension' placeholder='Extension'
-          / label Score
-          view Em.TextField valueBinding='score' placeholder='Score'
-          / label Status
-          view  Em.Select    contentBinding='controllers.phoneStatuses' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.phoneStatuses.selected' prompt='Status ...'
-          / label Source
-          view  Em.Select    contentBinding='controllers.sources' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.sources.selected' prompt='Source ...'
-          / label Consent
-          view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Consent ...'
-
-          .btn.btn-success{action 'doneEditing'} Done
-          .btn{action 'cancelEditing'} Cancel
+  .modal-header
+    button.close{action close target='view'} &times;
+    h5 Contact Phone
+  .modal-body
+    .form.form-horizontal            
+      .control-group
+        p
+          label.control-label.ms-crm-Field-Normal Type 
+          .controls
+            view  Em.Select    id='phoneTypes' contentBinding='controllers.phoneTypes' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.phoneTypes.selected' prompt='Type ...'
+          label.control-label.ms-crm-Field-Normal Country
+          .controls
+            view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.countries.selected' prompt='Country ...'
+          label.control-label.ms-crm-Field-Normal Phone
+          .controls
+            view Em.TextField valueBinding='phone' placeholder='Phone'
+          .label.control-label.ms-crm-Field-Normal Extension
+          .controls
+            view Em.TextField valueBinding='extension' placeholder='Extension'
+          .label.control-label.ms-crm-Field-Normal Score
+          .controls
+            view Em.TextField valueBinding='score' placeholder='Score'
+          .label.control-label.ms-crm-Field-Normal Status
+          .controls
+            view  Em.Select    contentBinding='controllers.phoneStatuses' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.phoneStatuses.selected' prompt='Status ...'
+          .label.control-label.ms-crm-Field-Normal Source
+          .controls
+            view  Em.Select    contentBinding='controllers.sources' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.sources.selected' prompt='Source ...'
+          .label.control-label.ms-crm-Field-Normal Consent
+          .controls
+            view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Consent ...'
+  .modal-footer
+    .btn.btn-success{action 'doneEditing'} Done
+    .btn{action 'cancelEditing'} Cancel

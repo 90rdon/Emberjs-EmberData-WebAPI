@@ -3,8 +3,8 @@
     .search-query
       view Em.TextField valueBinding='controller.search' placeholder='filter by Id ...'
 
-.row-fluid
-  table.table.table-striped
+.row-fluid.row-border
+  table.table style="margin-bottom: 0px;"
     thead
       tr
         each columns itemController="columnItem"
@@ -15,15 +15,17 @@
 
             if sortedDesc
               i class="icon-chevron-down"
-    tbody
-      each currentContent
-        tr
-          td
-            linkTo 'debtor' this
-              =id
-          td
-            =fullNameWithTitle
-          td
-            =fullAddress
 
-hr
+
+  .scrollable-500
+    table.table.table-striped
+      tbody
+        each currentContent
+          tr
+            td
+              linkTo 'debtor' this
+                =id
+            td
+              =fullNameWithTitle
+            td
+              =fullAddress

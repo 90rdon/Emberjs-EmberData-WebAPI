@@ -1,23 +1,23 @@
 .container-fluid
   .row-fluid
     .span12
-      .span6
-        address
-          h2
-            =title
-            |  
-            =fullName
-            |  
-            =suffix
-            .span3.pull-right
-              .btn.btn-primary{action 'back'} Back
-              if isEditing
-                partial 'debtor/edit'
-              else
-                .btn{action 'edit'} Edit
-          h4 =ssn
-          hr
-          .intro
+      address
+        h3
+          =title
+          |  
+          =fullName
+          |  
+          =suffix
+          .span4.pull-right
+            .btn.btn-primary.btn-small{action 'back'} Back
+            if isEditing
+              partial 'debtor/edit'
+            else
+              .btn.btn-small{action 'edit'} Edit
+        h4 =ssn
+        hr
+        .intro
+          .span6
             h5 Address
             =address1
             br
@@ -26,31 +26,59 @@
             =state
             |  
             =zip
+          .span6
             h5 Email
             =email
 
-          .span2.pull-right
-            .btn.btn-danger{action 'cancellation'} Cancel Account
-            .btn.btn-warning Hold Account
-            .btn.btn-success{action 'makePayment'} Make Payment
-
-      .span6
-        render 'contacts'     contacts
-
+        .span4.pull-right
+          .btn.btn-danger.btn-small{action 'cancellation'} Cancel Account
+          .btn.btn-warning.btn-small Hold Account
+          .btn.btn-success.btn-small{action 'makePayment'} Make Payment
   hr
 
-  .row-fluid
-    .span12
-      .span6
-        render 'persons'      persons
-      .span6
-        render 'employments'  employments
+  #contacts.accordion
+    .accordion-group
+      .accordion-heading
+        a.accordion-toggle data-toggle="collapse" data-parent="#contacts" href="#collapseContacts"
+          h5 Contact Phone Records
+      #collapseContacts.accordion-body.collapse.in
+        .accordion-inner
+          .row-fluid
+            .span12
+              render 'contacts' contacts
 
-  hr
-  
-  .row-fluid
-    .span12
-      render 'notes'  notes
+  #persons.accordion
+    .accordion-group
+      .accordion-heading
+        a.accordion-toggle data-toggle="collapse" data-parent="#persons" href="#collapsePersons"
+          h5 Related Persons
+      #collapsePersons.accordion-body.collapse.in
+        .accordion-inner
+          .row-fluid
+            .span12
+              render 'persons' persons
+
+  #employments.accordion
+    .accordion-group
+      .accordion-heading
+        a.accordion-toggle data-toggle="collapse" data-parent="#employments" href="#collapseEmployments"
+          h5 Employment Records
+      #collapseEmployments.accordion-body.collapse.in
+        .accordion-inner
+          .row-fluid
+            .span12
+              render 'employments' employments
+
+  #notes.accordion
+    .accordion-group
+      .accordion-heading
+        a.accordion-toggle data-toggle="collapse" data-parent="#notes" href="#collapseNotes"
+          h5 Historical Events
+      #collapseNotes.accordion-body.collapse.in
+        .accordion-inner
+          .row-fluid
+            .span12
+              render 'notes' notes
 
   if toCancel
     partial 'cancellation'

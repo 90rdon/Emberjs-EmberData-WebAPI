@@ -1,29 +1,30 @@
-h4 Contact Phone Records
-table.table
-  thead
-    tr
-      th
-        .btn.btn-primary{action create} +
-      each columns itemController="columnItem"
-        th{action toggleSort column}
-          =humanize column
-          if sortedAsc
-            i class="icon-chevron-up"
-
-          if sortedDesc
-            i class="icon-chevron-down"
-  tbody
-    each controller itemController="contact"
+.row-fluid
+  table.table.table-striped.row-border
+    thead
       tr
-        td
-          .btn{action delete this} -
-        td
-          linkTo 'contact' this
-            =phone
-        td
-          =extension
-        td
-          =labelPhoneType
-        td
-          =labelPhoneStatus
-hr
+        th
+          .btn.btn-primary{action create} +
+        each columns itemController="columnItem"
+          th{action toggleSort column}
+            =humanize column
+            if sortedAsc
+              i class="icon-chevron-up"
+
+            if sortedDesc
+              i class="icon-chevron-down"
+              
+    tbody
+      each controller
+        tr
+          td
+            .btn{action delete this} -
+          td
+            / a{action 'openContact' this} href="#" =phone
+            linkTo 'contact' this
+              =phone
+          td
+            =extension
+          td
+            =labelPhoneType
+          td
+            =labelPhoneStatus

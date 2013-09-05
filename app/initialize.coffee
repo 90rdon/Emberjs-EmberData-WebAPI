@@ -6,7 +6,7 @@ window.App = require 'app'
 
 require 'helpers/handlebarsHelpers'
 require 'helpers/radioButton'
-require 'helpers/datePicker'
+# require 'helpers/datePicker'
 
 #/////////////////////////////////
 #// Controllers
@@ -51,6 +51,8 @@ require 'models/resultCode'
 
 require 'routes/indexRoute'
 require 'routes/debtorRoute'
+require 'routes/contactRoute'
+# require 'routes/contactsRoute'
 
 #//////////////////////////////////
 #// Templates
@@ -76,7 +78,8 @@ require 'templates/employments'
 require 'templates/note'
 require 'templates/notes'
 require 'templates/_cancellation'
-# require 'templates/rowItem'
+require 'templates/modal_layout'
+require 'templates/empty'
 
 #/////////////////////////////////
 #// Views
@@ -85,6 +88,9 @@ require 'templates/_cancellation'
 require 'views/debtorsListView'
 require 'views/contactsListView'
 require 'views/scrollView'
+require 'views/datePickerField'
+require 'views/modalView'
+require 'views/contactView'
 
 #/////////////////////////////////
 #// Store
@@ -102,6 +108,9 @@ require 'store/RESTfulAdapter'
 # App.Router.reopen(
 #   location: 'history'
 # )
+
+App.AJAX_LOADER_IMG = "/images/ajax_loader.gif"
+App.DEFAULT_CSS_TRANSITION_DURATION_MS = 250
 
 App.Router.map ->
   @route          'index',      path: '/', ->

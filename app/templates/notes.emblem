@@ -1,6 +1,5 @@
 .row-fluid
-  h4 Historical Events
-  table.table
+  table.table.table-striped.row-border
     thead
       tr
         each columns itemController="columnItem"
@@ -11,6 +10,7 @@
 
             if sortedDesc
               i class="icon-chevron-down"
+
     tbody
       each controller itemController="note"
         tr
@@ -18,12 +18,14 @@
             linkTo 'note' this
               date time
           td
-            =actionCode
+            .span2
+              =actionCode
           td
-            =resultCode
-          td
-            =user
+            .span2
+              =resultCode
           td
             summarize message
+          td
+            =user
 
   hr

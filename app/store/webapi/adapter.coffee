@@ -107,6 +107,11 @@ DS.WebAPIAdapter = DS.RESTAdapter.extend
       jQuery.ajax hash
     )
 
+DS.WebAPIAdapter.registerTransform "isodate",
+  deserialize: (serialized) ->
+    serialized
 
+  serialize: (deserialized) ->
+    deserialized
 
 

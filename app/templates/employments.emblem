@@ -1,6 +1,5 @@
 .row-fluid
-  h4 Employment Records
-  table.table
+  table.table.table-striped.row-border
     thead
       tr
         th
@@ -13,6 +12,7 @@
 
             if sortedDesc
               i class="icon-chevron-down"
+              
     tbody
       each controller itemController="employment"
         tr
@@ -31,5 +31,3 @@
             =jobTitle
           td
             =hireDate
-
-  hr

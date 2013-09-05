@@ -1,0 +1,4 @@
+/ .input-append.date.date-picker data-date-format="mm-dd-yyyy"
+/   input type="text"
+/     span.add-on
+/       i.icon-th

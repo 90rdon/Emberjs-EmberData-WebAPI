@@ -5,9 +5,7 @@ App.ContactsController = App.ColumnSorterController.extend
     'phoneTypes'
   ]
 
-  # typeLabel: (->
-  #   @set('type', @get('controllers.phoneTypes').getSelectedId())
-  # ).property('@content.@each.type')
+  itemController: 'contact'
 
   columns: (-> [
     Em.Object.create(column: 'phone')

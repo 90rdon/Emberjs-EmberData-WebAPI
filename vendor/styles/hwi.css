@@ -1,7 +1,53 @@
-.ember-list-view {
+./*ember-list-view {
   overflow: auto;
   position: relative;
 }
 .ember-list-item-view {
   position: absolute;
+}*/
+
+body {
+  font-family: Segoe UI, Tahoma, Arial;
+}
+
+hr {
+  margin: 10px 0;
+  border: 0;
+  border-top: 1px solid #eeeeee;
+  border-bottom: 1px solid #ffffff;
+}
+
+.row-border {
+  border: 1px solid;
+}
+
+/* TABLE */
+.ms-crm-List-Header {
+  BORDER-TOP: 1px solid; HEIGHT: 21px; TABLE-LAYOUT: fixed; BORDER-BOTTOM: 1px solid; WIDTH: 100%
+}
+.ms-crm-List-Row {
+  MARGIN-BOTTOM: 1px; BORDER-BOTTOM: #dbdee1 1px solid; PADDING-TOP: 1px
+}
+.ms-crm-List-Row {
+  HEIGHT: 21px
+}
+
+/* FORM */
+.ms-crm-Field-Normal {
+  OVERFLOW: hidden; TEXT-OVERFLOW: ellipsis; PADDING-TOP: 5px;
+}
+
+.scrollable-500 {
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+.scrollable-200 {
+  max-height: 200px;
+  overflow-y: scroll;
+}
+
+.scrollable-120 {
+  max-height: 120px;
+  overflow-y: scroll;
 }

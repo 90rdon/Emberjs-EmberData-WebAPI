@@ -21,7 +21,8 @@ namespace hunter_warfield.Core.Domain
             MiddleName = debtor.MiddleName;
             LastName = debtor.LastName;
             Suffix = debtor.Suffix;
-            DOB = debtor.DOB;
+            DateTime dobDate = debtor.DOB ?? DateTime.Now;
+            DOB = Convert.ToDateTime(debtor.DOB).ToShortDateString();
             MaritalStatus = debtor.MaritalStatus;
             Email = debtor.Email;
             EmailValidity = debtor.EmailValidity;
@@ -101,7 +102,7 @@ namespace hunter_warfield.Core.Domain
 
         public string Suffix { get; set; }
 
-        public DateTime? DOB { get; set; }
+        public string DOB { get; set; }
 
         public string SSN { get; set; }
 
@@ -169,7 +170,7 @@ namespace hunter_warfield.Core.Domain
                 MiddleName = MiddleName,
                 LastName = LastName,
                 Suffix = Suffix,
-                DOB = DOB,
+                DOB = Convert.ToDateTime(DOB),
                 MaritalStatus = MaritalStatus,
                 Email = Email,
                 EmailValidity = EmailValidity,

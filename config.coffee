@@ -35,7 +35,10 @@ exports.config =
           'vendor/scripts/ember-data.js'
           'vendor/scripts/list-view.js'
           'vendor/scripts/bootstrap.js'
+          'vendor/scripts/ember-bootstrap.js'
           'vendor/scripts/swag.js'
+          'vendor/scripts/bootstrap-datepicker.js'
+          'vendor/scripts/moment.js'
         ]
 
     stylesheets:
@@ -44,8 +47,10 @@ exports.config =
         '../server/hunter-warfield.WebAPI/Content/app.css':             /^(app|vendor)/
         'test/stylesheets/test.css':                                    /^test/
       order:
-        before:         ['vendor/styles/normalize.css']
-        after:          [
+        before: [
+          'vendor/styles/normalize.css'
+        ]
+        after: [
           'vendor/styles/helpers.css'
           'vendor/styles/hwi.css'
         ]

@@ -1,6 +1,6 @@
 .btn{action delete this} -
 .span2
-  linkTo 'contact' this
+  a{action 'openModal' this} href='#'
     =phone
 .span5
   =type
