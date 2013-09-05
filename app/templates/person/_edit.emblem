@@ -1,55 +1,74 @@
 .modal
-  .container-fluid
-    p
-      .row-fluid
-        .span6
-          / label Relationship
+  .modal-header
+    button.close{action cancelEditing} &times;
+    h5 Related Person
+  .modal-body
+    .form.form-horizontal
+      .control-group
+        label.control-label Relationship 
+        .controls
           view  Em.Select    contentBinding='controllers.relationships' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.relationships.selected' prompt='Relationship ...'
-          / label Title
+        label.control-label Title 
+        .controls
           view  Em.Select    contentBinding='controllers.titles' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.titles.selected' prompt='Title ...'
-          / label Last Name
+        label.control-label Last Name 
+        .controls
           view Em.TextField valueBinding='lastName' placeholder='Last Name'
-          / label First Name
+        label.control-label First Name 
+        .controls
           view Em.TextField valueBinding='firstName' placeholder='First Name'
-          / label Middle Name
+        label.control-label Middle Name 
+        .controls
           view Em.TextField valueBinding='middleName' placeholder='Middle Name'
-          / label Suffix
+        label.control-label Suffix 
+        .controls
           view  Em.Select    contentBinding='controllers.suffixes' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.suffixes.selected' prompt='Suffix ...'
-          / label Date of Birth
-          view App.DatePicker dateBinding='dob' placeholder="Date of Birth"
-          / view Em.TextField valueBinding='dob' placeholder='Date of Birth'
-          / label SSN
+        label.control-label Date of Birth 
+        .controls
+          view App.DatePickerField dateBinding='dob'
+        label.control-label SSN 
+        .controls
           view Em.TextField valueBinding='ssn' placeholder='SSN'
-          / label Relationship Start Date
-          view App.DatePicker dateBinding='startDate' placeholder='Relationship Started On'
-          / view Em.TextField valueBinding='startDate' placeholder='Relationship Start Date'
-          / label Releationship End Date
-          view App.DatePicker dateBinding='endDate' placeholder="Relationship Ended On"
-          / view Em.TextField valueBinding='endDate' placeholder='Relationship End Date'
-          / label Claim Number
+        label.control-label Relationship Start Date 
+        .controls
+          view App.DatePickerField dateBinding='startDate'
+        label.control-label Relationship End Date 
+        .controls
+          view App.DatePickerField dateBinding='endDate'
+        label.control-label Claim Number 
+        .controls
           view Em.TextField valueBinding='claimNumber' placeholder='Claim Number'
-          / label Phone
+        label.control-label Phone 
+        .controls
           view Em.TextField valueBinding='phone' placeholder='Phone'
 
-        .span6
-          / label Country
+        label.control-label Country 
+        .controls
           view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.countries.selected' prompt='Country ...'
-          / label Address1
+        label.control-label Address 1 
+        .controls
           view Em.TextField valueBinding='address1' placeholder='Address 1'
-          / label Address2
+        label.control-label Address 2 
+        .controls
           view Em.TextField valueBinding='address2' placeholder='Address 2'
-          / label Address3
+        label.control-label Address 3 
+        .controls
           view Em.TextField valueBinding='address3' placeholder='Address 3'
-          / label City
+        label.control-label City 
+        .controls
           view Em.TextField valueBinding='city' placeholder='City'
-          / label State
+        label.control-label State 
+        .controls
           view Em.TextField valueBinding='state' placeholder='State'
-          / label Zip Code
+        label.control-label Zip Code 
+        .controls
           view Em.TextField valueBinding='zip' placeholder='Zip code'
-          / label County
+        label.control-label County 
+        .controls
           view Em.TextField valueBinding='county' placeholder='County'
-
+        label.control-label Comment 
+        .controls
           view Em.TextArea valueBinding='comment' placeholder='Comment'
-
-        .btn.btn-success{action 'doneEditing'} Done
-        .btn{action 'cancelEditing'} Cancel
+  .modal-footer
+    .btn.btn-success{action 'doneEditing'} Done
+    .btn{action 'cancelEditing'} Cancel

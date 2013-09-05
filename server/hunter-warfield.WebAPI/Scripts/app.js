@@ -931,8 +931,6 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('routes/debtorRoute');
 
-  require('routes/contactRoute');
-
   require('templates/_well');
 
   require('templates/about');
@@ -986,8 +984,6 @@ window.require.register("initialize", function(exports, require, module) {
   require('views/datePickerField');
 
   require('views/modalView');
-
-  require('views/contactView');
 
   require('store/webapi/serializer');
 
@@ -1234,19 +1230,7 @@ window.require.register("models/resultCode", function(exports, require, module) 
   
 });
 window.require.register("routes/contactRoute", function(exports, require, module) {
-  App.ContactRoute = Em.Route.extend({
-    events: {
-      showModal: function(model) {
-        return App.ModalView.create({
-          title: 'My title',
-          content: model
-        }).append();
-      },
-      close: function() {
-        return console.log('closing modal');
-      }
-    }
-  });
+  
   
 });
 window.require.register("routes/contactsRoute", function(exports, require, module) {
@@ -1641,16 +1625,14 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
   Ember.TEMPLATES["contact/_edit"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
 
 
     data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
-    hashContexts = {'target': depth0};
-    hashTypes = {'target': "STRING"};
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "close", {hash:{
-      'target': ("view")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">&times;</button><h5>Contact Phone</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><p><label class=\"control-label ms-crm-Field-Normal\">Type </label><div class=\"controls\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Contact Phone Record</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Type </label><div class=\"controls\">");
     hashContexts = {'id': depth0,'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'id': "STRING",'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -1661,7 +1643,7 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
       'selectionBinding': ("controllers.phoneTypes.selected"),
       'prompt': ("Type ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Country</label><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Country</label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -1671,28 +1653,28 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
       'selectionBinding': ("controllers.countries.selected"),
       'prompt': ("Country ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Phone</label><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Phone</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("phone"),
       'placeholder': ("Phone")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label ms-crm-Field-Normal\">Extension</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Extension</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("extension"),
       'placeholder': ("Extension")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label ms-crm-Field-Normal\">Score</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Score</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("score"),
       'placeholder': ("Score")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label ms-crm-Field-Normal\">Status</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Status</label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -1702,7 +1684,7 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
       'selectionBinding': ("controllers.phoneStatuses.selected"),
       'prompt': ("Status ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label ms-crm-Field-Normal\">Source</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Source</label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -1712,7 +1694,7 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
       'selectionBinding': ("controllers.sources.selected"),
       'prompt': ("Source ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label ms-crm-Field-Normal\">Consent</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Consent</label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -1722,7 +1704,7 @@ window.require.register("templates/contact/_edit", function(exports, require, mo
       'selectionBinding': ("controllers.yesNo.selected"),
       'prompt': ("Consent ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></p></div></div></div><div class=\"modal-footer\"><div class=\"btn btn-success\" ");
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><div class=\"btn btn-success\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -2013,10 +1995,14 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
   Ember.TEMPLATES["debtor/_edit"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"form form-horizontal\"><div class=\"control-group span6\"><p><div class=\"span6\"><div class=\"label control-label\">Type</div><div class=\"controls\">");
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Debtor Record</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Type </label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2025,7 +2011,7 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'optionValuePath': ("content.id"),
       'selectionBinding': ("controllers.consumerFlags.selected")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">Title</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Title</label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2035,28 +2021,28 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.titles.selected"),
       'prompt': ("Title ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">Last Name</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Last Name</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("lastName"),
       'placeholder': ("Last Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">First Name</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">First Name</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("firstName"),
       'placeholder': ("First Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">Middle Name</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Middle Name</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("middleName"),
       'placeholder': ("Middle Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">Suffix</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Suffix</label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2066,34 +2052,34 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.suffixes.selected"),
       'prompt': ("Suffix ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">Date of Birth</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Date of Birth</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0};
     hashTypes = {'valueBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
       'valueBinding': ("dob")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">SSN</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">SSN</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("ssn"),
       'placeholder': ("SSN")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">Martial Status</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Martial Status</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("maritalStatus"),
       'placeholder': ("Martial Status")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">Email</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Email</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("email"),
       'placeholder': ("Email")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">Email Validity</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Email Validity</label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2103,7 +2089,7 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.validInvalid.selected"),
       'prompt': ("Email Validity ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">Opt-In</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Opt-In</label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2113,14 +2099,14 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.yesNo.selected"),
       'prompt': ("Email Opt-in ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"label control-label\">Commerical Contact</div><div class=\"controls\">");
+    data.buffer.push("</div><label class=\"control-label\">Commerical Contact</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("contact"),
       'placeholder': ("Commerical Contact")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></div><div class=\"span6\">");
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Country</label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2130,79 +2116,84 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.countries.selected"),
       'prompt': ("Country ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
-    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("country"),
-      'placeholder': ("Country")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Address 1</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("address1"),
       'placeholder': ("Address 1")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Address 2</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("address2"),
       'placeholder': ("Address 2")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Address 3 </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("address3"),
       'placeholder': ("Address 3")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">City </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("city"),
       'placeholder': ("City")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">State </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("state"),
       'placeholder': ("State")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Zip Code </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("zip"),
       'placeholder': ("Zip code")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">County </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("county"),
       'placeholder': ("County")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Driver License Issuer </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("dlIssuer"),
       'placeholder': ("Driver License Issuer")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Driver License Number</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("dlNumber"),
       'placeholder': ("Driver License Number")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Passport Number </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("passport"),
       'placeholder': ("Passport Number")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">PIN </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("pin"),
       'placeholder': ("PIN")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"btn btn-success\" ");
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><div class=\"btn btn-success\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -2210,7 +2201,7 @@ window.require.register("templates/debtor/_edit", function(exports, require, mod
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Cancel</div></p></div></div></div>");
+    data.buffer.push(">Cancel</div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -2283,10 +2274,14 @@ window.require.register("templates/employment/_edit", function(exports, require,
   Ember.TEMPLATES["employment/_edit"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><p><div class=\"row-fluid\"><div class=\"span6\">");
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Employment Record</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Relationship </label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2296,42 +2291,47 @@ window.require.register("templates/employment/_edit", function(exports, require,
       'selectionBinding': ("controllers.associations.selected"),
       'prompt': ("Relationship ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Employer Name </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("name"),
       'placeholder': ("Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Position </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("position"),
       'placeholder': ("Position")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
-    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("hireDate"),
-      'placeholder': ("Hire Date")
+    data.buffer.push("</div><label class=\"control-label\">Hire Date </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'valueBinding': ("hireDate")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
-    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("terminationDate"),
-      'placeholder': ("Termination Date")
+    data.buffer.push("</div><label class=\"control-label\">Termination Date </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'valueBinding': ("terminationDate")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Phone </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("phone"),
       'placeholder': ("Phone")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Website </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("website"),
       'placeholder': ("Website")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Status </label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2341,6 +2341,7 @@ window.require.register("templates/employment/_edit", function(exports, require,
       'selectionBinding': ("controllers.employmentStatuses.selected"),
       'prompt': ("Employment Status ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Source </label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2350,31 +2351,35 @@ window.require.register("templates/employment/_edit", function(exports, require,
       'selectionBinding': ("controllers.sources.selected"),
       'prompt': ("Source ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Job Title </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("jobTitle"),
       'placeholder': ("Job Title")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Yearly Income </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("yearlyIncome"),
       'placeholder': ("Yearly Income")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Monthly Gross Income </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("monthlyGrossIncome"),
       'placeholder': ("Monthly Gross Income")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Monthly Net Income </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("monthlyNetIncome"),
       'placeholder': ("Monthly Net Income")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"span6\">");
+    data.buffer.push("</div><label class=\"control-label\">Country </label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2384,49 +2389,56 @@ window.require.register("templates/employment/_edit", function(exports, require,
       'selectionBinding': ("controllers.countries.selected"),
       'prompt': ("Country ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 1 </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("address1"),
       'placeholder': ("Address 1")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 2 </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("address2"),
       'placeholder': ("Address 2")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 3 </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("address3"),
       'placeholder': ("Address 3")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">City </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("city"),
       'placeholder': ("City")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">State </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("state"),
       'placeholder': ("State")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Zip Code </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("zip"),
       'placeholder': ("Zip")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">County </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("county"),
       'placeholder': ("County")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"btn btn-success\" ");
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><div class=\"btn btn-success\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -2434,7 +2446,7 @@ window.require.register("templates/employment/_edit", function(exports, require,
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Cancel</div></div></p></div></div>");
+    data.buffer.push(">Cancel</div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -2686,32 +2698,32 @@ window.require.register("templates/note", function(exports, require, module) {
     var buffer = '', stack1, hashTypes, hashContexts, options, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
-    data.buffer.push("<div class=\"modal\"><p><div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span9\"><div class=\"span3\"><h2>");
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "user", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</h2></div><div class=\"span3\"><h4>");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>");
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
     data.buffer.push(escapeExpression(((stack1 = helpers.date),stack1 ? stack1.call(depth0, "time", options) : helperMissing.call(depth0, "date", "time", options))));
-    data.buffer.push("</h4></div><div class=\"intro\"><div class=\"span3\"><h5>Action Code ");
+    data.buffer.push("</h5><div class=\"span2\"><p>Action Code: ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "actionCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</h5></div><div class=\"span3\"><h5>Result Code ");
+    data.buffer.push("</p></div><p>Result Code: ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "resultCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</h5></div></div></div></div><hr /><dl class=\"dl-horizontal\"><dt>Message</dt><dd>");
+    data.buffer.push(" </p></div><div class=\"modal-body\"><p>");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "message", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</dd></dl><button ");
+    data.buffer.push("</p></div><div class=\"modal-footer\"><div class=\"btn\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "close", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Close</button></div></p></div>");
+    data.buffer.push(">Close</div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -2841,10 +2853,14 @@ window.require.register("templates/person/_edit", function(exports, require, mod
   Ember.TEMPLATES["person/_edit"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"container-fluid\"><p><div class=\"row-fluid\"><div class=\"span6\">");
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Related Person</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Relationship </label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2854,6 +2870,7 @@ window.require.register("templates/person/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.relationships.selected"),
       'prompt': ("Relationship ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Title </label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2863,24 +2880,28 @@ window.require.register("templates/person/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.titles.selected"),
       'prompt': ("Title ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Last Name </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("lastName"),
       'placeholder': ("Last Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">First Name </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("firstName"),
       'placeholder': ("First Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Middle Name </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("middleName"),
       'placeholder': ("Middle Name")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Suffix </label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2890,43 +2911,46 @@ window.require.register("templates/person/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.suffixes.selected"),
       'prompt': ("Suffix ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'dateBinding': depth0,'placeholder': depth0};
-    hashTypes = {'dateBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePicker", {hash:{
-      'dateBinding': ("dob"),
-      'placeholder': ("Date of Birth")
+    data.buffer.push("</div><label class=\"control-label\">Date of Birth </label><div class=\"controls\">");
+    hashContexts = {'dateBinding': depth0};
+    hashTypes = {'dateBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'dateBinding': ("dob")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">SSN </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("ssn"),
       'placeholder': ("SSN")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'dateBinding': depth0,'placeholder': depth0};
-    hashTypes = {'dateBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePicker", {hash:{
-      'dateBinding': ("startDate"),
-      'placeholder': ("Relationship Started On")
+    data.buffer.push("</div><label class=\"control-label\">Relationship Start Date </label><div class=\"controls\">");
+    hashContexts = {'dateBinding': depth0};
+    hashTypes = {'dateBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'dateBinding': ("startDate")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    hashContexts = {'dateBinding': depth0,'placeholder': depth0};
-    hashTypes = {'dateBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePicker", {hash:{
-      'dateBinding': ("endDate"),
-      'placeholder': ("Relationship Ended On")
+    data.buffer.push("</div><label class=\"control-label\">Relationship End Date </label><div class=\"controls\">");
+    hashContexts = {'dateBinding': depth0};
+    hashTypes = {'dateBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'dateBinding': ("endDate")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Claim Number </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("claimNumber"),
       'placeholder': ("Claim Number")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Phone </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("phone"),
       'placeholder': ("Phone")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"span6\">");
+    data.buffer.push("</div><label class=\"control-label\">Country </label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
@@ -2936,55 +2960,63 @@ window.require.register("templates/person/_edit", function(exports, require, mod
       'selectionBinding': ("controllers.countries.selected"),
       'prompt': ("Country ...")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 1 </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("address1"),
       'placeholder': ("Address 1")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 2 </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("address2"),
       'placeholder': ("Address 2")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 3 </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("address3"),
       'placeholder': ("Address 3")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">City </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("city"),
       'placeholder': ("City")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">State </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("state"),
       'placeholder': ("State")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Zip Code </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("zip"),
       'placeholder': ("Zip code")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">County </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("county"),
       'placeholder': ("County")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Comment </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextArea", {hash:{
       'valueBinding': ("comment"),
       'placeholder': ("Comment")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><div class=\"btn btn-success\" ");
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><div class=\"btn btn-success\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -2992,7 +3024,7 @@ window.require.register("templates/person/_edit", function(exports, require, mod
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Cancel</div></div></p></div></div>");
+    data.buffer.push(">Cancel</div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -3112,22 +3144,7 @@ window.require.register("templates/persons", function(exports, require, module) 
   });module.exports = module.id;
 });
 window.require.register("views/contactView", function(exports, require, module) {
-  App.ContactView = Bootstrap.ModalPane.popup({
-    heading: 'Sample modal pane',
-    message: 'Sample message',
-    primary: 'OK',
-    secondary: 'Cancel',
-    showBackdrop: true,
-    callback: function(opts, event) {
-      if (opts.primary) {
-
-      } else if (opts.secondary) {
-
-      } else {
-
-      }
-    }
-  });
+  
   
 });
 window.require.register("views/contactsListView", function(exports, require, module) {

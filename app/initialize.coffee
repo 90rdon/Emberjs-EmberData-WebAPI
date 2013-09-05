@@ -51,7 +51,7 @@ require 'models/resultCode'
 
 require 'routes/indexRoute'
 require 'routes/debtorRoute'
-require 'routes/contactRoute'
+# require 'routes/contactRoute'
 # require 'routes/contactsRoute'
 
 #//////////////////////////////////
@@ -90,7 +90,7 @@ require 'views/contactsListView'
 require 'views/scrollView'
 require 'views/datePickerField'
 require 'views/modalView'
-require 'views/contactView'
+# require 'views/contactView'
 
 #/////////////////////////////////
 #// Store

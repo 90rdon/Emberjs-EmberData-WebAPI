@@ -1,74 +1,86 @@
 .modal
-  .form.form-horizontal
-    .control-group.span6
-      p
-        .span6
-          .label.control-label Type
-          .controls
-            view  Em.Select    contentBinding='controllers.consumerFlags' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.consumerFlags.selected'
-          .label.control-label Title
-          .controls      
-            view  Em.Select    contentBinding='controllers.titles' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.titles.selected' prompt='Title ...'
-          .label.control-label Last Name
-          .controls
-            view  Em.TextField valueBinding='lastName' placeholder='Last Name'
-          .label.control-label First Name
-          .controls
-            view  Em.TextField valueBinding='firstName' placeholder='First Name'
-          .label.control-label Middle Name
-          .controls
-            view  Em.TextField valueBinding='middleName' placeholder='Middle Name'
-          .label.control-label Suffix
-          .controls
-            view  Em.Select    contentBinding='controllers.suffixes' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.suffixes.selected' prompt='Suffix ...'
-          .label.control-label Date of Birth
-          .controls
-            view App.DatePickerField  valueBinding='dob'
-          .label.control-label SSN
-          .controls
-            view  Em.TextField valueBinding='ssn' placeholder='SSN'
-          .label.control-label Martial Status
-          .controls
-            view  Em.TextField valueBinding='maritalStatus' placeholder='Martial Status'
-          .label.control-label Email
-          .controls
-            view  Em.TextField valueBinding='email' placeholder='Email'
-          .label.control-label Email Validity
-          .controls
-            view  Em.Select    contentBinding='controllers.validInvalid' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.validInvalid.selected' prompt='Email Validity ...'
-          .label.control-label Opt-In
-          .controls
-            view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Email Opt-in ...'
-          .label.control-label Commerical Contact
-          .controls
-            view Em.TextField valueBinding='contact' placeholder='Commerical Contact'
+  .modal-header
+    button.close{action cancelEditing} &times;
+    h5 Debtor Record
+  .modal-body
+    .form.form-horizontal
+      .control-group
+        label.control-label Type 
+        .controls
+          view  Em.Select    contentBinding='controllers.consumerFlags' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.consumerFlags.selected'
+        label.control-label Title
+        .controls      
+          view  Em.Select    contentBinding='controllers.titles' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.titles.selected' prompt='Title ...'
+        label.control-label Last Name
+        .controls
+          view  Em.TextField valueBinding='lastName' placeholder='Last Name'
+        label.control-label First Name
+        .controls
+          view  Em.TextField valueBinding='firstName' placeholder='First Name'
+        label.control-label Middle Name
+        .controls
+          view  Em.TextField valueBinding='middleName' placeholder='Middle Name'
+        label.control-label Suffix
+        .controls
+          view  Em.Select    contentBinding='controllers.suffixes' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.suffixes.selected' prompt='Suffix ...'
+        label.control-label Date of Birth
+        .controls
+          view App.DatePickerField  valueBinding='dob'
+        label.control-label SSN
+        .controls
+          view  Em.TextField valueBinding='ssn' placeholder='SSN'
+        label.control-label Martial Status
+        .controls
+          view  Em.TextField valueBinding='maritalStatus' placeholder='Martial Status'
+        label.control-label Email
+        .controls
+          view  Em.TextField valueBinding='email' placeholder='Email'
+        label.control-label Email Validity
+        .controls
+          view  Em.Select    contentBinding='controllers.validInvalid' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.validInvalid.selected' prompt='Email Validity ...'
+        label.control-label Opt-In
+        .controls
+          view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Email Opt-in ...'
+        label.control-label Commerical Contact
+        .controls
+          view Em.TextField valueBinding='contact' placeholder='Commerical Contact'
 
-        .span6
-          / label Country
+        label.control-label.ms-crm-Field-Normal Country
+        .controls
           view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.countries.selected' prompt='Country ...'
-          view Em.TextField valueBinding='country' placeholder='Country'
-          / label Address1
+        label.control-label.ms-crm-Field-Normal Address 1
+        .controls
           view Em.TextField valueBinding='address1' placeholder='Address 1'
-          / label Address2
+        label.control-label.ms-crm-Field-Normal Address 2
+        .controls
           view Em.TextField valueBinding='address2' placeholder='Address 2'
-          / label Address3
+        label.control-label.ms-crm-Field-Normal Address 3 
+        .controls
           view Em.TextField valueBinding='address3' placeholder='Address 3'
-          / label City
+        label.control-label.ms-crm-Field-Normal City 
+        .controls
           view Em.TextField valueBinding='city' placeholder='City'
-          / label State
+        label.control-label.ms-crm-Field-Normal State 
+        .controls
           view Em.TextField valueBinding='state' placeholder='State'
-          / label Zip Code
+        label.control-label.ms-crm-Field-Normal Zip Code 
+        .controls
           view Em.TextField valueBinding='zip' placeholder='Zip code'
-          / label County
+        label.control-label.ms-crm-Field-Normal County 
+        .controls
           view Em.TextField valueBinding='county' placeholder='County'
-          / label Driver License Issuer
+        label.control-label.ms-crm-Field-Normal Driver License Issuer 
+        .controls
           view Em.TextField valueBinding='dlIssuer' placeholder='Driver License Issuer'
-          / label Driver License Number
+        label.control-label.ms-crm-Field-Normal Driver License Number
+        .controls
           view Em.TextField valueBinding='dlNumber' placeholder='Driver License Number'
-          / label Passport
+        label.control-label.ms-crm-Field-Normal Passport Number 
+        .controls
           view Em.TextField valueBinding='passport' placeholder='Passport Number'
-          / label PIN
+        label.control-label.ms-crm-Field-Normal PIN 
+        .controls
           view Em.TextField valueBinding='pin' placeholder='PIN'
-
-        .btn.btn-success{action 'doneEditing'} Done
-        .btn{action 'cancelEditing'} Cancel
+  .modal-footer
+    .btn.btn-success{action 'doneEditing'} Done
+    .btn{action 'cancelEditing'} Cancel

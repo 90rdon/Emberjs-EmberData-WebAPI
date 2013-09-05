@@ -19,7 +19,6 @@
           td
             .btn{action delete this} -
           td
-            / a{action 'openContact' this} href="#" =phone
             linkTo 'contact' this
               =phone
           td

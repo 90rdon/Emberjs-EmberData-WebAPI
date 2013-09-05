@@ -1,27 +1,16 @@
 .modal
-  p
-    .container-fluid
-      .row-fluid
-        .span9
-          .span3
-            h2
-              =user
-          .span3
-            h4 =date time
-          
-          .intro
-            .span3
-              h5 
-                | Action Code 
-                =actionCode
-            .span3
-              h5 
-                | Result Code 
-                =resultCode
-      hr
+  .modal-header
+    button.close{action cancelEditing} &times;
+    h5 =date time
+    .span2
+      p Action Code:
+        {{actionCode}}
+    p Result Code:
+      {{resultCode}}
 
-      dl.dl-horizontal
-        dt Message
-        dd =message
+  .modal-body
+    p
+      =message
 
-      button{action 'close'} Close
+  .modal-footer
+    .btn{action 'close'} Close
