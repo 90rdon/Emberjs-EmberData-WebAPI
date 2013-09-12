@@ -3,7 +3,7 @@
     thead
       tr
         th
-          .btn.btn-primary{action create} +
+          .btn.btn-primary.btn-mini{action create} +
         each columns itemController="columnItem"
           th{action toggleSort column}
             =humanize column
@@ -17,7 +17,8 @@
       each controller
         tr
           td
-            .btn{action delete this} -
+            .btn.btn-small{bindAttr id="id"} -
+            App.ConfirmationView contentBinding="this"
           td
             linkTo 'contact' this
               =phone

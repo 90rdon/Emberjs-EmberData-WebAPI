@@ -22,7 +22,7 @@ App.EditObjectController = Em.ObjectController.extend
 
     @set('isEditing', false)
     @transitionToRoute 'debtor'
-
+    
   cancelEditing: ->
     @setSelections()
 
@@ -31,3 +31,11 @@ App.EditObjectController = Em.ObjectController.extend
 
     @set('isEditing', false)
     @transitionToRoute 'debtor'
+
+  deleteRecord: (item) ->
+    item.deleteRecord()
+    @get('store').commit()
+
+  confirmationId: (->
+    'content-' + @get('id')
+  ).property('id')

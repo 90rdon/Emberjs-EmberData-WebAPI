@@ -1,0 +1,7 @@
+.modal-dialog{bindAttr id='controller.confirmationId'} style="display:none;z-index:1050;"
+  .modal-body
+    p
+      | Do you want to delete this record?
+    span.pull-right
+      .btn.btn-small{action deleteRecord this target='controller'} Yes
+      .btn.btn-primary.btn-small{action close target='view'} No

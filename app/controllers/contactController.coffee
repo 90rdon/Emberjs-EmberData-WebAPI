@@ -8,6 +8,8 @@ App.ContactController = App.EditObjectController.extend
     'yesNo'
   ]
 
+  isConfirming: false
+
   setSelections: ->
     @get('controllers.countries').setSelectedByIdStr(@get('country'))
     @get('controllers.phoneTypes').setSelectedById(@get('type'))
@@ -30,6 +32,6 @@ App.ContactController = App.EditObjectController.extend
 
   labelPhoneStatus: (->
     status = @get('controllers.phoneStatuses').findProperty('id', @get('status'))
-    return null   if status == null || status == null
+    return null   if status == null || status == undefined
     status.label
   ).property('status')

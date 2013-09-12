@@ -51,7 +51,15 @@ App.DebtorController = App.EditObjectController.extend
         resultCode: 21
       success: (response) ->
         @set('confirmationNumber', response)
-    
 
   cancellation: ->
     @toggleProperty('toCancel')
+
+  
+  # showConfirmation: (item) ->
+  #   @set('isConfirmationShown', true)
+
+  # hideConfirmation: ->
+  #   @set('isConfirmationShown', false)
+
+  # isConfirmationShown: false

@@ -71,4 +71,3 @@ App.Debtor = DS.Model.extend
     'city',
     'state',
     'zip' )
-

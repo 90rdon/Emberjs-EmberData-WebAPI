@@ -5,7 +5,6 @@ window.App = require 'app'
 #/////////////////////////////////
 
 require 'helpers/handlebarsHelpers'
-require 'helpers/radioButton'
 # require 'helpers/datePicker'
 
 #/////////////////////////////////
@@ -80,6 +79,7 @@ require 'templates/notes'
 require 'templates/_cancellation'
 require 'templates/modal_layout'
 require 'templates/empty'
+require 'templates/_confirmation'
 
 #/////////////////////////////////
 #// Views
@@ -90,7 +90,7 @@ require 'views/contactsListView'
 require 'views/scrollView'
 require 'views/datePickerField'
 require 'views/modalView'
-# require 'views/contactView'
+require 'views/confirmationView'
 
 #/////////////////////////////////
 #// Store

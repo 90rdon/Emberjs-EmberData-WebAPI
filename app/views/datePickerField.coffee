@@ -6,12 +6,12 @@ App.DatePickerField = Em.TextField.extend
       if value instanceof Date
         @set 'date', date
         @close()
-      else if value && /\d{4}\/\d{2}\/\d{2}/.test(value)
+      else if value && /\d{2}\/\d{2}\/\d{4}/.test(value)
         parts = value.split '-'
         date = new Date()
-        date.setYear parts[0]
+        date.setDate parts[0]
         date.setMonth parts[1] - 1
-        date.setDate parts[2]
+        date.setYear parts[2]
 
         @set 'date',  date
         @close()
@@ -28,7 +28,7 @@ App.DatePickerField = Em.TextField.extend
   ).property('value')
 
   format: "mm/dd/yyyy"
-  placeholder: Ember.computed.alias('format')
+  placeholder: Em.computed.alias('format')
 
   size: 8
 

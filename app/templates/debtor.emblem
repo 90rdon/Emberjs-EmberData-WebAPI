@@ -18,17 +18,18 @@
         hr
         .intro
           .span6
-            h5 Address
-            =address1
-            br
-            =city
-            |, 
-            =state
-            |  
-            =zip
+            p Address
+            h6 
+              =address1
+              br
+              =city
+              |, 
+              =state
+              |  
+              =zip
           .span6
-            h5 Email
-            =email
+            p Email
+            h5 =email
 
         .span4.pull-right
           .btn.btn-danger.btn-small{action 'cancellation'} Cancel Account

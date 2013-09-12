@@ -23,7 +23,7 @@
         each currentContent
           tr
             td
-              linkTo 'debtor' this
+              a href="#/debtor/{{unbound id}}" target="_blank"
                 =id
             td
               =fullNameWithTitle

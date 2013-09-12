@@ -2082,6 +2082,7 @@ a:hover {
 
 p {
   margin: 0 0 10px;
+  color: #9C9C9C;
 }
 
 .lead {
@@ -4555,6 +4556,7 @@ table th[class*="span"],
 
 .collapse.in {
   height: auto;
+  overflow: visible;
 }
 
 .close {

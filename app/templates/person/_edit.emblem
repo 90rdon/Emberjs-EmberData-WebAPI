@@ -25,16 +25,16 @@
           view  Em.Select    contentBinding='controllers.suffixes' optionLabelPath='content.id' optionValuePath='content.id' selectionBinding='controllers.suffixes.selected' prompt='Suffix ...'
         label.control-label Date of Birth 
         .controls
-          view App.DatePickerField dateBinding='dob'
+          view App.DatePickerField valueBinding='dob'
         label.control-label SSN 
         .controls
           view Em.TextField valueBinding='ssn' placeholder='SSN'
         label.control-label Relationship Start Date 
         .controls
-          view App.DatePickerField dateBinding='startDate'
+          view App.DatePickerField valueBinding='startDate'
         label.control-label Relationship End Date 
         .controls
-          view App.DatePickerField dateBinding='endDate'
+          view App.DatePickerField valueBinding='endDate'
         label.control-label Claim Number 
         .controls
           view Em.TextField valueBinding='claimNumber' placeholder='Claim Number'
