@@ -1,7 +1,7 @@
-App.ContactsListView = Em.ListView.extend
-  height: 200
+# App.ContactsListView = Em.ListView.extend
+#   height: 200
   
-  rowHeight: 50
+#   rowHeight: 50
   
-  itemViewClass: Em.ListItemView.extend
-    templateName: 'contactDetail'
+#   itemViewClass: Em.ListItemView.extend
+#     templateName: 'contactDetail'

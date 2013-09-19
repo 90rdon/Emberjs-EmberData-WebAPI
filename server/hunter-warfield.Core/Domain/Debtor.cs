@@ -11,6 +11,8 @@ namespace hunter_warfield.Core.Domain
     {
         public Int64 Id { get; set; }
 
+        public Int64 AccountId { get; set; }
+
         public string Type { get; set; }
 
         public string Title { get; set; }

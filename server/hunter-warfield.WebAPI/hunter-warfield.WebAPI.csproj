@@ -296,6 +296,8 @@
     <Content Include="Content\themes\base\minified\jquery.ui.tooltip.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="Images\glyphicons-halflings-white.png" />
+    <Content Include="Images\glyphicons-halflings.png" />
     <Content Include="Scripts\app.js" />
     <Content Include="Areas\HelpPage\Views\Web.config" />
     <Content Include="Areas\HelpPage\Views\Shared\_Layout.cshtml" />

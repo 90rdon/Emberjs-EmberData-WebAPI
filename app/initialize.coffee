@@ -50,8 +50,6 @@ require 'models/resultCode'
 
 require 'routes/indexRoute'
 require 'routes/debtorRoute'
-# require 'routes/contactRoute'
-# require 'routes/contactsRoute'
 
 #//////////////////////////////////
 #// Templates
@@ -85,8 +83,8 @@ require 'templates/_confirmation'
 #// Views
 #/////////////////////////////////
 
-require 'views/debtorsListView'
-require 'views/contactsListView'
+# require 'views/debtorsListView'
+# require 'views/contactsListView'
 require 'views/scrollView'
 require 'views/datePickerField'
 require 'views/modalView'

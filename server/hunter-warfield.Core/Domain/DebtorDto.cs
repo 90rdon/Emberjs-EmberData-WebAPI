@@ -15,6 +15,7 @@ namespace hunter_warfield.Core.Domain
         {
             if (debtor == null) return;
             Id = debtor.Id;
+            AccountId = debtor.AccountId;
             Type = debtor.Type;
             Title = debtor.Title;
             FirstName = debtor.FirstName;
@@ -90,6 +91,8 @@ namespace hunter_warfield.Core.Domain
         [Key]
         public Int64 Id { get; set; }
 
+        public Int64 AccountId { get; set; }
+
         public string Type { get; set; }
 
         public string Title { get; set; }
@@ -164,6 +167,7 @@ namespace hunter_warfield.Core.Domain
             Debtor debtor = new Debtor
             {
                 Id = Id,
+                AccountId = AccountId,
                 Type = Type,
                 Title = Title,
                 FirstName = FirstName,

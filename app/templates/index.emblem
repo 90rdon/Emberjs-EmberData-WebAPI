@@ -1,7 +1,10 @@
 .container-fluid
   .pull-right
-    .search-query
-      view Em.TextField valueBinding='controller.search' placeholder='filter by Id ...'
+    .search-query.form.form-horizontal
+      .control-group
+        label.control-label Search Debtors
+        .controls
+          view Em.TextField valueBinding='controller.search' placeholder='filter by Id'
 
 .row-fluid.row-border
   table.table style="margin-bottom: 0px;"
@@ -17,14 +20,14 @@
               i class="icon-chevron-down"
 
 
-  .scrollable-500
+  .scrollable-350
     table.table.table-striped
       tbody
         each currentContent
           tr
             td
               a href="#/debtor/{{unbound id}}" target="_blank"
-                =id
+                =accountId
             td
               =fullNameWithTitle
             td

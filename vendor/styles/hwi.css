@@ -42,6 +42,11 @@ hr {
   overflow-y: scroll;
 }
 
+.scrollable-350 {
+  max-height: 350px;
+  overflow-y: scroll;
+}
+
 .scrollable-200 {
   max-height: 200px;
   overflow-y: scroll;

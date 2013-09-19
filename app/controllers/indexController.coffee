@@ -1,6 +1,6 @@
 App.IndexController = App.ColumnSorterController.extend
   columns: (-> [
-    Em.Object.create({ column: 'id', label: 'debtorId' })
+    Em.Object.create({ column: 'id', label: 'accountNumber' })
     Em.Object.create({ column: 'fullName', label: 'name' })
     Em.Object.create({ column: 'fullAddress', label: 'address' })
   ]).property()

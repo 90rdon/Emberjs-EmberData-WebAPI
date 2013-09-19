@@ -398,7 +398,7 @@ window.require.register("controllers/indexController", function(exports, require
       return [
         Em.Object.create({
           column: 'id',
-          label: 'debtorId'
+          label: 'accountNumber'
         }), Em.Object.create({
           column: 'fullName',
           label: 'name'
@@ -967,10 +967,6 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('templates/_confirmation');
 
-  require('views/debtorsListView');
-
-  require('views/contactsListView');
-
   require('views/scrollView');
 
   require('views/datePickerField');
@@ -1057,6 +1053,7 @@ window.require.register("models/country", function(exports, require, module) {
 });
 window.require.register("models/debtor", function(exports, require, module) {
   App.Debtor = DS.Model.extend({
+    accountId: DS.attr('number'),
     type: DS.attr('string'),
     title: DS.attr('string'),
     lastName: DS.attr('string'),
@@ -1083,11 +1080,11 @@ window.require.register("models/debtor", function(exports, require, module) {
     dlNumber: DS.attr('string'),
     passport: DS.attr('string'),
     pin: DS.attr('string'),
+    clientId: DS.attr('number'),
     contacts: DS.hasMany('App.Contact'),
     persons: DS.hasMany('App.Person'),
     employments: DS.hasMany('App.Employment'),
     notes: DS.hasMany('App.Note'),
-    clientId: DS.attr('number'),
     fullName: (function() {
       var first, last, middle;
       first = this.get('firstName') || '';
@@ -1221,14 +1218,6 @@ window.require.register("models/resultCode", function(exports, require, module) 
     value: DS.attr('string'),
     description: DS.attr('string')
   });
-  
-});
-window.require.register("routes/contactRoute", function(exports, require, module) {
-  
-  
-});
-window.require.register("routes/contactsRoute", function(exports, require, module) {
-  
   
 });
 window.require.register("routes/debtorRoute", function(exports, require, module) {
@@ -2673,7 +2662,7 @@ window.require.register("templates/index", function(exports, require, module) {
     data.buffer.push("\" target=\"_blank\">");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "id", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "accountId", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</a></td><td>");
     hashTypes = {};
     hashContexts = {};
@@ -2686,21 +2675,21 @@ window.require.register("templates/index", function(exports, require, module) {
     return buffer;
     }
 
-    data.buffer.push("<div class=\"container-fluid\"><div class=\"pull-right\"><div class=\"search-query\">");
+    data.buffer.push("<div class=\"container-fluid\"><div class=\"pull-right\"><div class=\"search-query form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Search Debtors</label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
       'valueBinding': ("controller.search"),
-      'placeholder': ("filter by Id ...")
+      'placeholder': ("filter by Id")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></div></div><div class=\"row-fluid row-border\"><table class=\"table\" style=\"margin-bottom: 0px;\"><thead><tr>");
+    data.buffer.push("</div></div></div></div></div><div class=\"row-fluid row-border\"><table class=\"table\" style=\"margin-bottom: 0px;\"><thead><tr>");
     hashContexts = {'itemController': depth0};
     hashTypes = {'itemController': "STRING"};
     stack1 = helpers.each.call(depth0, "columns", {hash:{
       'itemController': ("columnItem")
     },inverse:self.program(4, program4, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("</tr></thead></table><div class=\"scrollable-500\"><table class=\"table table-striped\"><tbody>");
+    data.buffer.push("</tr></thead></table><div class=\"scrollable-350\"><table class=\"table table-striped\"><tbody>");
     hashTypes = {};
     hashContexts = {};
     stack1 = helpers.each.call(depth0, "currentContent", {hash:{},inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
@@ -3228,13 +3217,7 @@ window.require.register("views/contactView", function(exports, require, module) 
   
 });
 window.require.register("views/contactsListView", function(exports, require, module) {
-  App.ContactsListView = Em.ListView.extend({
-    height: 200,
-    rowHeight: 50,
-    itemViewClass: Em.ListItemView.extend({
-      templateName: 'contactDetail'
-    })
-  });
+  
   
 });
 window.require.register("views/datePickerField", function(exports, require, module) {
@@ -3298,24 +3281,7 @@ window.require.register("views/datePickerField", function(exports, require, modu
   
 });
 window.require.register("views/debtorsListView", function(exports, require, module) {
-  App.DebtorsListView = Em.ListView.extend({
-    init: function() {
-      var view;
-      this._super();
-      view = this;
-      return $(window).on('resize', function() {
-        return Em.run.debounce(view, 'resize', 150);
-      });
-    },
-    resize: function() {
-      return this.set('height', $(window).height() - 200);
-    },
-    height: $(window).height() - 90,
-    rowHeight: 50,
-    itemViewClass: Em.ListItemView.extend({
-      templateName: 'debtorDetail'
-    })
-  });
+  
   
 });
 window.require.register("views/modalView", function(exports, require, module) {

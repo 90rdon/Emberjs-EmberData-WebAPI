@@ -1,4 +1,5 @@
 App.Debtor = DS.Model.extend
+  accountId:          DS.attr 'number'
   type:        				DS.attr 'string'
   title:       				DS.attr 'string'
   lastName:        	  DS.attr 'string'
@@ -27,14 +28,13 @@ App.Debtor = DS.Model.extend
   dlNumber:						DS.attr	'string'
   passport:						DS.attr	'string'
   pin:								DS.attr	'string'
-
-  contacts: 					DS.hasMany 'App.Contact'
-  persons:            DS.hasMany 'App.Person'
-  employments:        DS.hasMany 'App.Employment'
-  notes:              DS.hasMany 'App.Note'
-
   clientId:           DS.attr 'number'
 
+  # client:             DS.belongsTo 'App.Client'
+  contacts: 					DS.hasMany   'App.Contact'
+  persons:            DS.hasMany   'App.Person'
+  employments:        DS.hasMany   'App.Employment'
+  notes:              DS.hasMany   'App.Note'
 
   fullName: (->
     first   = @get('firstName') || ''

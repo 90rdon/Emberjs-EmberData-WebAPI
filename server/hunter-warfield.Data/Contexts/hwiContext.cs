@@ -17,6 +17,7 @@ namespace hunter_warfield.Data.Contexts
 
         public hwiContext(string connectionString) { }
 
+        //public DbSet<Client> Clients { get; set; }
         public DbSet<Debtor> Debtors { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Person> Persons { get; set; }
@@ -31,6 +32,7 @@ namespace hunter_warfield.Data.Contexts
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            //modelBuilder.Configurations.Add(new ClientConfiguration());
             modelBuilder.Configurations.Add(new DebtorConfiguration());
             modelBuilder.Configurations.Add(new ContactConfiguration());
             modelBuilder.Configurations.Add(new PersonConfiguration());
@@ -43,7 +45,7 @@ namespace hunter_warfield.Data.Contexts
             modelBuilder.Configurations.Add(new ActionCodeConfiguration());
             modelBuilder.Configurations.Add(new ResultCodeConfiguration());
 
-            
+
             //modelBuilder.Entity<Client>()
             //    .HasMany(d => d.Debtors)
             //    .WithOptional()
