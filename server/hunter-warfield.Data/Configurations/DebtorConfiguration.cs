@@ -17,6 +17,8 @@ namespace hunter_warfield.Data.Configurations
 
             this.Property(p => p.Id).HasColumnName("cnsmr_id");
             this.Property(p => p.AccountId).HasColumnName("cnsmr_accnt_id");
+            this.Property(p => p.AgencyId).HasColumnName("cnsmr_accnt_idntfr_agncy_id");
+            this.Property(p => p.ClientId).HasColumnName("crdtr_id");
             this.Property(p => p.Type).HasColumnName("cnsmr_iscmmrcl_flg");
             this.Property(p => p.Title).HasColumnName("cnsmr_nm_prfx_txt");
             this.Property(p => p.LastName).HasColumnName("cnsmr_nm_lst_txt");
@@ -43,7 +45,7 @@ namespace hunter_warfield.Data.Configurations
             this.Property(p => p.DLNumber).HasColumnName("cnsmr_idntfr_drvr_lcns_txt");
             this.Property(p => p.Passport).HasColumnName("cnsmr_idntfr_pssprt_txt");
             this.Property(p => p.PIN).HasColumnName("cnsmr_accss_pin_nmbr_txt");
-            this.Property(p => p.ClientId).HasColumnName("wrkgrp_id");
+            //this.Property(p => p.ClientId).HasColumnName("wrkgrp_id");
             this.Property(p => p.SSNKey).HasColumnName("cnsmr_idntfr_scrd_ssn_txt");
 
             this.Map(cnsmr =>
@@ -69,7 +71,6 @@ namespace hunter_warfield.Data.Configurations
                         p.DLNumber,
                         p.Passport,
                         p.PIN,
-                        p.ClientId,
                         p.SSNKey
                     });
                     cnsmr.ToTable("cnsmr");
@@ -79,7 +80,9 @@ namespace hunter_warfield.Data.Configurations
                 {
                     cnsmr_acct.Properties(p => new
                     {
-                        p.AccountId
+                        p.AccountId,
+                        p.AgencyId,
+                        p.ClientId
                     });
                     cnsmr_acct.ToTable("cnsmr_accnt");
                 });

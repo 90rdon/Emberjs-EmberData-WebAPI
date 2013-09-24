@@ -10,10 +10,15 @@ App.DebtorController = App.EditObjectController.extend
     'suffixes'
     'validInvalid'
     'yesNo'
-    'actionCodes'
+    'application'
+    'cancellationCodes'
     'resultCodes'
   ]
-    
+
+  params: (->
+    @get('controllers.application.params')
+  ).property('controllers.application.params')
+  
   setSelections: ->
     @get('controllers.consumerFlags').setSelectedById(@get('type'))
     @get('controllers.titles').setSelectedById(@get('title'))
@@ -41,16 +46,28 @@ App.DebtorController = App.EditObjectController.extend
   confirmationNumber: null
 
   sendCancellation: ->
-    @set('toCancel', false)
+    # console.log 'userid = ' + @get('params.userId')
+    # @set('toCancel', false)
+    # console.log 'account id = ' + @get('agencyId')
+    # console.log 'cancellation code = ' + @get('controllers.cancellationCodes').getSelectedId()
+    # console.log 'result code = ' + @get('controllers.resultCodes').getSelectedId()
+    # console.log 'url = ' + App.serverUrl + '/' + App.serverNamespace
     $.ajax
-      url: '/api/cancellation'
+      url: App.serverUrl + '/' + App.serverNamespace + '/cancellation'
       dataType: 'json'
       type: 'POST'
       data:
-        actionCode: 13
-        resultCode: 21
+        accountId:        @get('accountId')
+        agencyId:         @get('agencyId')
+        userId:           @get('params.userId')
+        cancellationCode: @get('controllers.cancellationCodes').getSelectedId()
+        debtorId:         @get('id')
+        clientId:         @get('clientId')
+        creditorId:       @get('creditorId')
       success: (response) ->
-        @set('confirmationNumber', response)
+        # @set('confirmationNumber', response)
+        @set('toCancel', false)
+
 
   cancellation: ->
     @toggleProperty('toCancel')

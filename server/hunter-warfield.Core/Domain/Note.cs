@@ -20,6 +20,8 @@ namespace hunter_warfield.Core.Domain
 
         public Int64? ClientId { get; set; }
 
+        public Int64? AccountId { get; set; }
+
         public string Message { get; set; }
 
         // none null fields

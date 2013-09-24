@@ -88,6 +88,12 @@ window.require.register("app", function(exports, require, module) {
   });
   
 });
+window.require.register("controllers/applicationController", function(exports, require, module) {
+  App.ApplicationController = Em.Controller.extend({
+    params: []
+  });
+  
+});
 window.require.register("controllers/contactController", function(exports, require, module) {
   App.ContactController = App.EditObjectController.extend({
     needs: ['debtor', 'countries', 'phoneTypes', 'phoneStatuses', 'sources', 'yesNo'],
@@ -159,7 +165,10 @@ window.require.register("controllers/contactsController", function(exports, requ
 });
 window.require.register("controllers/debtorController", function(exports, require, module) {
   App.DebtorController = App.EditObjectController.extend({
-    needs: ['contacts', 'employments', 'persons', 'notes', 'countries', 'consumerFlags', 'titles', 'suffixes', 'validInvalid', 'yesNo', 'actionCodes', 'resultCodes'],
+    needs: ['contacts', 'employments', 'persons', 'notes', 'countries', 'consumerFlags', 'titles', 'suffixes', 'validInvalid', 'yesNo', 'application', 'cancellationCodes', 'resultCodes'],
+    params: (function() {
+      return this.get('controllers.application.params');
+    }).property('controllers.application.params'),
     setSelections: function() {
       this.get('controllers.consumerFlags').setSelectedById(this.get('type'));
       this.get('controllers.titles').setSelectedById(this.get('title'));
@@ -186,17 +195,21 @@ window.require.register("controllers/debtorController", function(exports, requir
     toCancel: false,
     confirmationNumber: null,
     sendCancellation: function() {
-      this.set('toCancel', false);
       return $.ajax({
-        url: '/api/cancellation',
+        url: App.serverUrl + '/' + App.serverNamespace + '/cancellation',
         dataType: 'json',
         type: 'POST',
         data: {
-          actionCode: 13,
-          resultCode: 21
+          accountId: this.get('accountId'),
+          agencyId: this.get('agencyId'),
+          userId: this.get('params.userId'),
+          cancellationCode: this.get('controllers.cancellationCodes').getSelectedId(),
+          debtorId: this.get('id'),
+          clientId: this.get('clientId'),
+          creditorId: this.get('creditorId')
         },
         success: function(response) {
-          return this.set('confirmationNumber', response);
+          return this.set('toCancel', false);
         }
       });
     },
@@ -394,6 +407,10 @@ window.require.register("controllers/helpers/editObjectController", function(exp
 });
 window.require.register("controllers/indexController", function(exports, require, module) {
   App.IndexController = App.ColumnSorterController.extend({
+    needs: ['application'],
+    params: (function() {
+      return this.get('controllers.application.params');
+    }).property('controllers.application.params'),
     columns: (function() {
       return [
         Em.Object.create({
@@ -666,6 +683,39 @@ window.require.register("controllers/lookupDataController", function(exports, re
       return this.set('sortAscending', true);
     }).observes('@content.isloaded')
   });
+
+  App.CancellationCodesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 'A-CBC',
+        label: 'Cancelled by Client'
+      }), Em.Object.create({
+        id: 'A-CBK',
+        label: 'Cancelled - Bankruptcy'
+      }), Em.Object.create({
+        id: 'A-CBA',
+        label: 'Cancelled by Agency'
+      }), Em.Object.create({
+        id: 'A-CDA',
+        label: 'Cancelled Duplicate Account'
+      }), Em.Object.create({
+        id: 'A-CDE',
+        label: 'Cancelled Data Load Error'
+      }), Em.Object.create({
+        id: 'A-CII',
+        label: 'Cancelled due to incomplete information'
+      }), Em.Object.create({
+        id: 'A-COB',
+        label: 'Cancelled Out of Business'
+      }), Em.Object.create({
+        id: 'A-CPF',
+        label: 'Cancelled Possible Fraud'
+      }), Em.Object.create({
+        id: 'A-CPP',
+        label: 'Cancelled Paid Prior to Placement'
+      })
+    ]
+  });
   
 });
 window.require.register("controllers/noteController", function(exports, require, module) {
@@ -701,7 +751,11 @@ window.require.register("controllers/notesController", function(exports, require
           column: 'user'
         })
       ];
-    }).property()
+    }).property(),
+    loaded: (function() {
+      this.set('sortProperties', ['time']);
+      return this.set('sortAscending', false);
+    }).observes('content.@each')
   });
   
 });
@@ -867,6 +921,8 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('helpers/handlebarsHelpers');
 
+  require('controllers/applicationController');
+
   require('controllers/helpers/columnItemController');
 
   require('controllers/helpers/columnSorterController');
@@ -896,6 +952,8 @@ window.require.register("initialize", function(exports, require, module) {
   require('controllers/notesController');
 
   require('controllers/lookupDataController');
+
+  require('models/client');
 
   require('models/contact');
 
@@ -986,9 +1044,9 @@ window.require.register("initialize", function(exports, require, module) {
   App.DEFAULT_CSS_TRANSITION_DURATION_MS = 250;
 
   App.Router.map(function() {
-    this.route('index', {
-      path: '/'
-    }, function() {});
+    this.resource('index', {
+      path: '/:client_id'
+    });
     return this.resource('debtor', {
       path: 'debtor/:debtor_id'
     }, function() {
@@ -1022,7 +1080,9 @@ window.require.register("models/cancellation", function(exports, require, module
 });
 window.require.register("models/client", function(exports, require, module) {
   App.Client = DS.Model.extend({
-    description: DS.attr('string')
+    legacyId: DS.attr('string'),
+    description: DS.attr('string'),
+    debtors: DS.hasMany('App.Debtor')
   });
   
 });
@@ -1054,6 +1114,8 @@ window.require.register("models/country", function(exports, require, module) {
 window.require.register("models/debtor", function(exports, require, module) {
   App.Debtor = DS.Model.extend({
     accountId: DS.attr('number'),
+    agencyId: DS.attr('number'),
+    creditorId: DS.attr('number'),
     type: DS.attr('string'),
     title: DS.attr('string'),
     lastName: DS.attr('string'),
@@ -1081,6 +1143,7 @@ window.require.register("models/debtor", function(exports, require, module) {
     passport: DS.attr('string'),
     pin: DS.attr('string'),
     clientId: DS.attr('number'),
+    client: DS.belongsTo('App.Client'),
     contacts: DS.hasMany('App.Contact'),
     persons: DS.hasMany('App.Person'),
     employments: DS.hasMany('App.Employment'),
@@ -1220,13 +1283,26 @@ window.require.register("models/resultCode", function(exports, require, module) 
   });
   
 });
+window.require.register("routes/clientRoute", function(exports, require, module) {
+  App.ClientRoute = Em.Route.extend({
+    model: function(params) {
+      return App.Client.find(params.client_id);
+    },
+    setupController: function(controller, model) {
+      return controller.set('model', model);
+    }
+  });
+  
+});
 window.require.register("routes/debtorRoute", function(exports, require, module) {
   App.DebtorRoute = Em.Route.extend({
+    observesParameters: ['userId', 'canEditDebtor'],
     model: function(params) {
       return App.Debtor.find(params.debtor_id);
     },
     setupController: function(controller, model) {
       controller.set('model', model);
+      this.controllerFor('application').set('params', this.get('queryParameters'));
       this.controllerFor('countries').set('content', App.Country.find());
       this.controllerFor('relationships').set('content', App.Relationship.find());
       this.controllerFor('actionCodes').set('content', App.ActionCode.find());
@@ -1237,8 +1313,13 @@ window.require.register("routes/debtorRoute", function(exports, require, module)
 });
 window.require.register("routes/indexRoute", function(exports, require, module) {
   App.IndexRoute = Em.Route.extend({
-    setupController: function(controller, model) {
-      controller.set('model', App.Debtor.find());
+    observesParameters: ['userId', 'canEditDebtor', 'feePercentage'],
+    model: function(params) {
+      return App.Client.find(params.client_id);
+    },
+    setupController: function(controller, model, queryParams) {
+      controller.set('model', model.get('debtors'));
+      this.controllerFor('application').set('params', this.get('queryParameters'));
       this.controllerFor('countries').set('content', App.Country.find());
       return this.controllerFor('relationships').set('content', App.Relationship.find());
     }
@@ -1264,6 +1345,12 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
     })
   });
 
+  DS.WebAPIAdapter.map('App.Client', {
+    debtors: {
+      embedded: 'load'
+    }
+  });
+
   DS.WebAPIAdapter.map('App.Debtor', {
     contacts: {
       embedded: 'load'
@@ -1281,8 +1368,13 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
 
   DS.WebAPIAdapter.map('App.Contact', {
     countries: {
-      embedded: 'always'
+      embedded: 'load'
     }
+  });
+
+  DS.WebAPIAdapter.configure('App.Client', {
+    sideloadAs: 'client',
+    primaryKey: 'id'
   });
 
   DS.WebAPIAdapter.configure('App.Debtor', {
@@ -1510,28 +1602,23 @@ window.require.register("templates/_cancellation", function(exports, require, mo
   Ember.TEMPLATES["_cancellation"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"form form-horizontal\"><div class=\"control-group span6\"><p><label class=\"control-label\">Action Code</label><div class=\"controls\">");
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancellation", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Account Cancellation</h5></div><div class=\"model-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Cancellation Code</label><div class=\"controls\">");
     hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0};
     hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("controllers.actionCodes"),
-      'optionLabelPath': ("content.value"),
+      'contentBinding': ("controllers.cancellationCodes"),
+      'optionLabelPath': ("content.label"),
       'optionValuePath': ("content.id"),
-      'selectionBinding': ("controllers.actionCodes.selected")
+      'selectionBinding': ("controllers.cancellationCodes.selected")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></p></div><div class=\"control-group span6\"><p><label class=\"control-label\">Result Code</label><div class=\"controls\">");
-    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0};
-    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("controllers.resultCodes"),
-      'optionLabelPath': ("content.value"),
-      'optionValuePath': ("content.id"),
-      'selectionBinding': ("controllers.resultCodes.selected")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></p></div><div class=\"span4 pull-right\"><p><div class=\"btn btn-danger\" ");
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><div class=\"btn btn-danger\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "sendCancellation", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -1539,7 +1626,7 @@ window.require.register("templates/_cancellation", function(exports, require, mo
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancellation", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Abort</div></p></div></div></div>");
+    data.buffer.push(">Abort</div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -2659,6 +2746,14 @@ window.require.register("templates/index", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "id", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("/?userId=");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "controller.params.userId", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("&canEditDebtor=");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "controller.params.canEditDebtor", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("\" target=\"_blank\">");
     hashTypes = {};
     hashContexts = {};

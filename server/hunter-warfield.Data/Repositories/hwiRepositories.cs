@@ -61,5 +61,25 @@ namespace hunter_warfield.Data.Repositories
                 return result.ToList().First().ToString();
             }
         }
+
+        public decimal DebtorBalance(Int64 accountId)
+        {
+            StringBuilder sql = new StringBuilder();
+            sql.Append("SELECT c.cnsmr_accnt_bal_amnt");
+            sql.Append("  FROM dbo.cnsmr_accnt_bal AS c");
+            sql.Append(" INNER JOIN dbo.bal_nm AS b");
+            sql.Append("    ON c.bal_nm_id = b.bal_nm_id");
+            sql.Append(" INNER JOIN dbo.cnsmr_accnt AS ca");
+            sql.Append("    ON c.cnsmr_accnt_id = ca.cnsmr_accnt_id");
+            sql.Append(" WHERE ca.cnsmr_accnt_id = {0}");
+            sql.Append("   AND b.bal_nm_id = 2");
+
+            using (var db = new hwiContext())
+            {
+                var result = db.Database.SqlQuery<decimal>(string.Format(sql.ToString(), accountId));
+
+                return result.ToList().First();
+            }
+        }
     }
 }

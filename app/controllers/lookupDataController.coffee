@@ -127,7 +127,18 @@ App.ResultCodesController = App.LookupDataController.extend
   ).observes('@content.isloaded')
 
 
-
+App.CancellationCodesController = App.LookupDataController.extend
+  content: [
+    Em.Object.create({id: 'A-CBC', label: 'Cancelled by Client'})
+    Em.Object.create({id: 'A-CBK', label: 'Cancelled - Bankruptcy'})
+    Em.Object.create({id: 'A-CBA', label: 'Cancelled by Agency'})
+    Em.Object.create({id: 'A-CDA', label: 'Cancelled Duplicate Account'})
+    Em.Object.create({id: 'A-CDE', label: 'Cancelled Data Load Error'})
+    Em.Object.create({id: 'A-CII', label: 'Cancelled due to incomplete information'})
+    Em.Object.create({id: 'A-COB', label: 'Cancelled Out of Business'})
+    Em.Object.create({id: 'A-CPF', label: 'Cancelled Possible Fraud'})
+    Em.Object.create({id: 'A-CPP', label: 'Cancelled Paid Prior to Placement'})
+  ]
 
 
 

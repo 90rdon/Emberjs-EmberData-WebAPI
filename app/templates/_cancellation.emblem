@@ -1,18 +1,17 @@
 .modal
-  .form.form-horizontal
-    .control-group.span6
-      p
-        label.control-label Action Code
+  .modal-header
+    button.close{action cancellation} &times;
+    h5 Account Cancellation
+  .model-body
+    .form.form-horizontal
+      .control-group
+        label.control-label Cancellation Code
         .controls
-          view  Em.Select    contentBinding='controllers.actionCodes' optionLabelPath='content.value' optionValuePath='content.id' selectionBinding='controllers.actionCodes.selected'
-
-    .control-group.span6
-      p
-        label.control-label Result Code
-        .controls
-          view  Em.Select    contentBinding='controllers.resultCodes' optionLabelPath='content.value' optionValuePath='content.id' selectionBinding='controllers.resultCodes.selected'
-
-    .span4.pull-right
-      p
-        .btn.btn-danger{action sendCancellation} Send Cancellation
-        .btn{action cancellation} Abort
+          view  Em.Select    contentBinding='controllers.cancellationCodes' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.cancellationCodes.selected'
+      / .control-group
+      /   label.control-label Result Code
+      /   .controls
+      /     view  Em.Select    contentBinding='controllers.resultCodes' optionLabelPath='content.value' optionValuePath='content.id' selectionBinding='controllers.resultCodes.selected'
+  .modal-footer
+    .btn.btn-danger{action sendCancellation} Send Cancellation
+    .btn{action cancellation} Abort

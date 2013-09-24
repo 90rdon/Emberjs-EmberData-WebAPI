@@ -16,6 +16,8 @@ namespace hunter_warfield.Core.Domain
             if (debtor == null) return;
             Id = debtor.Id;
             AccountId = debtor.AccountId;
+            AgencyId = debtor.AgencyId;
+            //CreditorId = debtor.CreditorId;
             Type = debtor.Type;
             Title = debtor.Title;
             FirstName = debtor.FirstName;
@@ -48,7 +50,6 @@ namespace hunter_warfield.Core.Domain
             Contacts = new List<ContactDto>();
             Persons = new List<PersonDto>();
             Employments = new List<EmploymentDto>();
-            //Historicals = new List<HistoricalDto>();
             Notes = new List<NoteDto>();
             if (debtor.Contacts != null)
             {
@@ -71,13 +72,6 @@ namespace hunter_warfield.Core.Domain
                     Employments.Add(new EmploymentDto(employment));
                 }
             }
-            //if (debtor.Historicals != null)
-            //{
-            //    foreach (Historical historical in debtor.Historicals)
-            //    {
-            //        Historicals.Add(new HistoricalDto(historical));
-            //    }
-            //}
             if (debtor.Notes != null)
             {
                 foreach (Note note in debtor.Notes)
@@ -92,6 +86,10 @@ namespace hunter_warfield.Core.Domain
         public Int64 Id { get; set; }
 
         public Int64 AccountId { get; set; }
+
+        public Int64 AgencyId { get; set; }
+
+        //public Int64 CreditorId { get; set; }
 
         public string Type { get; set; }
 
@@ -151,8 +149,6 @@ namespace hunter_warfield.Core.Domain
 
         public virtual List<EmploymentDto> Employments { get; set; }
 
-        //public virtual List<HistoricalDto> Historicals { get; set; }
-
         public virtual List<NoteDto> Notes { get; set; }
 
         public Int64 ClientId { get; set; }
@@ -168,6 +164,8 @@ namespace hunter_warfield.Core.Domain
             {
                 Id = Id,
                 AccountId = AccountId,
+                AgencyId = AgencyId,
+                //CreditorId = CreditorId,
                 Type = Type,
                 Title = Title,
                 FirstName = FirstName,
@@ -224,14 +222,6 @@ namespace hunter_warfield.Core.Domain
                     debtor.Employments.Add(employment.ToEntity());
                 }
             }
-
-            //if (Historicals != null)
-            //{
-            //    foreach (HistoricalDto historical in Historicals)
-            //    {
-            //        debtor.Historicals.Add(historical.ToEntity());
-            //    }
-            //}
 
             if (Notes != null)
             {

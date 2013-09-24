@@ -1,4 +1,10 @@
 App.IndexController = App.ColumnSorterController.extend
+  needs: [ 'application' ]
+
+  params: (->
+    @get('controllers.application.params')
+  ).property('controllers.application.params')
+
   columns: (-> [
     Em.Object.create({ column: 'id', label: 'accountNumber' })
     Em.Object.create({ column: 'fullName', label: 'name' })

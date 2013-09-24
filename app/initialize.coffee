@@ -11,6 +11,7 @@ require 'helpers/handlebarsHelpers'
 #// Controllers
 #/////////////////////////////////
 
+require 'controllers/applicationController'
 require 'controllers/helpers/columnItemController'
 require 'controllers/helpers/columnSorterController'
 require 'controllers/helpers/editObjectController'
@@ -33,6 +34,7 @@ require 'controllers/lookupDataController'
 #// Models
 #//////////////////////////////////
 
+require 'models/client'
 require 'models/contact'
 require 'models/debtor'
 require 'models/employment'
@@ -111,12 +113,11 @@ App.AJAX_LOADER_IMG = "/images/ajax_loader.gif"
 App.DEFAULT_CSS_TRANSITION_DURATION_MS = 250
 
 App.Router.map ->
-  @route          'index',      path: '/', ->
-  @resource       'debtor',     path: 'debtor/:debtor_id', ->
-    @resource     'contact',    path: 'contact/:contact_id',
-    @resource     'person',     path: 'person/:person_id',
-    @resource     'employment', path: 'employment/:employment_id',
-    @resource     'note',       path: 'note/:note_id'
-
+  @resource     'index',      path: '/:client_id'
+  @resource     'debtor',     path: 'debtor/:debtor_id', ->
+    @resource   'contact',    path: 'contact/:contact_id',
+    @resource   'person',     path: 'person/:person_id',
+    @resource   'employment', path: 'employment/:employment_id',
+    @resource   'note',       path: 'note/:note_id'
 
 

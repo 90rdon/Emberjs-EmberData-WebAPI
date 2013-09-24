@@ -131,12 +131,24 @@ function canEditDebtor() {
 
 function SetDebtorIframe() {
     var clientId = Xrm.Page.getAttribute("accountnumber").getValue();
-    var url = "https://crmtitaniuminterface.hunterwarfield.com?clientid=" + clientId + "&caneditdebtor=" + canEditDebtor();
+    var feePercentage = Xrm.Page.getAttribute("_cancellationfeeperc").getValue();
+    var userId = Xrm.Page.context.getUserId();
+    var url = "https://crmtitaniuminterface.hunterwarfield.com/#/" + clientId + "/?userId=" + userId + "&canEditDebtor=" + canEditDebtor() + "&feePercentage=" + feePercentage;
 
     var iframe = Xrm.Page.ui.controls.get("IFRAME_Debtors").setSrc(url);
 }
 
 
+//==========================================================
+// loads the debtor project with parameters to CRM's IFRAME_debtor
+
+function SetDebtorIframe() {
+    var clientId = Xrm.Page.getAttribute("accountnumber").getValue();
+    var userId = Xrm.Page.context.getUserId();
+    var url = "https://crmtitaniuminterface.hunterwarfield.com/#/" + clientId + "/?userId=" + userId + "&canEditDebtor=" + canEditDebtor();
+
+    var iframe = Xrm.Page.ui.controls.get("IFRAME_Debtors").setSrc(url);
+}
 
 
 

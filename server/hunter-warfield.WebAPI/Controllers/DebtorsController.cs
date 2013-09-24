@@ -26,7 +26,7 @@ namespace hunter_warfield.WebAPI.Controllers
                 .Include("Persons")
                 .Include("Employments")
                 .Include("Notes")
-                .Where(d => d.ClientId == 159)
+                //.Where(d => d.ClientId == 159)
                 .AsEnumerable()
                 .Select(d => new DebtorDto(d));
 

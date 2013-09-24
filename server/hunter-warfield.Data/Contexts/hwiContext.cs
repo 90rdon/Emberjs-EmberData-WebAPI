@@ -17,39 +17,39 @@ namespace hunter_warfield.Data.Contexts
 
         public hwiContext(string connectionString) { }
 
-        //public DbSet<Client> Clients { get; set; }
+        public DbSet<Client> Clients { get; set; }
         public DbSet<Debtor> Debtors { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Person> Persons { get; set; }
         public DbSet<Employment> Employments { get; set; }
-        //public DbSet<Historical> Historicals { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Relationship> Relationships { get; set; }
         public DbSet<Association> Associations { get; set; }
         public DbSet<Note> Notes { get; set; }
         public DbSet<ActionCode> ActionCodes { get; set; }
         public DbSet<ResultCode> ResultCodes { get; set; }
+        public DbSet<OperatingTransaction> OperatingTransactions { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            //modelBuilder.Configurations.Add(new ClientConfiguration());
+            modelBuilder.Configurations.Add(new ClientConfiguration());
             modelBuilder.Configurations.Add(new DebtorConfiguration());
             modelBuilder.Configurations.Add(new ContactConfiguration());
             modelBuilder.Configurations.Add(new PersonConfiguration());
             modelBuilder.Configurations.Add(new EmploymentConfiguration());
-            //modelBuilder.Configurations.Add(new HistoricalConfiguration());
             modelBuilder.Configurations.Add(new CountryConfiguration());
             modelBuilder.Configurations.Add(new RelationshipConfiguration());
             modelBuilder.Configurations.Add(new AssociationConfiguration());
             modelBuilder.Configurations.Add(new NoteConfiguration());
             modelBuilder.Configurations.Add(new ActionCodeConfiguration());
             modelBuilder.Configurations.Add(new ResultCodeConfiguration());
+            modelBuilder.Configurations.Add(new OperatingTransactionConfiguration());
 
 
-            //modelBuilder.Entity<Client>()
-            //    .HasMany(d => d.Debtors)
-            //    .WithOptional()
-            //    .HasForeignKey(f => f.ClientId);
+            modelBuilder.Entity<Client>()
+                .HasMany(d => d.Debtors)
+                .WithOptional()
+                .HasForeignKey(f => f.ClientId);
 
             modelBuilder.Entity<Debtor>()
                 .HasMany(d => d.Contacts)
@@ -65,11 +65,6 @@ namespace hunter_warfield.Data.Contexts
                 .HasMany(d => d.Employments)
                 .WithOptional()
                 .HasForeignKey(f => f.DebtorId);
-
-            //modelBuilder.Entity<Debtor>()
-            //    .HasMany(d => d.Historicals)
-            //    .WithOptional()
-            //    .HasForeignKey(f => f.DebtorId);
 
             modelBuilder.Entity<Debtor>()
                 .HasMany(d => d.Notes)

@@ -113,18 +113,18 @@ namespace hunter_warfield.Data.Tests
             }
         }
 
-        //[TestMethod]
-        //public void GetClientEntity()
-        //{
-        //    using (var db = new hwiContext())
-        //    {
-        //        var entity = new EFRepository<Int64>();
-        //        var client = entity.Find<Client>(c => c.Id.Equals(159), new string[] { "Debtors" });
+        [TestMethod]
+        public void GetClientEntity()
+        {
+            using (var db = new hwiContext())
+            {
+                var entity = new EFRepository<Int64>();
+                var client = entity.Find<Client>(c => c.LegacyId.Equals("26765"), new string[] { "Debtors" });
 
-        //        Assert.IsTrue(client != null);
-        //        Assert.IsTrue(client.Debtors.FirstOrDefault() != null);
-        //    }
-        //}
+                Assert.IsTrue(client != null);
+                Assert.IsTrue(client.Debtors.FirstOrDefault() != null);
+            }
+        }
 
         [TestMethod]
         public void GetRelationshipEntity()
@@ -168,6 +168,17 @@ namespace hunter_warfield.Data.Tests
 
                 Assert.IsTrue(true);
             }
+        }
+
+        
+        [TestMethod]
+        public void GetCurrentBalance()
+        {
+            Int64 id = 2528019;
+            hwiRepositories entity = new hwiRepositories();
+            var result = entity.DebtorBalance(id);
+
+            Assert.IsTrue(result == 4120);
         }
     }
 }

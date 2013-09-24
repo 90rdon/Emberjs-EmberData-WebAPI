@@ -14,6 +14,8 @@ namespace hunter_warfield.Core.Domain
     {
         public Int64 Id { get; set; }
 
+        public string LegacyId { get; set; }
+
         public string Description { get; set; }
 
         public virtual List<Debtor> Debtors { get; set; }

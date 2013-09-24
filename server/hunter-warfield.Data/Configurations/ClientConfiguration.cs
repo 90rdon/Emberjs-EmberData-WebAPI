@@ -15,17 +15,19 @@ namespace hunter_warfield.Data.Configurations
         {
             this.HasKey(k => new { k.Id });
 
-            this.Property(p => p.Id).HasColumnName("wrkgrp_id");
-            this.Property(p => p.Description).HasColumnName("wrkgrp_dscrptn_txt");
+            this.Property(p => p.Id).HasColumnName("crdtr_id");
+            this.Property(p => p.LegacyId).HasColumnName("crdtr_idntfr_lgcy_txt");
+            this.Property(p => p.Description).HasColumnName("crdtr_nm");
 
             this.Map(wrkgrp =>
                 {
                     wrkgrp.Properties(p => new
                     {
                         p.Id,
+                        p.LegacyId,
                         p.Description
                     });
-                    wrkgrp.ToTable("wrkgrp");
+                    wrkgrp.ToTable("crdtr");
                 });
         }
     }

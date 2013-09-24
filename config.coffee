@@ -33,6 +33,7 @@ exports.config =
           'vendor/scripts/handlebars.js'
           'vendor/scripts/ember.js'
           'vendor/scripts/ember-data.js'
+          'vendor/scripts/router.js'
           'vendor/scripts/bootstrap.js'
           'vendor/scripts/ember-bootstrap.js'
           'vendor/scripts/swag.js'

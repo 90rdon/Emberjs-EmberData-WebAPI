@@ -19,6 +19,7 @@ namespace hunter_warfield.Data.Configurations
             this.Property(p => p.ActionCode).HasColumnName("actn_cd");
             this.Property(p => p.ResultCode).HasColumnName("rslt_Cd");
             this.Property(p => p.ClientId).HasColumnName("wrkgrp_id");
+            this.Property(p => p.AccountId).HasColumnName("cnsmr_accnt_id");
             this.Property(p => p.Message).HasColumnName("cnsmr_accnt_ar_mssg_txt");
             this.Property(p => p.DebtorId).HasColumnName("cnsmr_id");
             this.Property(p => p.cnsmr_accnt_ar_log_crt_usr_id).HasColumnName("cnsmr_accnt_ar_log_crt_usr_id");
@@ -34,6 +35,7 @@ namespace hunter_warfield.Data.Configurations
                     p.Id,
                     p.ActionCode,
                     p.ResultCode,
+                    p.AccountId,
                     p.ClientId,
                     p.Message,
                     p.DebtorId,
