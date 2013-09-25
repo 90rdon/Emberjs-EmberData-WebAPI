@@ -13,7 +13,8 @@
             if isEditing
               partial 'debtor/edit'
             else
-              .btn.btn-small{action 'edit'} Edit
+              if controllers.application.params.canEditDebtor
+                .btn.btn-small{action 'edit'} Edit
         h4 =ssn
         hr
         .intro
