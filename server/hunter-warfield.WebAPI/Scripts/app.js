@@ -82,8 +82,8 @@
 window.require.register("app", function(exports, require, module) {
   module.exports = Em.Application.create({
     LOG_TRANSITIONS: true,
-    serverUrl: 'http://10.211.55.4',
-    serverNamespace: 'hunter-warfield/api',
+    serverUrl: 'https://crmtitaniuminterface.hunterwarfield.com',
+    serverNamespace: 'api',
     paymentPostingUrl: 'http://paymentposting.hunterwarfield.com'
   });
   
