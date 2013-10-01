@@ -24,8 +24,7 @@ namespace hunter_warfield.Data.Repositories
             //SERIALIZE WILL FAIL WITH PROXIED ENTITIES
             dbContext.Configuration.ProxyCreationEnabled = false;
 
-            //ENABLING COULD CAUSE ENDLESS LOOPS AND PERFORMANCE PROBLEMS
-            dbContext.Configuration.LazyLoadingEnabled = false;
+            dbContext.Configuration.LazyLoadingEnabled = true;
         }
 
         public IQueryable<T> All<T>(string[] includes = null) where T : class

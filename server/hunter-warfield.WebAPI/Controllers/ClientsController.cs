@@ -19,13 +19,20 @@ namespace hunter_warfield.WebAPI.Controllers
         public override ClientDto Get(Int64 id)
         {
             string idStr = id.ToString();
-            var result = db.Set<Client>()
-                .Include("Debtors")
-                .SingleOrDefault(s => s.LegacyId == idStr);
+            //var result = db.Set<Client>()
+            //    .Include("Debtors")
+            //    .SingleOrDefault(s => s.LegacyId == idStr);
 
-            var returnResult = new ClientDto(result);
+            //var returnResult = new ClientDto(result);
 
-            return returnResult;
+            //return returnResult;
+
+            return GetObject(DataStore.Find<Client>(t => t.LegacyId == idStr, new[] { "Debtors" }));
+        }
+
+        private ClientDto GetObject(params Client[] arg)
+        {
+            return (ClientDto)Activator.CreateInstance(typeof(ClientDto), arg);
         }
     }
 }
