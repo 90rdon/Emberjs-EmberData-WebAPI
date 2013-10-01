@@ -1,11 +1,12 @@
 App.DebtorRoute = Em.Route.extend
-  observesParameters: [ 'userId', 'canEditDebtor' ]
+  observesParameters: [ 'clientId', 'userId', 'canEditDebtor' ]
   
   model: (params) ->
     App.Debtor.find(params.debtor_id)
 
   setupController: (controller, model) ->
     controller.set 'model', model
+    @controllerFor('application').set 'clientId', @get('queryParameters').clientId
     @controllerFor('application').set 'params', @get('queryParameters')
     @controllerFor('countries').set 'content', App.Country.find()
     @controllerFor('relationships').set 'content', App.Relationship.find()

@@ -8,12 +8,16 @@ using System.Data.Entity.ModelConfiguration.Conventions;
 
 using hunter_warfield.Core.Domain;
 using hunter_warfield.Data.Configurations;
+using System.Data.Entity.Infrastructure;
 
 namespace hunter_warfield.Data.Contexts
 {
     public class hwiContext : DbContext
     {
-        public hwiContext() : base("hwi") { }
+        public hwiContext() : base("hwi") 
+        {
+            ((IObjectContextAdapter)this).ObjectContext.CommandTimeout = 300;
+        }
 
         public hwiContext(string connectionString) { }
 

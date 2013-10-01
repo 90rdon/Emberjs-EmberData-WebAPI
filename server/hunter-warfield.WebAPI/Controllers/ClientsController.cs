@@ -29,3 +29,20 @@ namespace hunter_warfield.WebAPI.Controllers
         }
     }
 }
+
+        //public IEnumerable<DebtorDto> Get(Int64 id)
+        //{
+            
+        //    string idStr = id.ToString();
+        //    var client = db.Set<Client>()
+        //        .SingleOrDefault(s => s.LegacyId == idStr);
+
+        //    var result = db.Set<Debtor>()
+        //        .Where(s => s.ClientId == client.Id)
+        //        .AsEnumerable()
+        //        .Select(d => new DebtorDto(d));
+
+        //    //var returnResult = new DebtorDto(result);
+
+        //    return result;
+        //}

@@ -26,7 +26,7 @@
         each currentContent
           tr
             td
-              a href="#/debtor/{{unbound id}}/?userId={{unbound controller.params.userId}}&canEditDebtor={{unbound controller.params.canEditDebtor}}" target="_blank"
+              a href="#/debtor/{{unbound id}}/?clientId={{unbound controller.params.clientId}}&userId={{unbound controller.params.userId}}&canEditDebtor={{unbound controller.params.canEditDebtor}}" target="_blank"
                 =accountId
             td
               =fullNameWithTitle

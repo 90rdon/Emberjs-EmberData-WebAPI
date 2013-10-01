@@ -374,7 +374,6 @@
   <ItemGroup>
     <Content Include="Fonts\fontawesome\fontawesome-webfont.eot" />
     <Content Include="Fonts\fontawesome\fontawesome-webfont.ttf" />
-    <Content Include="Fonts\fontawesome\fontawesome-webfont.woff" />
     <Content Include="Fonts\fontawesome\FontAwesome.otf" />
     <Content Include="Fonts\fontawesome\README.md" />
     <None Include="Properties\PublishProfiles\dev.pubxml" />

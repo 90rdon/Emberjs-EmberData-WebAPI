@@ -8,13 +8,13 @@ namespace hunter_warfield.Core.Domain
 
         public Int64 UserId { get; set; }
 
-        public Int64? ClientId { get; set; }
+        public Int64 ClientId { get; set; }
 
         public Int64? AccountId { get; set; }
 
         public Int64? AgencyId { get; set; }
 
-        public Int64 CreditorId { get; set; }
+        //public Int64 CreditorId { get; set; }
 
         public string CancellationCode { get; set; }
 

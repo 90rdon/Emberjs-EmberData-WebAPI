@@ -74,7 +74,7 @@ namespace hunter_warfield.WebAPI.Controllers
         private void UpdateOperatingTransaction(Cancellation codes)
         {
             OperatingTransaction transaction = new OperatingTransaction();
-            transaction.CreditorId = codes.CreditorId;
+            transaction.CreditorId = codes.ClientId;
             transaction.FinancialTrxType = 3;
             transaction.PaymentType = 0;
             transaction.TransactionAmout = CalculateCancellationFee(codes);
@@ -93,13 +93,13 @@ namespace hunter_warfield.WebAPI.Controllers
 
         private decimal CalculateCancellationFee(Cancellation codes)
         {
-            if (codes.AccountId == null ||
-                codes.FeePercentage == null)
-                return 0;
+            decimal chargeFee = 0.10M;
+            if (codes.FeePercentage != null)
+                chargeFee = Convert.ToDecimal(codes.FeePercentage);
 
             hwiRepositories hwi = new hwiRepositories();
             var accountId = Convert.ToInt64(codes.AccountId);
-            var percentage = Convert.ToDecimal(codes.FeePercentage);
+            var percentage = chargeFee;
             var balance = hwi.DebtorBalance(accountId);
 
             return balance * percentage;

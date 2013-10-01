@@ -62,7 +62,7 @@ App.DebtorController = App.EditObjectController.extend
         userId:           @get('params.userId')
         cancellationCode: @get('controllers.cancellationCodes').getSelectedId()
         debtorId:         @get('id')
-        clientId:         @get('clientId')
+        clientId:         @get('controllers.application').clientId
         creditorId:       @get('creditorId')
       success: (response) ->
         # @set('confirmationNumber', response)
