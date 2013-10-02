@@ -460,8 +460,14 @@ window.require.register("controllers/indexController", function(exports, require
           column: 'fullName',
           label: 'name'
         }), Em.Object.create({
-          column: 'fullAddress',
-          label: 'address'
+          column: 'totalOriginalBalance',
+          label: 'originalBalance'
+        }), Em.Object.create({
+          column: 'currentBalance',
+          label: 'currentBalance'
+        }), Em.Object.create({
+          column: 'totalPayment',
+          label: 'totalPayment'
         })
       ];
     }).property(),
@@ -952,6 +958,10 @@ window.require.register("helpers/handlebarsHelpers", function(exports, require, 
     escaped = Handlebars.Utils.escapeExpression(value);
     return new Handlebars.SafeString(escaped);
   });
+
+  Em.Handlebars.helper('toFixed', function(number, digits) {
+    return number.toFixed(digits);
+  });
   
 });
 window.require.register("initialize", function(exports, require, module) {
@@ -1012,6 +1022,8 @@ window.require.register("initialize", function(exports, require, module) {
   require('models/actionCode');
 
   require('models/resultCode');
+
+  require('models/clientDebtor');
 
   require('routes/indexRoute');
 
@@ -1129,7 +1141,57 @@ window.require.register("models/client", function(exports, require, module) {
     clientId: DS.attr('number'),
     legacyId: DS.attr('string'),
     description: DS.attr('string'),
-    debtors: DS.hasMany('App.Debtor')
+    clientDebtors: DS.hasMany('App.ClientDebtor')
+  });
+  
+});
+window.require.register("models/clientDebtor", function(exports, require, module) {
+  App.ClientDebtor = DS.Model.extend({
+    accountId: DS.attr('number'),
+    title: DS.attr('string'),
+    lastName: DS.attr('string'),
+    firstName: DS.attr('string'),
+    middleName: DS.attr('string'),
+    suffix: DS.attr('string'),
+    totalOriginalBalance: DS.attr('number'),
+    currentBalance: DS.attr('number'),
+    totalPayment: DS.attr('number'),
+    clientId: DS.attr('number'),
+    client: DS.belongsTo('App.Client'),
+    fullName: (function() {
+      var first, last, middle;
+      first = this.get('firstName') || '';
+      middle = this.get('middleName') || '';
+      last = this.get('lastName') || '';
+      return first + ' ' + middle + ' ' + last;
+    }).property('firstName', 'lastName', 'middleName'),
+    fullNameWithTitle: (function() {
+      var first, last, middle, suffix, title;
+      title = this.get('title') || '';
+      first = this.get('firstName') || '';
+      middle = this.get('middleName') || '';
+      last = this.get('lastName') || '';
+      suffix = this.get('suffix') || '';
+      return title + ' ' + first + ' ' + middle + ' ' + last + ' ' + suffix;
+    }).property('title', 'firstName', 'lastName', 'middleName', 'suffix'),
+    originalBalance: (function() {
+      var balance, formatted;
+      balance = this.get('totalOriginalBalance');
+      formatted = parseFloat(balance, 10).toFixed(2);
+      return '$' + formatted;
+    }).property('totalOriginalBalance'),
+    currBalance: (function() {
+      var balance, formatted;
+      balance = this.get('currentBalance');
+      formatted = parseFloat(balance, 10).toFixed(2);
+      return '$' + formatted;
+    }).property('currentBalance'),
+    payment: (function() {
+      var formatted, payment;
+      payment = this.get('totalPayment');
+      formatted = parseFloat(payment, 10).toFixed(2);
+      return '$' + formatted;
+    }).property('totalPayment')
   });
   
 });
@@ -1190,7 +1252,6 @@ window.require.register("models/debtor", function(exports, require, module) {
     passport: DS.attr('string'),
     pin: DS.attr('string'),
     clientId: DS.attr('number'),
-    client: DS.belongsTo('App.Client'),
     contacts: DS.hasMany('App.Contact'),
     persons: DS.hasMany('App.Person'),
     employments: DS.hasMany('App.Employment'),
@@ -1365,7 +1426,7 @@ window.require.register("routes/indexRoute", function(exports, require, module) 
       return App.Client.find(params.client_id);
     },
     setupController: function(controller, model, queryParams) {
-      controller.set('model', model.get('debtors'));
+      controller.set('model', model.get('clientDebtors'));
       return this.controllerFor('application').set('params', Em.Object.create({
         clientId: model.get('clientId'),
         userId: this.get('queryParameters.userId'),
@@ -1396,7 +1457,7 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
   });
 
   DS.WebAPIAdapter.map('App.Client', {
-    debtors: {
+    clientDebtors: {
       embedded: 'load'
     }
   });
@@ -1424,6 +1485,11 @@ window.require.register("store/RESTfulAdapter", function(exports, require, modul
 
   DS.WebAPIAdapter.configure('App.Client', {
     sideloadAs: 'client',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.ClientDebtor', {
+    sideloadAs: 'clientDebtor',
     primaryKey: 'id'
   });
 
@@ -1771,10 +1837,15 @@ window.require.register("templates/_loading", function(exports, require, module)
   Ember.TEMPLATES["_loading"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<div class=\"modal\"><div class=\"modal-body\"><div class=\"pagination-centered\"><img src=\"images/ajax_loader.gif\" alt=\"loading\" height=\"100\" width=\"100\" /></div><div class=\"pagination-centered\"><h4>Processing...</h4></div></div></div>");
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-body\"><div class=\"pagination-centered\"><img src=\"");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "App.AJAX_LOADER_IMG", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("\" alt=\"loading\" height=\"100\" width=\"100\" /></div><div class=\"pagination-centered\"><h4>Processing...</h4></div></div></div>");
+    return buffer;
     
   });module.exports = module.id;
 });
@@ -2948,11 +3019,19 @@ window.require.register("templates/index", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "fullNameWithTitle", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</td><td>");
+    data.buffer.push("</td><td><div class=\"pull-right\">");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "fullAddress", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</td></tr>");
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "originalBalance", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></td><td><div class=\"pull-right\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "currBalance", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></td><td><div class=\"pull-right\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "payment", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></td></tr>");
     return buffer;
     }
 

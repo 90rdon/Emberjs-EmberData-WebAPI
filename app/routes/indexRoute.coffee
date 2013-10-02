@@ -5,7 +5,7 @@ App.IndexRoute = Em.Route.extend
     App.Client.find(params.client_id)
 
   setupController: (controller, model, queryParams) ->
-    controller.set 'model', model.get('debtors')
+    controller.set 'model', model.get('clientDebtors')
 
     @controllerFor('application').set 'params', Em.Object.create
       clientId: model.get('clientId')

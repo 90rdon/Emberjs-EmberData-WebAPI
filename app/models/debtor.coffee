@@ -32,7 +32,7 @@ App.Debtor = DS.Model.extend
   pin:								DS.attr	'string'
   clientId:           DS.attr 'number'
 
-  client:             DS.belongsTo 'App.Client'
+  # client:             DS.belongsTo 'App.Client'
   contacts: 					DS.hasMany   'App.Contact'
   persons:            DS.hasMany   'App.Person'
   employments:        DS.hasMany   'App.Employment'

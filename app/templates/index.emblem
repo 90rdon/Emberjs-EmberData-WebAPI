@@ -31,4 +31,11 @@
             td
               =fullNameWithTitle
             td
-              =fullAddress
+              .pull-right
+                =originalBalance
+            td
+              .pull-right
+                =currBalance
+            td
+              .pull-right
+                =payment

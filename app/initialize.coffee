@@ -45,6 +45,7 @@ require 'models/country'
 require 'models/phoneTypes'
 require 'models/actionCode'
 require 'models/resultCode'
+require 'models/clientDebtor'
 
 #/////////////////////////////////
 #// Routes

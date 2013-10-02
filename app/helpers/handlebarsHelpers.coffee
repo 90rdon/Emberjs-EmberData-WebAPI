@@ -30,3 +30,6 @@ Em.Handlebars.helper 'summarize', (value, oprions) ->
 
   escaped = Handlebars.Utils.escapeExpression(value)
   new Handlebars.SafeString(escaped)
+
+Em.Handlebars.helper 'toFixed', (number, digits) ->
+  number.toFixed(digits)

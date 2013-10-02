@@ -14,7 +14,7 @@ App.Store = DS.Store.extend
       (plurals && plurals[name]) || name + 's'
 
 DS.WebAPIAdapter.map 'App.Client',
-  debtors:      embedded: 'load'
+  clientDebtors: embedded: 'load'
 
 DS.WebAPIAdapter.map 'App.Debtor',
   contacts:     embedded: 'load'
@@ -27,6 +27,10 @@ DS.WebAPIAdapter.map 'App.Contact',
 
 DS.WebAPIAdapter.configure 'App.Client',
     sideloadAs: 'client',
+    primaryKey: 'id'
+
+DS.WebAPIAdapter.configure 'App.ClientDebtor',
+    sideloadAs: 'clientDebtor',
     primaryKey: 'id'
 
 DS.WebAPIAdapter.configure 'App.Debtor',

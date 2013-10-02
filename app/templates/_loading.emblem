@@ -1,6 +1,6 @@
 .modal
   .modal-body
     .pagination-centered
-      img src="images/ajax_loader.gif" alt="loading" height="100" width="100"
+      img src="{{unbound App.AJAX_LOADER_IMG}}" alt="loading" height="100" width="100"
     .pagination-centered
       h4 Processing...

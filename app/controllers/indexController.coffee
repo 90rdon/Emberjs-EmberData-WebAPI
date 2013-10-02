@@ -8,7 +8,9 @@ App.IndexController = App.ColumnSorterController.extend
   columns: (-> [
     Em.Object.create({ column: 'id', label: 'accountNumber' })
     Em.Object.create({ column: 'fullName', label: 'name' })
-    Em.Object.create({ column: 'fullAddress', label: 'address' })
+    Em.Object.create({ column: 'totalOriginalBalance', label: 'originalBalance' })
+    Em.Object.create({ column: 'currentBalance', label: 'currentBalance' })
+    Em.Object.create({ column: 'totalPayment', label: 'totalPayment' })
   ]).property()
 
   currentContent: Em.A([])

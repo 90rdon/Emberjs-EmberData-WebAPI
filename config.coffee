@@ -36,7 +36,6 @@ exports.config =
           'vendor/scripts/router.js'
           'vendor/scripts/bootstrap.js'
           'vendor/scripts/ember-bootstrap.js'
-          'vendor/scripts/swag.js'
           'vendor/scripts/bootstrap-datepicker.js'
           'vendor/scripts/moment.js'
         ]

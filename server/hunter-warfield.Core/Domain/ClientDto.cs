@@ -21,14 +21,14 @@ namespace hunter_warfield.Core.Domain
             ClientId = client.Id;
             LegacyId = client.LegacyId;
             Description = client.Description;
-            Debtors = new List<DebtorDto>();
-            if (client.Debtors != null)
-            {
-                foreach (Debtor debtor in client.Debtors)
-                {
-                    Debtors.Add(new DebtorDto(debtor));
-                }
-            }
+            ClientDebtors = new List<ClientDebtorDto>();
+            //if (client.ClientDebtors != null)
+            //{
+            //    foreach (ClientDebtor debtor in client.ClientDebtors)
+            //    {
+            //        ClientDebtors.Add(new ClientDebtorDto(debtor));
+            //    }
+            //}
         }
 
         [Key]
@@ -40,7 +40,7 @@ namespace hunter_warfield.Core.Domain
 
         public string Description { get; set; }
 
-        public virtual List<DebtorDto> Debtors { get; set; }
+        public virtual List<ClientDebtorDto> ClientDebtors { get; set; }
 
         public Client ToEntity()
         {
@@ -51,13 +51,13 @@ namespace hunter_warfield.Core.Domain
                 Description = Description
             };
 
-            if (Debtors != null)
-            {
-                foreach (DebtorDto debtor in Debtors)
-                {
-                    client.Debtors.Add(debtor.ToEntity());
-                }
-            }
+            //if (ClientDebtors != null)
+            //{
+            //    foreach (ClientDebtorDto debtor in ClientDebtors)
+            //    {
+            //        client.ClientDebtors.Add(debtor.ToEntity());
+            //    }
+            //}
 
             return client;
         }

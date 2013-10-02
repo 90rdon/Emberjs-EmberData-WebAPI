@@ -79,8 +79,8 @@ namespace hunter_warfield.Core.Domain
 
         public virtual List<Note> Notes { get; set; }
 
-        [ForeignKey("Client")]
+        //[ForeignKey("Client")]
         public Int64 ClientId { get; set; }
-        public virtual Client Client { get; set; }
+        //public virtual Client Client { get; set; }
     }
 }

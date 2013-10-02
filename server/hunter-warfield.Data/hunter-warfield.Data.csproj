@@ -50,6 +50,7 @@
     <Compile Include="Configurations\ClientConfiguration.cs" />
     <Compile Include="Configurations\AssociationConfiguration.cs" />
     <Compile Include="Configurations\ActionCodeConfiguration.cs" />
+    <Compile Include="Configurations\ClientDebtorConfiguration.cs" />
     <Compile Include="Configurations\OperatingTransactionConfiguration.cs" />
     <Compile Include="Configurations\ResultCodeConfiguration.cs" />
     <Compile Include="Configurations\NoteConfiguration.cs" />
