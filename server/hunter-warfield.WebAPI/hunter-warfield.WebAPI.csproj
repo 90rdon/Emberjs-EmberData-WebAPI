@@ -209,6 +209,7 @@
     <Compile Include="Controllers\ClientsController.cs" />
     <Compile Include="Controllers\AssociationsController.cs" />
     <Compile Include="Controllers\ActionCodesController.cs" />
+    <Compile Include="Controllers\HoldAccountController.cs" />
     <Compile Include="Controllers\ResultCodesController.cs" />
     <Compile Include="Controllers\NotesController.cs" />
     <Compile Include="Controllers\RelationshipController.cs" />

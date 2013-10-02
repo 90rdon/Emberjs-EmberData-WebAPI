@@ -9,11 +9,11 @@
           |  
           =suffix
           .span4.pull-right
-            .btn.btn-primary.btn-small{action 'back'} Back
+            .btn.btn-primary.btn-small{action 'close'} Close
             if isEditing
               partial 'debtor/edit'
             else
-              if controllers.application.params.canEditDebtor
+              if controllers.params.canEditDebtor
                 .btn.btn-small{action 'edit'} Edit
         h4 =ssn
         hr
@@ -34,7 +34,7 @@
 
         .span4.pull-right
           .btn.btn-danger.btn-small{action 'cancellation'} Cancel Account
-          .btn.btn-warning.btn-small Hold Account
+          .btn.btn-warning.btn-small{action 'holdAccount'} Hold Account
           .btn.btn-success.btn-small{action 'makePayment'} Make Payment
   hr
 
@@ -82,7 +82,19 @@
             .span12
               render 'notes' notes
 
+  if processing
+    partial 'loading'
+
   if toCancel
     partial 'cancellation'
+
+  if toHold
+    partial 'hold'
+
+  if cancellationSuccess
+    partial 'cancellationSuccess'
+
+  if holdSuccess
+    partial 'holdSuccess'
 
   outlet

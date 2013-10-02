@@ -10,20 +10,20 @@ using hunter_warfield.WebAPI.Helpers;
 
 namespace hunter_warfield.WebAPI.Controllers
 {
-    public class CancellationController : ApiController
+    public class HoldAccountController : ApiController
     {
         private const Int64 upsertUserId = 3;
         private const Int64 defaultWorkgroupId = 0;
         private const int soft_comp_id_default = 13;
         private const int trnsctn_nmbr_default = 11;
 
-        public CancellationController() { }
+        public HoldAccountController() { }
 
         public HttpStatusCode Post(TitaniumCode codes)
         {
             TitaniumAPIController titanium = new TitaniumAPIController();
 
-            var result = ParseResult(titanium.CallWebService(codes.ShortCode, codes.AgencyId.ToString()));
+            var result = ParseResult(titanium.CallWebService("Hold", codes.AgencyId.ToString()));
 
             if (result == null)
                 return HttpStatusCode.InternalServerError;
@@ -31,7 +31,6 @@ namespace hunter_warfield.WebAPI.Controllers
             {
                 //string text = result.InnerText;
                 CreateNote(codes, result.InnerText);
-                UpdateOperatingTransaction(codes);
                 return HttpStatusCode.OK;
             }
         }
@@ -59,7 +58,7 @@ namespace hunter_warfield.WebAPI.Controllers
             note.DebtorId = codes.DebtorId;
             note.ClientId = defaultWorkgroupId;
             StringBuilder message = new StringBuilder();
-            message.AppendLine("Account Cancelled ---");
+            message.AppendLine("Account Holded ---");
             message.AppendLine("Confirmation Number: " + confirmationNumber);
             message.AppendLine("CRM User Id:         " + codes.UserId); 
             note.Message = message.ToString();
@@ -71,40 +70,6 @@ namespace hunter_warfield.WebAPI.Controllers
 
             var datastore = new EFRepository<Note>();
             datastore.Create<Note>(note);
-        }
-
-        private void UpdateOperatingTransaction(TitaniumCode codes)
-        {
-            OperatingTransaction transaction = new OperatingTransaction();
-            transaction.CreditorId = codes.ClientId;
-            transaction.FinancialTrxType = 3;
-            transaction.PaymentType = 0;
-            transaction.TransactionAmout = CalculateCancellationFee(codes);
-            transaction.TransactionText = "Finance Charge";
-            transaction.soft_comp_id = 1;
-            transaction.trnsctn_nmbr = 1;
-            //char flag = new char();
-            //flag = 'N';
-            transaction.TransactionFlag = "N";
-            transaction.upsertUserId = upsertUserId;
-            transaction.upsertDateTime = DateTime.Now;
-
-            var datastore = new EFRepository<OperatingTransaction>();
-            datastore.Create<OperatingTransaction>(transaction);
-        }
-
-        private decimal CalculateCancellationFee(TitaniumCode codes)
-        {
-            decimal chargeFee = 0.10M;
-            if (codes.FeePercentage != null)
-                chargeFee = Convert.ToDecimal(codes.FeePercentage);
-
-            hwiRepositories hwi = new hwiRepositories();
-            var accountId = Convert.ToInt64(codes.AccountId);
-            var percentage = chargeFee;
-            var balance = hwi.DebtorBalance(accountId);
-
-            return balance * percentage;
         }
     }
 }

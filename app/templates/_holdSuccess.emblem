@@ -1,0 +1,7 @@
+.modal
+  .modal-header
+    h5 Hold Account
+  .modal-body
+    h6 Account Hold Successfully
+  .modal-footer
+    .btn{action closeCancelSuccess} Close

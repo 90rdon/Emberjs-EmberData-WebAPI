@@ -18,6 +18,7 @@ namespace hunter_warfield.Core.Domain
         {
             if (client == null) return;
             Id = client.Id;
+            ClientId = client.Id;
             LegacyId = client.LegacyId;
             Description = client.Description;
             Debtors = new List<DebtorDto>();
@@ -32,6 +33,8 @@ namespace hunter_warfield.Core.Domain
 
         [Key]
         public Int64 Id { get; set; }
+
+        public Int64 ClientId { get; set; }
 
         public string LegacyId { get; set; }
 

@@ -25,7 +25,5 @@
               =resultCode
           td
             summarize message
-          td
-            =user
 
   hr

@@ -4,7 +4,6 @@ App.NotesController = App.ColumnSorterController.extend
     Em.Object.create(column: 'actionCode')
     Em.Object.create(column: 'resultCode')
     Em.Object.create(column: 'message')
-    Em.Object.create(column: 'user')
   ]).property()
 
   loaded: (->

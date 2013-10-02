@@ -82,8 +82,8 @@
 window.require.register("app", function(exports, require, module) {
   module.exports = Em.Application.create({
     LOG_TRANSITIONS: true,
-    serverUrl: 'https://crmtitaniuminterface.hunterwarfield.com',
-    serverNamespace: 'api',
+    serverUrl: 'http://10.211.55.4',
+    serverNamespace: 'hunter-warfield/api',
     paymentPostingUrl: 'http://paymentposting.hunterwarfield.com'
   });
   
@@ -185,16 +185,22 @@ window.require.register("controllers/debtorController", function(exports, requir
       this.set('optIn', this.get('controllers.yesNo').getSelectedId());
       return this.set('country', this.get('controllers.countries').getSelectedId());
     },
-    back: function() {
+    close: function() {
       this.set('isEditing', false);
-      return this.transitionToRoute('index');
+      return window.close();
     },
     makePayment: function() {
       return window.open(App.paymentPostingUrl);
     },
     toCancel: false,
+    toHold: false,
+    processing: false,
+    cancellationSuccess: false,
+    holdSuccess: false,
     confirmationNumber: null,
     sendCancellation: function() {
+      this.set('toCancel', false);
+      this.set('processing', true);
       return $.ajax({
         url: App.serverUrl + '/' + App.serverNamespace + '/cancellation',
         dataType: 'json',
@@ -203,18 +209,52 @@ window.require.register("controllers/debtorController", function(exports, requir
           accountId: this.get('accountId'),
           agencyId: this.get('agencyId'),
           userId: this.get('params.userId'),
-          cancellationCode: this.get('controllers.cancellationCodes').getSelectedId(),
+          shortCode: this.get('controllers.cancellationCodes').getSelectedId(),
           debtorId: this.get('id'),
-          clientId: this.get('controllers.application').clientId,
+          clientId: this.get('params.clientId'),
           creditorId: this.get('creditorId')
         },
         success: function(response) {
-          return this.set('toCancel', false);
+          App.__container__.lookup('controller:debtor').set('processing', false);
+          return App.__container__.lookup('controller:debtor').set('cancellationSuccess', true);
         }
       });
     },
+    sendHold: function() {
+      this.set('toHold', false);
+      this.set('processing', true);
+      return $.ajax({
+        url: App.serverUrl + '/' + App.serverNamespace + '/holdAccount',
+        dataType: 'json',
+        type: 'POST',
+        data: {
+          accountId: this.get('accountId'),
+          agencyId: this.get('agencyId'),
+          userId: this.get('params.userId'),
+          debtorId: this.get('id'),
+          clientId: this.get('params.clientId'),
+          creditorId: this.get('creditorId')
+        },
+        success: function(response) {
+          App.__container__.lookup('controller:debtor').set('processing', false);
+          return App.__container__.lookup('controller:debtor').set('cancellationSuccess', true);
+        }
+      });
+    },
+    showProcessing: function() {
+      return this.toggleProperty('processing');
+    },
+    holdAccount: function() {
+      return this.toggleProperty('toHold');
+    },
     cancellation: function() {
       return this.toggleProperty('toCancel');
+    },
+    closeCancelSuccess: function() {
+      return this.toggleProperty('cancellationSuccess');
+    },
+    closeHoldSuccess: function() {
+      return this.toggleProperty('holdSuccess');
     }
   });
   
@@ -747,8 +787,6 @@ window.require.register("controllers/notesController", function(exports, require
           column: 'resultCode'
         }), Em.Object.create({
           column: 'message'
-        }), Em.Object.create({
-          column: 'user'
         })
       ];
     }).property(),
@@ -1025,6 +1063,14 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('templates/_confirmation');
 
+  require('templates/_hold');
+
+  require('templates/_cancellationSuccess');
+
+  require('templates/_holdSuccess');
+
+  require('templates/_loading');
+
   require('views/scrollView');
 
   require('views/datePickerField');
@@ -1080,6 +1126,7 @@ window.require.register("models/cancellation", function(exports, require, module
 });
 window.require.register("models/client", function(exports, require, module) {
   App.Client = DS.Model.extend({
+    clientId: DS.attr('number'),
     legacyId: DS.attr('string'),
     description: DS.attr('string'),
     debtors: DS.hasMany('App.Debtor')
@@ -1300,9 +1347,8 @@ window.require.register("routes/debtorRoute", function(exports, require, module)
     model: function(params) {
       return App.Debtor.find(params.debtor_id);
     },
-    setupController: function(controller, model) {
+    setupController: function(controller, model, queryParams) {
       controller.set('model', model);
-      this.controllerFor('application').set('clientId', this.get('queryParameters').clientId);
       this.controllerFor('application').set('params', this.get('queryParameters'));
       this.controllerFor('countries').set('content', App.Country.find());
       this.controllerFor('relationships').set('content', App.Relationship.find());
@@ -1315,15 +1361,13 @@ window.require.register("routes/debtorRoute", function(exports, require, module)
 window.require.register("routes/indexRoute", function(exports, require, module) {
   App.IndexRoute = Em.Route.extend({
     observesParameters: ['userId', 'canEditDebtor', 'feePercentage'],
-    clientId: null,
     model: function(params) {
-      this.set('clientId', params.client_id);
       return App.Client.find(params.client_id);
     },
     setupController: function(controller, model, queryParams) {
       controller.set('model', model.get('debtors'));
       return this.controllerFor('application').set('params', Em.Object.create({
-        clientId: this.get('clientId'),
+        clientId: model.get('clientId'),
         userId: this.get('queryParameters.userId'),
         canEditDebtor: this.get('queryParameters.canEditDebtor'),
         feePercentage: this.get('queryParameters.feePercentage')
@@ -1637,6 +1681,22 @@ window.require.register("templates/_cancellation", function(exports, require, mo
     
   });module.exports = module.id;
 });
+window.require.register("templates/_cancellationSuccess", function(exports, require, module) {
+  Ember.TEMPLATES["_cancellationSuccess"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [3,'>= 1.0.0-rc.4'];
+  helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><h5>Cancellation</h5></div><div class=\"modal-body\"><h6>Account Cancelled Successfully</h6></div><div class=\"modal-footer\"><div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "closeCancelSuccess", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Close</div></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
 window.require.register("templates/_confirmation", function(exports, require, module) {
   Ember.TEMPLATES["_confirmation"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [3,'>= 1.0.0-rc.4'];
@@ -1664,6 +1724,57 @@ window.require.register("templates/_confirmation", function(exports, require, mo
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push(">No</div></span></div></div>");
     return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/_hold", function(exports, require, module) {
+  Ember.TEMPLATES["_hold"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [3,'>= 1.0.0-rc.4'];
+  helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "holdAccount", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Hold Account</h5></div><div class=\"modal-body\"><h6>Do you want to put a hold on this account?</h6></div><div class=\"modal-footer\"><div class=\"btn btn-warning\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "sendHold", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Hold Account</div><div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "holdAccount", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Abort</div></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/_holdSuccess", function(exports, require, module) {
+  Ember.TEMPLATES["_holdSuccess"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [3,'>= 1.0.0-rc.4'];
+  helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><h5>Hold Account</h5></div><div class=\"modal-body\"><h6>Account Hold Successfully</h6></div><div class=\"modal-footer\"><div class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "closeCancelSuccess", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Close</div></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/_loading", function(exports, require, module) {
+  Ember.TEMPLATES["_loading"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [3,'>= 1.0.0-rc.4'];
+  helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+    
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-body\"><div class=\"pagination-centered\"><img src=\"images/ajax_loader.gif\" alt=\"loading\" height=\"100\" width=\"100\" /></div><div class=\"pagination-centered\"><h4>Processing...</h4></div></div></div>");
     
   });module.exports = module.id;
 });
@@ -1998,7 +2109,7 @@ window.require.register("templates/debtor", function(exports, require, module) {
     var stack1, hashTypes, hashContexts;
     hashTypes = {};
     hashContexts = {};
-    stack1 = helpers['if'].call(depth0, "controllers.application.params.canEditDebtor", {hash:{},inverse:self.program(6, program6, data),fn:self.program(4, program4, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    stack1 = helpers['if'].call(depth0, "controllers.params.canEditDebtor", {hash:{},inverse:self.program(6, program6, data),fn:self.program(4, program4, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
     else { data.buffer.push(''); }
     }
@@ -2025,7 +2136,43 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial),stack1 ? stack1.call(depth0, "loading", options) : helperMissing.call(depth0, "partial", "loading", options))));
+    }
+
+  function program10(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
     data.buffer.push(escapeExpression(((stack1 = helpers.partial),stack1 ? stack1.call(depth0, "cancellation", options) : helperMissing.call(depth0, "partial", "cancellation", options))));
+    }
+
+  function program12(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial),stack1 ? stack1.call(depth0, "hold", options) : helperMissing.call(depth0, "partial", "hold", options))));
+    }
+
+  function program14(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial),stack1 ? stack1.call(depth0, "cancellationSuccess", options) : helperMissing.call(depth0, "partial", "cancellationSuccess", options))));
+    }
+
+  function program16(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial),stack1 ? stack1.call(depth0, "holdSuccess", options) : helperMissing.call(depth0, "partial", "holdSuccess", options))));
     }
 
     data.buffer.push("<div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span12\"><address><h3>");
@@ -2043,8 +2190,8 @@ window.require.register("templates/debtor", function(exports, require, module) {
     data.buffer.push("<div class=\"span4 pull-right\"><div class=\"btn btn-primary btn-small\" ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "back", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Back</div>");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "close", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Close</div>");
     hashTypes = {};
     hashContexts = {};
     stack1 = helpers['if'].call(depth0, "isEditing", {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
@@ -2077,7 +2224,11 @@ window.require.register("templates/debtor", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancellation", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">Cancel Account</div><div class=\"btn btn-warning btn-small\">Hold Account</div><div class=\"btn btn-success btn-small\" ");
+    data.buffer.push(">Cancel Account</div><div class=\"btn btn-warning btn-small\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "holdAccount", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Hold Account</div><div class=\"btn btn-success btn-small\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "makePayment", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -2104,7 +2255,23 @@ window.require.register("templates/debtor", function(exports, require, module) {
     data.buffer.push("</div></div></div></div></div></div>");
     hashTypes = {};
     hashContexts = {};
-    stack2 = helpers['if'].call(depth0, "toCancel", {hash:{},inverse:self.program(6, program6, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    stack2 = helpers['if'].call(depth0, "processing", {hash:{},inverse:self.program(6, program6, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "toCancel", {hash:{},inverse:self.program(6, program6, data),fn:self.program(10, program10, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "toHold", {hash:{},inverse:self.program(6, program6, data),fn:self.program(12, program12, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "cancellationSuccess", {hash:{},inverse:self.program(6, program6, data),fn:self.program(14, program14, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "holdSuccess", {hash:{},inverse:self.program(6, program6, data),fn:self.program(16, program16, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
     if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
     hashTypes = {};
     hashContexts = {};
@@ -2935,10 +3102,6 @@ window.require.register("templates/notes", function(exports, require, module) {
     hashContexts = {};
     options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
     data.buffer.push(escapeExpression(((stack1 = helpers.summarize),stack1 ? stack1.call(depth0, "message", options) : helperMissing.call(depth0, "summarize", "message", options))));
-    data.buffer.push("</td><td>");
-    hashTypes = {};
-    hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "user", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</td></tr>");
     return buffer;
     }

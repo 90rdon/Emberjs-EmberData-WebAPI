@@ -80,6 +80,10 @@ require 'templates/_cancellation'
 require 'templates/modal_layout'
 require 'templates/empty'
 require 'templates/_confirmation'
+require 'templates/_hold'
+require 'templates/_cancellationSuccess'
+require 'templates/_holdSuccess'
+require 'templates/_loading'
 
 #/////////////////////////////////
 #// Views

@@ -35,23 +35,24 @@ App.DebtorController = App.EditObjectController.extend
     @set('optIn', @get('controllers.yesNo').getSelectedId())
     @set('country', @get('controllers.countries').getSelectedId())
 
-  back: ->
+  close: ->
     @set('isEditing', false)
-    @transitionToRoute 'index'
+    # @transitionToRoute 'index'
+    window.close()
 
   makePayment: ->
     window.open App.paymentPostingUrl
 
   toCancel: false
+  toHold: false
+  processing: false
+  cancellationSuccess: false
+  holdSuccess: false
   confirmationNumber: null
 
   sendCancellation: ->
-    # console.log 'userid = ' + @get('params.userId')
-    # @set('toCancel', false)
-    # console.log 'account id = ' + @get('agencyId')
-    # console.log 'cancellation code = ' + @get('controllers.cancellationCodes').getSelectedId()
-    # console.log 'result code = ' + @get('controllers.resultCodes').getSelectedId()
-    # console.log 'url = ' + App.serverUrl + '/' + App.serverNamespace
+    @set('toCancel', false)
+    @set('processing', true)
     $.ajax
       url: App.serverUrl + '/' + App.serverNamespace + '/cancellation'
       dataType: 'json'
@@ -60,23 +61,43 @@ App.DebtorController = App.EditObjectController.extend
         accountId:        @get('accountId')
         agencyId:         @get('agencyId')
         userId:           @get('params.userId')
-        cancellationCode: @get('controllers.cancellationCodes').getSelectedId()
+        shortCode:        @get('controllers.cancellationCodes').getSelectedId()
         debtorId:         @get('id')
-        clientId:         @get('controllers.application').clientId
+        clientId:         @get('params.clientId')
         creditorId:       @get('creditorId')
       success: (response) ->
-        # @set('confirmationNumber', response)
-        @set('toCancel', false)
+        App.__container__.lookup('controller:debtor').set('processing', false)
+        App.__container__.lookup('controller:debtor').set('cancellationSuccess', true)
 
+  sendHold: ->
+    @set('toHold', false)
+    @set('processing', true)
+    $.ajax
+      url: App.serverUrl + '/' + App.serverNamespace + '/holdAccount'
+      dataType: 'json'
+      type: 'POST'
+      data:
+        accountId:        @get('accountId')
+        agencyId:         @get('agencyId')
+        userId:           @get('params.userId')
+        debtorId:         @get('id')
+        clientId:         @get('params.clientId')
+        creditorId:       @get('creditorId')
+      success: (response) ->
+        App.__container__.lookup('controller:debtor').set('processing', false)
+        App.__container__.lookup('controller:debtor').set('cancellationSuccess', true)
+
+  showProcessing: ->
+    @toggleProperty('processing')
+        
+  holdAccount: ->
+    @toggleProperty('toHold')
 
   cancellation: ->
     @toggleProperty('toCancel')
 
-  
-  # showConfirmation: (item) ->
-  #   @set('isConfirmationShown', true)
+  closeCancelSuccess: ->
+    @toggleProperty('cancellationSuccess')
 
-  # hideConfirmation: ->
-  #   @set('isConfirmationShown', false)
-
-  # isConfirmationShown: false
+  closeHoldSuccess: ->
+    @toggleProperty('holdSuccess')

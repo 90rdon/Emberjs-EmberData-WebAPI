@@ -1,0 +1,9 @@
+.modal
+  .modal-header
+    button.close{action holdAccount} &times;
+    h5 Hold Account
+  .modal-body
+    h6 Do you want to put a hold on this account?
+  .modal-footer
+    .btn.btn-warning{action sendHold} Hold Account
+    .btn{action holdAccount} Abort
