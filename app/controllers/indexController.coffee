@@ -1,5 +1,14 @@
 App.IndexController = App.ColumnSorterController.extend
-  needs: [ 'application' ]
+  needs: [
+    'application'
+    'dataFilter'
+  ]
+
+  filterCriteria: [
+    'Active'
+    'Open'
+    'All'
+  ]
 
   params: (->
     @get('controllers.application.params')
@@ -11,13 +20,20 @@ App.IndexController = App.ColumnSorterController.extend
     Em.Object.create({ column: 'totalOriginalBalance', label: 'originalBalance' })
     Em.Object.create({ column: 'currentBalance', label: 'currentBalance' })
     Em.Object.create({ column: 'totalPayment', label: 'totalPayment' })
+    Em.Object.create({ column: 'status', label: 'status' })
   ]).property()
 
   currentContent: Em.A([])
 
+  filterStatus: null
+
   filterDebtors: (->
     @get('filtered')
   ).observes('search')
+
+  filterByStatus: (->
+    console.log 'filtering status ' + @get('filterStatus')
+  ).observes('filterStatus')
 
   sorted: (->
     result = Em.ArrayProxy.createWithMixins Em.SortableMixin, { content:@get('filteredContent'), sortProperties: @get('sortProperties'), sortAscending: @get('sortAscending') }

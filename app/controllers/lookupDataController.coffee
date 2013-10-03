@@ -140,5 +140,11 @@ App.CancellationCodesController = App.LookupDataController.extend
     Em.Object.create({id: 'A-CPP', label: 'Cancelled Paid Prior to Placement'})
   ]
 
+App.DataFilterController = App.LookupDataController.extend
+  content: [
+    Em.Object.create({name: 'Active', value: 'active'})
+    Em.Object.create({name: 'Open', value: 'open'})
+    Em.Object.create({name: 'All', value: 'all'})
+  ]
 
 

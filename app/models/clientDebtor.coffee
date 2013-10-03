@@ -9,6 +9,7 @@ App.ClientDebtor = DS.Model.extend
   currentBalance:       DS.attr 'number'
   totalPayment:         DS.attr 'number'
   clientId:             DS.attr 'number'
+  status:               DS.attr 'string'
 
   client:               DS.belongsTo 'App.Client'
 

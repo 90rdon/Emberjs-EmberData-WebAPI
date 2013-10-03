@@ -15,7 +15,7 @@ namespace hunter_warfield.Core.Domain
         {
             if (clientDebtor == null) return;
             Id = clientDebtor.Id;
-            AccountId = clientDebtor.AccountId;
+            DebtorId = clientDebtor.DebtorId;
             Title = clientDebtor.Title;
             FirstName = clientDebtor.FirstName;
             MiddleName = clientDebtor.MiddleName;
@@ -24,13 +24,14 @@ namespace hunter_warfield.Core.Domain
             TotalOriginalBalance = clientDebtor.TotalOriginalBalance;
             CurrentBalance = clientDebtor.CurrentBalance;
             TotalPayment = clientDebtor.TotalPayment;
+            Status = clientDebtor.Status;
             ClientId = clientDebtor.ClientId;
         }
 
         [Key]
         public Int64 Id { get; set; }
 
-        public Int64 AccountId { get; set; }
+        public Int64 DebtorId { get; set; }
 
         public string Title { get; set; }
 
@@ -48,6 +49,8 @@ namespace hunter_warfield.Core.Domain
         // 3
         public decimal TotalPayment { get; set; }
 
+        public string Status { get; set; }
+
         public Int64 ClientId { get; set; }
 
         public ClientDebtor ToEntity()
@@ -55,7 +58,7 @@ namespace hunter_warfield.Core.Domain
             ClientDebtor clientDebtor = new ClientDebtor
             {
                 Id = Id,
-                AccountId = AccountId,
+                DebtorId = DebtorId,
                 Title = Title,
                 FirstName = FirstName,
                 MiddleName = MiddleName,
@@ -64,6 +67,7 @@ namespace hunter_warfield.Core.Domain
                 TotalOriginalBalance = TotalOriginalBalance,
                 CurrentBalance = CurrentBalance,
                 TotalPayment = TotalPayment,
+                Status = Status,
                 ClientId = ClientId
             };
 

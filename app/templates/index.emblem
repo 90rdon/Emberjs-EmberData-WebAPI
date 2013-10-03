@@ -5,6 +5,10 @@
         label.control-label Search Debtors
         .controls
           view Em.TextField valueBinding='controller.search' placeholder='filter by Id'
+      / .control-group
+      /   label.control-label Filter by Status
+      /   .controls
+          / view App.RadioButton contentBinding="controllers.dataFilter" selectionBinding="controller.filterStatus" valueBinding="controllers.dataFilter"
 
 .row-fluid.row-border
   table.table style="margin-bottom: 0px;"
@@ -39,3 +43,5 @@
             td
               .pull-right
                 =payment
+            td
+              =status

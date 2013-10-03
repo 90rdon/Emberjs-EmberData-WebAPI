@@ -11,7 +11,7 @@ namespace hunter_warfield.Core.Domain
     {
         public Int64 Id { get; set; }
 
-        public Int64 AccountId { get; set; }
+        public Int64 DebtorId { get; set; }
 
         public string Title { get; set; }
 
@@ -28,6 +28,8 @@ namespace hunter_warfield.Core.Domain
         public decimal CurrentBalance { get; set; }
         // 3
         public decimal TotalPayment { get; set; }
+
+        public string Status { get; set; }
 
         [ForeignKey("Client")]
         public Int64 ClientId { get; set; }

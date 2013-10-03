@@ -447,7 +447,8 @@ window.require.register("controllers/helpers/editObjectController", function(exp
 });
 window.require.register("controllers/indexController", function(exports, require, module) {
   App.IndexController = App.ColumnSorterController.extend({
-    needs: ['application'],
+    needs: ['application', 'dataFilter'],
+    filterCriteria: ['Active', 'Open', 'All'],
     params: (function() {
       return this.get('controllers.application.params');
     }).property('controllers.application.params'),
@@ -468,13 +469,20 @@ window.require.register("controllers/indexController", function(exports, require
         }), Em.Object.create({
           column: 'totalPayment',
           label: 'totalPayment'
+        }), Em.Object.create({
+          column: 'status',
+          label: 'status'
         })
       ];
     }).property(),
     currentContent: Em.A([]),
+    filterStatus: null,
     filterDebtors: (function() {
       return this.get('filtered');
     }).observes('search'),
+    filterByStatus: (function() {
+      return console.log('filtering status ' + this.get('filterStatus'));
+    }).observes('filterStatus'),
     sorted: (function() {
       var result;
       result = Em.ArrayProxy.createWithMixins(Em.SortableMixin, {
@@ -759,6 +767,21 @@ window.require.register("controllers/lookupDataController", function(exports, re
       }), Em.Object.create({
         id: 'A-CPP',
         label: 'Cancelled Paid Prior to Placement'
+      })
+    ]
+  });
+
+  App.DataFilterController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        name: 'Active',
+        value: 'active'
+      }), Em.Object.create({
+        name: 'Open',
+        value: 'open'
+      }), Em.Object.create({
+        name: 'All',
+        value: 'all'
       })
     ]
   });
@@ -1091,6 +1114,8 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('views/confirmationView');
 
+  require('views/radioButtonView');
+
   require('store/webapi/serializer');
 
   require('store/webapi/adapter');
@@ -1157,6 +1182,7 @@ window.require.register("models/clientDebtor", function(exports, require, module
     currentBalance: DS.attr('number'),
     totalPayment: DS.attr('number'),
     clientId: DS.attr('number'),
+    status: DS.attr('string'),
     client: DS.belongsTo('App.Client'),
     fullName: (function() {
       var first, last, middle;
@@ -3031,7 +3057,11 @@ window.require.register("templates/index", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "payment", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div></td></tr>");
+    data.buffer.push("</div></td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "status", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td></tr>");
     return buffer;
     }
 
@@ -3657,6 +3687,22 @@ window.require.register("views/modalView", function(exports, require, module) {
     },
     close: function() {
       return this.$('.close').click();
+    }
+  });
+  
+});
+window.require.register("views/radioButtonView", function(exports, require, module) {
+  App.RadioButton = Em.CollectionView.extend({
+    classNames: ['btn-group'],
+    itemViewClass: Em.View.extend({
+      template: Em.Handlebars.compile('{{view.content.name}}'),
+      tagName: 'button',
+      classNames: ['btn']
+    }),
+    attributeBindings: ['data-toggle', 'name', 'type', 'value'],
+    'data-toggle': 'buttons-radio',
+    click: function() {
+      return this.set('controller.filterStatus', this.$().val());
     }
   });
   

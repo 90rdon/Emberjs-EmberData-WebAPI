@@ -41,8 +41,8 @@ namespace hunter_warfield.WebAPI.Controllers
 
             StringBuilder sql = new StringBuilder();
             sql.Append("SELECT");
-            sql.Append("    ca.cnsmr_id as Id,");
-            sql.Append("    ca.cnsmr_accnt_id as AccountId,");
+            sql.Append("    ca.cnsmr_accnt_id as Id,");
+            sql.Append("    ca.cnsmr_id as DebtorId,");
             sql.Append("    ca.TotalOriginalBalance,");
             sql.Append("    ca.CurrentBalance,");
             sql.Append("    ca.TotalPayment,");
@@ -51,7 +51,8 @@ namespace hunter_warfield.WebAPI.Controllers
             sql.Append("    c.cnsmr_nm_lst_txt as LastName,");
             sql.Append("    c.cnsmr_nm_frst_txt as FirstName,");
             sql.Append("    c.cnsmr_nm_mddl_txt as MiddleName,");
-            sql.Append("    c.cnsmr_nm_sffx_txt as Suffix");
+            sql.Append("    c.cnsmr_nm_sffx_txt as Suffix,");
+            sql.Append("    v.summary_code as Status");
             sql.Append(" FROM ");
             sql.Append("( ");
             sql.Append("    SELECT");
@@ -93,7 +94,15 @@ namespace hunter_warfield.WebAPI.Controllers
             sql.Append("    ) as base");
             sql.Append("    GROUP BY base.cnsmr_id, base.cnsmr_accnt_id, base.crdtr_id");
             sql.Append(") as ca INNER JOIN");
-            sql.Append("    cnsmr c on ca.cnsmr_id = c.cnsmr_id");
+            sql.Append("    cnsmr c on ca.cnsmr_id = c.cnsmr_id INNER JOIN");
+            sql.Append("    (");
+            sql.Append("        SELECT");
+            sql.Append("            cnsmr_accnt_id,");
+            sql.Append("            summary_code");
+            sql.Append("        FROM");
+            sql.Append("            [CRS_Interface].[dbo].[vw_Debtor]");
+            sql.Append("        GROUP BY cnsmr_accnt_id, summary_code");
+            sql.Append("    ) v on ca.cnsmr_accnt_id = v.cnsmr_accnt_id");
 
 
             //using (var db = new hwiContext())

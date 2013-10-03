@@ -96,6 +96,7 @@ require 'views/scrollView'
 require 'views/datePickerField'
 require 'views/modalView'
 require 'views/confirmationView'
+require 'views/radioButtonView'
 
 #/////////////////////////////////
 #// Store
