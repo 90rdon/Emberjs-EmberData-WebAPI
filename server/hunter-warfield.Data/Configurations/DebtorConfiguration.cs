@@ -16,9 +16,9 @@ namespace hunter_warfield.Data.Configurations
             this.HasKey(k => new { k.Id });
 
             this.Property(p => p.Id).HasColumnName("cnsmr_id");
-            this.Property(p => p.AccountId).HasColumnName("cnsmr_accnt_id");
-            this.Property(p => p.AgencyId).HasColumnName("cnsmr_accnt_idntfr_agncy_id");
-            this.Property(p => p.ClientId).HasColumnName("crdtr_id");
+            //this.Property(p => p.AccountId).HasColumnName("cnsmr_accnt_id");
+            //this.Property(p => p.AgencyId).HasColumnName("cnsmr_accnt_idntfr_agncy_id");
+            //this.Property(p => p.ClientId).HasColumnName("crdtr_id");
             this.Property(p => p.Type).HasColumnName("cnsmr_iscmmrcl_flg");
             this.Property(p => p.Title).HasColumnName("cnsmr_nm_prfx_txt");
             this.Property(p => p.LastName).HasColumnName("cnsmr_nm_lst_txt");
@@ -76,16 +76,16 @@ namespace hunter_warfield.Data.Configurations
                     cnsmr.ToTable("cnsmr");
                 });
 
-            this.Map(cnsmr_acct =>
-                {
-                    cnsmr_acct.Properties(p => new
-                    {
-                        p.AccountId,
-                        p.AgencyId,
-                        p.ClientId
-                    });
-                    cnsmr_acct.ToTable("cnsmr_accnt");
-                });
+            //this.Map(cnsmr_acct =>
+            //    {
+            //        cnsmr_acct.Properties(p => new
+            //        {
+            //            p.AccountId,
+            //            p.AgencyId,
+            //            p.ClientId
+            //        });
+            //        cnsmr_acct.ToTable("cnsmr_accnt");
+            //    });
 
             this.Map(addr =>
                 {

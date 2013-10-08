@@ -10,18 +10,20 @@
       /   .controls
           / view App.RadioButton contentBinding="controllers.dataFilter" selectionBinding="controller.filterStatus" valueBinding="controllers.dataFilter"
 
+
 .row-fluid.row-border
   table.table style="margin-bottom: 0px;"
     thead
       tr
         each columns itemController="columnItem"
-          th{action toggleSort column}
-            =humanize label
-            if sortedAsc
-              i class="icon-chevron-up"
+          th{action toggleSort column}{bindAttr style='width'}
+            p{bindAttr style='align'}
+              =humanize label
+              if sortedAsc
+                i class="icon-chevron-up"
 
-            if sortedDesc
-              i class="icon-chevron-down"
+              if sortedDesc
+                i class="icon-chevron-down"
 
 
   .scrollable-350
@@ -29,19 +31,20 @@
       tbody
         each currentContent
           tr
-            td
-              a href="#/debtor/{{unbound id}}/?clientId={{unbound controller.params.clientId}}&userId={{unbound controller.params.userId}}&canEditDebtor={{unbound controller.params.canEditDebtor}}" target="_blank"
-                =accountId
-            td
+            td style="width:15%"
+              a href="#/account/{{unbound id}}/debtor/{{unbound debtorId}}?clientId={{unbound controller.params.clientId}}&userId={{unbound controller.params.userId}}&canEditDebtor={{unbound controller.params.canEditDebtor}}&feePercentage={{unbound controller.params.feePercentage}}" target="_blank"
+                =id
+            td style="width:30%"
               =fullNameWithTitle
-            td
+            td style="width:15%"
               .pull-right
                 =originalBalance
-            td
+            td style="width:15%"
               .pull-right
                 =currBalance
-            td
+            td style="width:15%"
               .pull-right
                 =payment
-            td
-              =status
+            td style="width:10%"
+              .pagination-centered
+                =status

@@ -12,12 +12,23 @@ App.DebtorController = App.EditObjectController.extend
     'yesNo'
     'application'
     'cancellationCodes'
+    'actionCodes'
     'resultCodes'
+    'debtorAccount'
   ]
+
+  accountId: (->
+    @get('controllers.debtorAccount.id')
+  ).property('controllers.debtorAccount.id')
 
   params: (->
     @get('controllers.application.params')
   ).property('controllers.application.params')
+
+  disableEdit: (->
+    return false if @get('params.canEditDebtor') is 'true'
+    true
+  ).property()
   
   setSelections: ->
     @get('controllers.consumerFlags').setSelectedById(@get('type'))
@@ -45,12 +56,19 @@ App.DebtorController = App.EditObjectController.extend
 
   toCancel: false
   toHold: false
+  loading: true
   processing: false
   cancellationSuccess: false
   holdSuccess: false
   confirmationNumber: null
 
+  loaded:(->
+    @set('loading', false)
+    setInterval (=> @poll()), 10000
+  ).observes('content.isLoaded')
+
   sendCancellation: ->
+    self = @
     @set('toCancel', false)
     @set('processing', true)
     $.ajax
@@ -59,17 +77,18 @@ App.DebtorController = App.EditObjectController.extend
       type: 'POST'
       data:
         accountId:        @get('accountId')
-        agencyId:         @get('agencyId')
+        agencyId:         @get('controllers.debtorAccount.agencyId')
         userId:           @get('params.userId')
         shortCode:        @get('controllers.cancellationCodes').getSelectedId()
         debtorId:         @get('id')
         clientId:         @get('params.clientId')
         creditorId:       @get('creditorId')
       success: (response) ->
-        App.__container__.lookup('controller:debtor').set('processing', false)
-        App.__container__.lookup('controller:debtor').set('cancellationSuccess', true)
+        self.set('processing', false)
+        self.set('cancellationSuccess', true)
 
   sendHold: ->
+    self = @
     @set('toHold', false)
     @set('processing', true)
     $.ajax
@@ -78,14 +97,21 @@ App.DebtorController = App.EditObjectController.extend
       type: 'POST'
       data:
         accountId:        @get('accountId')
-        agencyId:         @get('agencyId')
+        agencyId:         @get('controllers.debtorAccount.agencyId')
         userId:           @get('params.userId')
         debtorId:         @get('id')
         clientId:         @get('params.clientId')
         creditorId:       @get('creditorId')
       success: (response) ->
-        App.__container__.lookup('controller:debtor').set('processing', false)
-        App.__container__.lookup('controller:debtor').set('cancellationSuccess', true)
+        self.set('processing', false)
+        self.set('cancellationSuccess', true)
+
+  poll: ->
+    console.log 'account id = ' + @get('accountId')
+    # @set('controllers.notes.content', App.Notes.find({ debtorId: @get('controllers.debtorAccount.id') }))
+
+  hideLoading: ->
+    @toggleProperty('loading')
 
   showProcessing: ->
     @toggleProperty('processing')

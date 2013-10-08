@@ -1,4 +1,8 @@
 App.NotesController = App.ColumnSorterController.extend
+  needs: [
+    'actionCodes'
+  ]
+
   columns: (-> [
     Em.Object.create(column: 'time')
     Em.Object.create(column: 'actionCode')

@@ -13,4 +13,4 @@
       =message
 
   .modal-footer
-    .btn{action 'close'} Close
+    button.btn{action 'close'} Close

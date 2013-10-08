@@ -15,12 +15,42 @@ App.IndexController = App.ColumnSorterController.extend
   ).property('controllers.application.params')
 
   columns: (-> [
-    Em.Object.create({ column: 'id', label: 'accountNumber' })
-    Em.Object.create({ column: 'fullName', label: 'name' })
-    Em.Object.create({ column: 'totalOriginalBalance', label: 'originalBalance' })
-    Em.Object.create({ column: 'currentBalance', label: 'currentBalance' })
-    Em.Object.create({ column: 'totalPayment', label: 'totalPayment' })
-    Em.Object.create({ column: 'status', label: 'status' })
+    Em.Object.create({
+      column: 'id'
+      label: 'accountNumber'
+      width: 'width:15%;'
+      align: 'text-align:left;'
+    })
+    Em.Object.create({
+      column: 'fullName'
+      label: 'name'
+      width: 'width:30%;'
+      align: 'text-align:left;'
+    })
+    Em.Object.create({
+      column: 'totalOriginalBalance'
+      label: 'originalBalance'
+      width: 'width:15%;'
+      align: 'text-align:right;'
+    })
+    Em.Object.create({
+      column: 'currentBalance'
+      label: 'currentBalance'
+      width: 'width:15%;'
+      align: 'text-align:right;'
+    })
+    Em.Object.create({
+      column: 'totalPayment'
+      label: 'totalPayment'
+      width: 'width:15%;'
+      align: 'text-align:right;'
+    })
+    Em.Object.create({
+      column: 'status'
+      label: 'status'
+      width: 'width:10%;'
+      align: 'text-align:center;'
+    })
   ]).property()
 
   currentContent: Em.A([])
@@ -54,3 +84,6 @@ App.IndexController = App.ColumnSorterController.extend
     result = Em.ArrayProxy.createWithMixins Em.SortableMixin, { content:@get('filteredContent'), sortProperties: @get('sortProperties'), sortAscending: @get('sortAscending') }
     @set('currentContent', result)
   ).observes('filteredContent')
+
+
+

@@ -11,9 +11,9 @@ namespace hunter_warfield.Core.Domain
     {
         public Int64 Id { get; set; }
 
-        public Int64 AccountId { get; set; }
+        //public Int64 AccountId { get; set; }
 
-        public Int64 AgencyId { get; set; }
+        //public Int64 AgencyId { get; set; }
 
         //public Int64 CreditorId { get; set; }
 
@@ -79,8 +79,8 @@ namespace hunter_warfield.Core.Domain
 
         public virtual List<Note> Notes { get; set; }
 
-        //[ForeignKey("Client")]
-        public Int64 ClientId { get; set; }
-        //public virtual Client Client { get; set; }
+        //[ForeignKey("DebtorAccount")]
+        //public Int64 DebtorAccountId { get; set; }
+        public virtual List<DebtorAccount> DebtorAccounts { get; set; }
     }
 }

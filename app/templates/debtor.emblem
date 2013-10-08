@@ -9,12 +9,11 @@
           |  
           =suffix
           .span4.pull-right
-            .btn.btn-primary.btn-small{action 'close'} Close
+            button.btn.btn-primary.btn-small{action 'close'} Close
             if isEditing
               partial 'debtor/edit'
             else
-              if controllers.params.canEditDebtor
-                .btn.btn-small{action 'edit'} Edit
+              button.btn.btn-small{action 'edit'}{bindAttr disabled='disableEdit'} Edit
         h4 =ssn
         hr
         .intro
@@ -33,9 +32,9 @@
             h5 =email
 
         .span4.pull-right
-          .btn.btn-danger.btn-small{action 'cancellation'} Cancel Account
-          .btn.btn-warning.btn-small{action 'holdAccount'} Hold Account
-          .btn.btn-success.btn-small{action 'makePayment'} Make Payment
+          button.btn.btn-danger.btn-small{action 'cancellation'} Cancel Account
+          button.btn.btn-warning.btn-small{action 'holdAccount'} Hold Account
+          button.btn.btn-success.btn-small{action 'makePayment'} Make Payment
   hr
 
   #contacts.accordion
@@ -83,7 +82,7 @@
               render 'notes' notes
 
   if processing
-    partial 'loading'
+    partial 'processing'
 
   if toCancel
     partial 'cancellation'

@@ -48,9 +48,12 @@
     <Compile Include="Domain\AssociationDto.cs" />
     <Compile Include="Domain\ActionCode.cs" />
     <Compile Include="Domain\ActionCodeDto.cs" />
+    <Compile Include="Domain\IndexClientDto.cs" />
+    <Compile Include="Domain\IndexDebtorDto.cs" />
+    <Compile Include="Domain\IndexDebtor.cs" />
     <Compile Include="Domain\TitaniumCode.cs" />
-    <Compile Include="Domain\ClientDebtor.cs" />
-    <Compile Include="Domain\ClientDebtorDto.cs" />
+    <Compile Include="Domain\DebtorAccount.cs" />
+    <Compile Include="Domain\DebtorAccountDto.cs" />
     <Compile Include="Domain\OperatingTransaction.cs" />
     <Compile Include="Domain\ResultCode.cs" />
     <Compile Include="Domain\ResultCodeDto.cs" />

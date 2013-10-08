@@ -1,0 +1,1 @@
+App.DebtorAccountController = Em.ObjectController.extend()

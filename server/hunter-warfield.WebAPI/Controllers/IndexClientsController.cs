@@ -11,9 +11,9 @@ using hunter_warfield.WebAPI.Helpers;
 
 namespace hunter_warfield.WebAPI.Controllers
 {
-    public class ClientsController : BaseApiController<Client, IndexClientDto, Int64>
+    public class IndexClientsController : BaseApiController<Client, IndexClientDto, Int64>
     {
-        public ClientsController() { Includes = new[] { "ClientDebtors" }; }
+        public IndexClientsController() { Includes = new[] { "ClientDebtors" }; }
 
         private hwiContext db = new hwiContext();
 

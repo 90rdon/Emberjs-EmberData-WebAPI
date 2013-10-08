@@ -13,5 +13,5 @@
       /   .controls
       /     view  Em.Select    contentBinding='controllers.resultCodes' optionLabelPath='content.value' optionValuePath='content.id' selectionBinding='controllers.resultCodes.selected'
   .modal-footer
-    .btn.btn-danger{action sendCancellation} Send Cancellation
-    .btn{action cancellation} Abort
+    button.btn.btn-danger{action sendCancellation} Send Cancellation
+    button.btn{action cancellation} Abort

@@ -1,5 +1,6 @@
 window.App = require 'app'
 
+
 #/////////////////////////////////
 #// Helpers
 #/////////////////////////////////
@@ -26,8 +27,6 @@ require 'controllers/employmentController'
 require 'controllers/employmentsController'
 require 'controllers/noteController'
 require 'controllers/notesController'
-# require 'controllers/cancellationController'
-
 require 'controllers/lookupDataController'
 
 #//////////////////////////////////
@@ -45,14 +44,17 @@ require 'models/country'
 require 'models/phoneTypes'
 require 'models/actionCode'
 require 'models/resultCode'
-require 'models/clientDebtor'
+require 'models/debtorAccount'
+require 'models/indexClient'
+require 'models/indexDebtor'
 
 #/////////////////////////////////
 #// Routes
 #/////////////////////////////////
 
 require 'routes/indexRoute'
-require 'routes/debtorRoute'
+require 'routes/debtorAccountRoute'
+require 'routes/loadingRoute'
 
 #//////////////////////////////////
 #// Templates
@@ -68,6 +70,7 @@ require 'templates/contactDetail'
 require 'templates/debtor/_edit'
 require 'templates/debtor'
 require 'templates/debtorDetail'
+require 'templates/debtorAccount'
 require 'templates/index'
 require 'templates/person/_edit'
 require 'templates/person'
@@ -84,7 +87,8 @@ require 'templates/_confirmation'
 require 'templates/_hold'
 require 'templates/_cancellationSuccess'
 require 'templates/_holdSuccess'
-require 'templates/_loading'
+require 'templates/_processing'
+require 'templates/loading'
 
 #/////////////////////////////////
 #// Views
@@ -119,11 +123,12 @@ App.AJAX_LOADER_IMG = "/images/ajax_loader.gif"
 App.DEFAULT_CSS_TRANSITION_DURATION_MS = 250
 
 App.Router.map ->
-  @resource     'index',      path: '/:client_id'
-  @resource     'debtor',     path: 'debtor/:debtor_id', ->
-    @resource   'contact',    path: 'contact/:contact_id',
-    @resource   'person',     path: 'person/:person_id',
-    @resource   'employment', path: 'employment/:employment_id',
-    @resource   'note',       path: 'note/:note_id'
+  @resource     'index',          path: '/:client_id'
+  @resource     'debtorAccount',  path: 'account/:debtor_account_id', ->
+    @resource     'debtor',       path: 'debtor/:debtor_id', ->
+      @resource   'contact',      path: 'contact/:contact_id',
+      @resource   'person',       path: 'person/:person_id',
+      @resource   'employment',   path: 'employment/:employment_id',
+      @resource   'note',         path: 'note/:note_id'
 
 

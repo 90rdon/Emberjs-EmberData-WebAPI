@@ -29,9 +29,11 @@ exports.config =
         # even if they aren't specified in order.
         before: [
           'vendor/scripts/console-helper.js'
-          'vendor/scripts/jquery.js'
-          'vendor/scripts/handlebars.js'
-          'vendor/scripts/ember.js'
+          'vendor/scripts/jquery-1.9.1.js'
+          'vendor/scripts/jquery-ui-1.10.1.custom.min.js'
+          'vendor/scripts/jquery.mousewheel.js'
+          'vendor/scripts/handlebars-1.0.0.js'
+          'vendor/scripts/ember-1.0.0.js'
           'vendor/scripts/ember-data.js'
           'vendor/scripts/router.js'
           'vendor/scripts/bootstrap.js'
@@ -64,9 +66,9 @@ exports.config =
       paths:
         # If you don't specify jquery and ember there,
         # raw (non-Emberized) Handlebars templates will be compiled.
-        jquery:         'vendor/scripts/jquery.js'
-        ember:          'vendor/scripts/ember.js'
-        handlebars:     'vendor/scripts/handlebars.js'
+        jquery:         'vendor/scripts/jquery-1.9.1.js'
+        ember:          'vendor/scripts/ember-1.0.0.js'
+        handlebars:     'vendor/scripts/handlebars-1.0.0.js'
         emblem:         'vendor/scripts/emblem.js'
 
   conventions:

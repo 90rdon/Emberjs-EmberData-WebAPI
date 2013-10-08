@@ -4,4 +4,4 @@
   .modal-body
     h6 Account Cancelled Successfully
   .modal-footer
-    .btn{action closeCancelSuccess} Close
+    button.btn{action closeCancelSuccess} Close

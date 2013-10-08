@@ -7,11 +7,9 @@ using hunter_warfield.Core.Interfaces;
 
 namespace hunter_warfield.Core.Domain
 {
-    public partial class ClientDebtor : IIdentifier<Int64>
+    public partial class IndexDebtor : IIdentifier<Int64>
     {
         public Int64 Id { get; set; }
-
-        public Int64 DebtorId { get; set; }
 
         public string Title { get; set; }
 
@@ -31,8 +29,11 @@ namespace hunter_warfield.Core.Domain
 
         public string Status { get; set; }
 
+        //[ForeignKey("DebtorAccount")]
+        public Int64 DebtorId { get; set; }
+
         [ForeignKey("Client")]
         public Int64 ClientId { get; set; }
-        public virtual Client Client { get; set; }
+        //public virtual Client Client { get; set; }
     }
 }

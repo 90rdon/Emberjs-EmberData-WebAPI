@@ -18,6 +18,6 @@ namespace hunter_warfield.Core.Domain
 
         public string Description { get; set; }
 
-        //public virtual List<ClientDebtor> ClientDebtors { get; set; }
+        public virtual List<DebtorAccount> DebtorAccounts { get; set; }
     }
 }

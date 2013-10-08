@@ -33,7 +33,7 @@ namespace hunter_warfield.Data.Contexts
         public DbSet<ActionCode> ActionCodes { get; set; }
         public DbSet<ResultCode> ResultCodes { get; set; }
         public DbSet<OperatingTransaction> OperatingTransactions { get; set; }
-        //public DbSet<ClientDebtor> ClientDebtor { get; set; }
+        public DbSet<DebtorAccount> DebtorAccounts { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -49,13 +49,18 @@ namespace hunter_warfield.Data.Contexts
             modelBuilder.Configurations.Add(new ActionCodeConfiguration());
             modelBuilder.Configurations.Add(new ResultCodeConfiguration());
             modelBuilder.Configurations.Add(new OperatingTransactionConfiguration());
-            //modelBuilder.Configurations.Add(new ClientDebtorConfiguration());
+            modelBuilder.Configurations.Add(new DebtorAccountConfiguration());
 
+            
+            modelBuilder.Entity<Client>()
+                .HasMany(d => d.DebtorAccounts)
+                .WithOptional()
+                .HasForeignKey(f => f.ClientId);
 
-            //modelBuilder.Entity<Client>()
-            //    .HasMany(d => d.ClientDebtors)
-            //    .WithOptional()
-            //    .HasForeignKey(f => f.ClientId);
+            modelBuilder.Entity<Debtor>()
+                .HasMany(d => d.DebtorAccounts)
+                .WithOptional()
+                .HasForeignKey(f => f.DebtorId);
 
             modelBuilder.Entity<Debtor>()
                 .HasMany(d => d.Contacts)

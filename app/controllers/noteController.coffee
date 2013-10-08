@@ -1,5 +1,6 @@
 App.NoteController = Em.ObjectController.extend
   needs: [
+    'debtorAccount'
     'actionCodes'
     'resultCodes'
   ]
@@ -8,6 +9,6 @@ App.NoteController = Em.ObjectController.extend
 
   labelActionCode: (->
     actionCode = @get('controllers.actionCodes').findProperty('id', @get('actionCode'))
-    return null   if actionCode == null || actionCode == undefined
+    return @get('actionCode')   if actionCode == null || actionCode == undefined
     actionCode.value
   ).property('actionCode')

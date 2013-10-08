@@ -1,7 +1,4 @@
 App.Debtor = DS.Model.extend
-  accountId:          DS.attr 'number'
-  agencyId:           DS.attr 'number'
-  creditorId:         DS.attr 'number'
   type:        				DS.attr 'string'
   title:       				DS.attr 'string'
   lastName:        	  DS.attr 'string'
@@ -30,9 +27,9 @@ App.Debtor = DS.Model.extend
   dlNumber:						DS.attr	'string'
   passport:						DS.attr	'string'
   pin:								DS.attr	'string'
-  clientId:           DS.attr 'number'
+  # clientId:           DS.attr 'number'
 
-  # client:             DS.belongsTo 'App.Client'
+  debtorAccount:      DS.belongsTo 'App.DebtorAccount'
   contacts: 					DS.hasMany   'App.Contact'
   persons:            DS.hasMany   'App.Person'
   employments:        DS.hasMany   'App.Employment'

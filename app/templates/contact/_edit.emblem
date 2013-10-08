@@ -30,5 +30,5 @@
         .controls
           view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Consent ...'
   .modal-footer
-    .btn.btn-success{action 'doneEditing'} Done
-    .btn{action 'cancelEditing'} Cancel
+    button.btn.btn-success{action 'doneEditing'} Done
+    button.btn{action 'cancelEditing'} Cancel

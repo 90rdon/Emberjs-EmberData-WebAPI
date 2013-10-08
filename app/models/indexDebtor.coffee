@@ -1,5 +1,5 @@
-App.ClientDebtor = DS.Model.extend
-  accountId:            DS.attr 'number'
+App.IndexDebtor = DS.Model.extend
+  debtorId:            DS.attr 'number'
   title:                DS.attr 'string'
   lastName:             DS.attr 'string'
   firstName:            DS.attr 'string'
@@ -11,7 +11,7 @@ App.ClientDebtor = DS.Model.extend
   clientId:             DS.attr 'number'
   status:               DS.attr 'string'
 
-  client:               DS.belongsTo 'App.Client'
+  indexClient:          DS.belongsTo 'App.IndexClient'
 
 
   fullName: (->

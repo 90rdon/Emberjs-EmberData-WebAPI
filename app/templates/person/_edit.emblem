@@ -70,5 +70,5 @@
         .controls
           view Em.TextArea valueBinding='comment' placeholder='Comment'
   .modal-footer
-    .btn.btn-success{action 'doneEditing'} Done
-    .btn{action 'cancelEditing'} Cancel
+    button.btn.btn-success{action 'doneEditing'} Done
+    button.btn{action 'cancelEditing'} Cancel

@@ -15,8 +15,8 @@ namespace hunter_warfield.Core.Domain
         {
             if (debtor == null) return;
             Id = debtor.Id;
-            AccountId = debtor.AccountId;
-            AgencyId = debtor.AgencyId;
+            //AccountId = debtor.AccountId;
+            //AgencyId = debtor.AgencyId;
             //CreditorId = debtor.CreditorId;
             Type = debtor.Type;
             Title = debtor.Title;
@@ -79,15 +79,21 @@ namespace hunter_warfield.Core.Domain
                     Notes.Add(new NoteDto(note));
                 }
             }
-            ClientId = debtor.ClientId;
+            if (debtor.DebtorAccounts != null)
+            {
+                foreach (DebtorAccount debtorAccount in debtor.DebtorAccounts)
+                {
+                    DebtorAccounts.Add(new DebtorAccountDto(debtorAccount));
+                }
+            }
         }
 
         [Key]
         public Int64 Id { get; set; }
 
-        public Int64 AccountId { get; set; }
+        //public Int64 AccountId { get; set; }
 
-        public Int64 AgencyId { get; set; }
+        //public Int64 AgencyId { get; set; }
 
         //public Int64 CreditorId { get; set; }
 
@@ -151,7 +157,7 @@ namespace hunter_warfield.Core.Domain
 
         public virtual List<NoteDto> Notes { get; set; }
 
-        public Int64 ClientId { get; set; }
+        public virtual List<DebtorAccountDto> DebtorAccounts { get; set; }
 
         public Debtor ToEntity()
         {
@@ -163,8 +169,8 @@ namespace hunter_warfield.Core.Domain
             Debtor debtor = new Debtor
             {
                 Id = Id,
-                AccountId = AccountId,
-                AgencyId = AgencyId,
+                //AccountId = AccountId,
+                //AgencyId = AgencyId,
                 //CreditorId = CreditorId,
                 Type = Type,
                 Title = Title,
@@ -196,7 +202,7 @@ namespace hunter_warfield.Core.Domain
                 Employments = new List<Employment>(),
                 //Historicals = new List<Historical>(),
                 Notes = new List<Note>(),
-                ClientId = ClientId
+                DebtorAccounts = new List<DebtorAccount>()
             };
 
             if (Contacts != null)
@@ -228,6 +234,14 @@ namespace hunter_warfield.Core.Domain
                 foreach (NoteDto note in Notes)
                 {
                     debtor.Notes.Add(note.ToEntity());
+                }
+            }
+
+            if (DebtorAccounts != null)
+            {
+                foreach (DebtorAccountDto debtorAccount in DebtorAccounts)
+                {
+                    debtor.DebtorAccounts.Add(debtorAccount.ToEntity());
                 }
             }
 

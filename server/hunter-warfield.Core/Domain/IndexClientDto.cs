@@ -10,25 +10,18 @@ using hunter_warfield.Core.Interfaces;
 
 namespace hunter_warfield.Core.Domain
 {
-    public partial class ClientDto : IDataTransfer<Client>
+    public partial class IndexClientDto : IDataTransfer<Client>
     {
-        public ClientDto() { }
+        public IndexClientDto() { }
 
-        public ClientDto(Client client)
+        public IndexClientDto(Client client)
         {
             if (client == null) return;
             Id = client.Id;
             ClientId = client.Id;
             LegacyId = client.LegacyId;
             Description = client.Description;
-            DebtorAccounts = new List<DebtorAccountDto>();
-            if (client.DebtorAccounts != null)
-            {
-                foreach (DebtorAccount debtorAccount in client.DebtorAccounts)
-                {
-                    DebtorAccounts.Add(new DebtorAccountDto(debtorAccount));
-                }
-            }
+            IndexDebtors = new List<IndexDebtorDto>();
         }
 
         [Key]
@@ -40,7 +33,7 @@ namespace hunter_warfield.Core.Domain
 
         public string Description { get; set; }
 
-        public virtual List<DebtorAccountDto> DebtorAccounts { get; set; }
+        public virtual List<IndexDebtorDto> IndexDebtors { get; set; }
 
         public Client ToEntity()
         {
@@ -50,14 +43,6 @@ namespace hunter_warfield.Core.Domain
                 LegacyId = LegacyId,
                 Description = Description
             };
-
-            if (DebtorAccounts != null)
-            {
-                foreach (DebtorAccountDto debtorAccount in DebtorAccounts)
-                {
-                    client.DebtorAccounts.Add(debtorAccount.ToEntity());
-                }
-            }
 
             return client;
         }

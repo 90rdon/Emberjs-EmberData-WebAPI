@@ -37,6 +37,9 @@ namespace hunter_warfield.WebAPI.Controllers
 
         private XmlNode ParseResult(XmlDocument xml)
         {
+            if (xml == null)
+                return null;
+
             XmlNamespaceManager manager = new XmlNamespaceManager(xml.NameTable);
             manager.AddNamespace("ns5", "http://www.crsoftwareinc.com/xml/ns/titanium/common/v1_0");
 

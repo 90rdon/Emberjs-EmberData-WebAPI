@@ -19,7 +19,7 @@
               date time
           td
             .span2
-              =actionCode
+              =labelActionCode
           td
             .span2
               =resultCode
