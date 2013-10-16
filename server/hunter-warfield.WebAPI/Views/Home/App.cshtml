@@ -1,14 +1,16 @@
-﻿@using StackExchange.Profiling;
+﻿@*@using StackExchange.Profiling;*@
 <body class="application">
   <!--[if lt IE 8]>
     <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
   <![endif]-->
 
   <!-- Your Markup -->
-  @this.TimeScript("Scripts vendor.js",
+  @*@this.TimeScript("Scripts vendor.js",
     @<script src="~/Scripts/vendor.js"></script>);
   @this.TimeScript("Scripts app.js",
-    @<script src="~/Scripts/app.js"></script>);
+    @<script src="~/Scripts/app.js"></script>);*@
+  <script src="~/Scripts/vendor.js"></script>
+  <script src="~/Scripts/app.js"></script>
   <script>require('initialize');</script>
 
   <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
@@ -20,5 +22,5 @@
           s.parentNode.insertBefore(g, s)
       }(document, 'script'));
   </script>-->
-  @MiniProfiler.RenderIncludes()
+  @*@MiniProfiler.RenderIncludes()*@
  </body>

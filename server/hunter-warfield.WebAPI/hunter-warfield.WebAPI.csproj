@@ -209,6 +209,7 @@
     <Compile Include="Controllers\ClientsController.cs" />
     <Compile Include="Controllers\AssociationsController.cs" />
     <Compile Include="Controllers\ActionCodesController.cs" />
+    <Compile Include="Controllers\DebtorNotesController.cs" />
     <Compile Include="Controllers\IndexClientsController.cs" />
     <Compile Include="Controllers\DebtorAccountsController.cs" />
     <Compile Include="Controllers\HoldAccountController.cs" />
@@ -299,6 +300,7 @@
     <Content Include="Content\themes\base\minified\jquery.ui.tooltip.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="Images\ajax_loader.gif" />
     <Content Include="Images\glyphicons-halflings-white.png" />
     <Content Include="Images\glyphicons-halflings.png" />
     <Content Include="Scripts\app.js" />

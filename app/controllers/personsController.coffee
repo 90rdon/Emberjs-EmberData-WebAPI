@@ -13,12 +13,13 @@ App.PersonsController = App.ColumnSorterController.extend
     Em.Object.create(column: 'comment')
   ]).property()
 
-  create: ->
-    transaction = @get('store').transaction()
-    @transitionToRoute 'person', transaction.createRecord(App.Person, 'debtor': @get('controllers.debtor').content, 'debtorId': @get('controllers.debtor').content.id)
+  actions:
+    create: ->
+      transaction = @get('store').transaction()
+      @transitionToRoute 'person', transaction.createRecord(App.Person, 'debtor': @get('controllers.debtor').content, 'debtorId': @get('controllers.debtor').content.id)
 
-  delete: (item) ->
-    transaction = @get('store').transaction()
-    transaction.add(item)
-    item.deleteRecord()
-    transaction.commit()
+    delete: (item) ->
+      transaction = @get('store').transaction()
+      transaction.add(item)
+      item.deleteRecord()
+      transaction.commit()

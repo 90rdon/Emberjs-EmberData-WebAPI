@@ -98,20 +98,6 @@ window.require.register("controllers/contactController", function(exports, requi
   App.ContactController = App.EditObjectController.extend({
     needs: ['debtor', 'countries', 'phoneTypes', 'phoneStatuses', 'sources', 'yesNo'],
     isConfirming: false,
-    setSelections: function() {
-      this.get('controllers.countries').setSelectedByIdStr(this.get('country'));
-      this.get('controllers.phoneTypes').setSelectedById(this.get('type'));
-      this.get('controllers.phoneStatuses').setSelectedById(this.get('status'));
-      this.get('controllers.sources').setSelectedById(this.get('source'));
-      return this.get('controllers.yesNo').setSelectedById(this.get('consent'));
-    },
-    getSelections: function() {
-      this.set('country', this.get('controllers.countries').getSelectedId());
-      this.set('type', this.get('controllers.phoneTypes').getSelectedId());
-      this.set('status', this.get('controllers.phoneStatuses').getSelectedId());
-      this.set('source', this.get('controllers.sources').getSelectedId());
-      return this.set('consent', this.get('controllers.yesNo').getSelectedId());
-    },
     labelPhoneType: (function() {
       var type;
       type = this.get('controllers.phoneTypes').findProperty('id', this.get('type'));
@@ -127,7 +113,21 @@ window.require.register("controllers/contactController", function(exports, requi
         return null;
       }
       return status.label;
-    }).property('status')
+    }).property('status'),
+    setSelections: function() {
+      this.get('controllers.countries').setSelectedByIdStr(this.get('country'));
+      this.get('controllers.phoneTypes').setSelectedById(this.get('type'));
+      this.get('controllers.phoneStatuses').setSelectedById(this.get('status'));
+      this.get('controllers.sources').setSelectedById(this.get('source'));
+      return this.get('controllers.yesNo').setSelectedById(this.get('consent'));
+    },
+    getSelections: function() {
+      this.set('country', this.get('controllers.countries').getSelectedId());
+      this.set('type', this.get('controllers.phoneTypes').getSelectedId());
+      this.set('status', this.get('controllers.phoneStatuses').getSelectedId());
+      this.set('source', this.get('controllers.sources').getSelectedId());
+      return this.set('consent', this.get('controllers.yesNo').getSelectedId());
+    }
   });
   
 });
@@ -148,28 +148,33 @@ window.require.register("controllers/contactsController", function(exports, requ
         })
       ];
     }).property(),
-    create: function() {
-      var transaction;
-      transaction = this.get('store').transaction();
-      return this.transitionToRoute('contact', transaction.createRecord(App.Contact, {
-        'debtor': this.get('controllers.debtor').content,
-        'debtorId': this.get('controllers.debtor').content.id
-      }));
-    },
-    "delete": function(item) {
-      item.deleteRecord();
-      return this.get('store').commit();
+    actions: {
+      create: function() {
+        var transaction;
+        transaction = this.get('store').transaction();
+        return this.transitionToRoute('contact', transaction.createRecord(App.Contact, {
+          'debtor': this.get('controllers.debtor').content,
+          'debtorId': this.get('controllers.debtor').content.id
+        }));
+      },
+      "delete": function(item) {
+        item.deleteRecord();
+        return this.get('store').commit();
+      }
     }
   });
-  
-});
-window.require.register("controllers/debtorAccountController", function(exports, require, module) {
-  App.DebtorAccountController = Em.ObjectController.extend();
   
 });
 window.require.register("controllers/debtorController", function(exports, require, module) {
   App.DebtorController = App.EditObjectController.extend({
     needs: ['contacts', 'employments', 'persons', 'notes', 'countries', 'consumerFlags', 'titles', 'suffixes', 'validInvalid', 'yesNo', 'application', 'cancellationCodes', 'actionCodes', 'resultCodes', 'debtorAccount'],
+    toCancel: false,
+    toHold: false,
+    loading: true,
+    processing: false,
+    cancellationSuccess: false,
+    holdSuccess: false,
+    confirmationNumber: null,
     accountId: (function() {
       return this.get('controllers.debtorAccount.id');
     }).property('controllers.debtorAccount.id'),
@@ -182,6 +187,9 @@ window.require.register("controllers/debtorController", function(exports, requir
       }
       return true;
     }).property(),
+    loaded: (function() {
+      return this.set('loading', false);
+    }).observes('content.isLoaded'),
     setSelections: function() {
       this.get('controllers.consumerFlags').setSelectedById(this.get('type'));
       this.get('controllers.titles').setSelectedById(this.get('title'));
@@ -198,94 +206,91 @@ window.require.register("controllers/debtorController", function(exports, requir
       this.set('optIn', this.get('controllers.yesNo').getSelectedId());
       return this.set('country', this.get('controllers.countries').getSelectedId());
     },
-    close: function() {
-      this.set('isEditing', false);
-      return window.close();
-    },
-    makePayment: function() {
-      return window.open(App.paymentPostingUrl);
-    },
-    toCancel: false,
-    toHold: false,
-    loading: true,
-    processing: false,
-    cancellationSuccess: false,
-    holdSuccess: false,
-    confirmationNumber: null,
-    loaded: (function() {
-      var _this = this;
-      this.set('loading', false);
-      return setInterval((function() {
-        return _this.poll();
-      }), 10000);
-    }).observes('content.isLoaded'),
-    sendCancellation: function() {
-      var self;
-      self = this;
-      this.set('toCancel', false);
-      this.set('processing', true);
-      return $.ajax({
-        url: App.serverUrl + '/' + App.serverNamespace + '/cancellation',
-        dataType: 'json',
-        type: 'POST',
-        data: {
-          accountId: this.get('accountId'),
-          agencyId: this.get('controllers.debtorAccount.agencyId'),
-          userId: this.get('params.userId'),
-          shortCode: this.get('controllers.cancellationCodes').getSelectedId(),
-          debtorId: this.get('id'),
-          clientId: this.get('params.clientId'),
-          creditorId: this.get('creditorId')
-        },
-        success: function(response) {
-          self.set('processing', false);
-          return self.set('cancellationSuccess', true);
-        }
-      });
-    },
-    sendHold: function() {
-      var self;
-      self = this;
-      this.set('toHold', false);
-      this.set('processing', true);
-      return $.ajax({
-        url: App.serverUrl + '/' + App.serverNamespace + '/holdAccount',
-        dataType: 'json',
-        type: 'POST',
-        data: {
-          accountId: this.get('accountId'),
-          agencyId: this.get('controllers.debtorAccount.agencyId'),
-          userId: this.get('params.userId'),
-          debtorId: this.get('id'),
-          clientId: this.get('params.clientId'),
-          creditorId: this.get('creditorId')
-        },
-        success: function(response) {
-          self.set('processing', false);
-          return self.set('cancellationSuccess', true);
-        }
-      });
-    },
-    poll: function() {
-      return console.log('account id = ' + this.get('accountId'));
-    },
-    hideLoading: function() {
-      return this.toggleProperty('loading');
-    },
-    showProcessing: function() {
-      return this.toggleProperty('processing');
-    },
-    holdAccount: function() {
-      return this.toggleProperty('toHold');
-    },
-    cancellation: function() {
-      return this.toggleProperty('toCancel');
-    },
-    closeCancelSuccess: function() {
-      return this.toggleProperty('cancellationSuccess');
-    },
-    closeHoldSuccess: function() {
-      return this.toggleProperty('holdSuccess');
+    actions: {
+      close: function() {
+        this.set('isEditing', false);
+        return window.close();
+      },
+      makePayment: function() {
+        return window.open(App.paymentPostingUrl);
+      },
+      sendCancellation: function() {
+        var self;
+        self = this;
+        this.set('toCancel', false);
+        this.set('processing', true);
+        return $.ajax({
+          url: App.serverUrl + '/' + App.serverNamespace + '/cancellation',
+          dataType: 'json',
+          type: 'POST',
+          data: {
+            accountId: this.get('accountId'),
+            agencyId: this.get('controllers.debtorAccount.agencyId'),
+            userId: this.get('params.userId'),
+            shortCode: this.get('controllers.cancellationCodes').getSelectedId(),
+            debtorId: this.get('id'),
+            clientId: this.get('params.clientId'),
+            creditorId: this.get('creditorId')
+          },
+          success: function(response) {
+            self.get('content').refresh();
+            return Em.run.later((function() {
+              self.set('processing', false);
+              return self.set('cancellationSuccess', true);
+            }), 5000);
+          }
+        });
+      },
+      sendHold: function() {
+        var self;
+        self = this;
+        this.set('toHold', false);
+        this.set('processing', true);
+        return $.ajax({
+          url: App.serverUrl + '/' + App.serverNamespace + '/holdAccount',
+          dataType: 'json',
+          type: 'POST',
+          data: {
+            accountId: this.get('accountId'),
+            agencyId: this.get('controllers.debtorAccount.agencyId'),
+            userId: this.get('params.userId'),
+            debtorId: this.get('id'),
+            clientId: this.get('params.clientId'),
+            creditorId: this.get('creditorId')
+          },
+          success: function(response) {
+            self.get('content').refresh();
+            return Em.run.later((function() {
+              self.set('processing', false);
+              return self.set('holdSuccess', true);
+            }), 5000);
+          }
+        });
+      },
+      cancellation: function() {
+        this.toggleProperty('toCancel');
+        return false;
+      },
+      holdAccount: function() {
+        this.toggleProperty('toHold');
+        return false;
+      },
+      hideLoading: function() {
+        this.toggleProperty('loading');
+        return false;
+      },
+      showProcessing: function() {
+        this.toggleProperty('processing');
+        return false;
+      },
+      closeCancelSuccess: function() {
+        this.toggleProperty('cancellationSuccess');
+        return false;
+      },
+      closeHoldSuccess: function() {
+        this.toggleProperty('holdSuccess');
+        return false;
+      }
     }
   });
   
@@ -334,18 +339,6 @@ window.require.register("controllers/debtorsController", function(exports, requi
 window.require.register("controllers/employmentController", function(exports, require, module) {
   App.EmploymentController = App.EditObjectController.extend({
     needs: ['debtor', 'associations', 'employmentStatuses', 'countries', 'sources'],
-    setSelections: function() {
-      this.get('controllers.associations').setSelectedById(this.get('association'));
-      this.get('controllers.countries').setSelectedByIdStr(this.get('country'));
-      this.get('controllers.employmentStatuses').setSelectedById(this.get('status'));
-      return this.get('controllers.sources').setSelectedById(this.get('source'));
-    },
-    getSelections: function() {
-      this.set('country', this.get('controllers.countries').getSelectedId());
-      this.set('status', this.get('controllers.employmentStatuses').getSelectedId());
-      this.set('association', this.get('controllers.associations').getSelectedId());
-      return this.set('source', this.get('controllers.sources').getSelectedId());
-    },
     labelEmploymentStatus: (function() {
       var status;
       status = this.get('controllers.employmentStatuses').findProperty('id', this.get('status'));
@@ -361,7 +354,21 @@ window.require.register("controllers/employmentController", function(exports, re
         return null;
       }
       return source.label;
-    }).property('source')
+    }).property('source'),
+    actions: {
+      setSelections: function() {
+        this.get('controllers.associations').setSelectedById(this.get('association'));
+        this.get('controllers.countries').setSelectedByIdStr(this.get('country'));
+        this.get('controllers.employmentStatuses').setSelectedById(this.get('status'));
+        return this.get('controllers.sources').setSelectedById(this.get('source'));
+      },
+      getSelections: function() {
+        this.set('country', this.get('controllers.countries').getSelectedId());
+        this.set('status', this.get('controllers.employmentStatuses').getSelectedId());
+        this.set('association', this.get('controllers.associations').getSelectedId());
+        return this.set('source', this.get('controllers.sources').getSelectedId());
+      }
+    }
   });
   
 });
@@ -385,17 +392,19 @@ window.require.register("controllers/employmentsController", function(exports, r
         })
       ];
     }).property(),
-    create: function() {
-      var transaction;
-      transaction = this.get('store').transaction();
-      return this.transitionToRoute('employment', transaction.createRecord(App.Employment, {
-        'debtor': this.get('controllers.debtor').content,
-        'debtorId': this.get('controllers.debtor').content.id
-      }));
-    },
-    "delete": function(item) {
-      item.deleteRecord();
-      return this.get('store').commit();
+    actions: {
+      create: function() {
+        var transaction;
+        transaction = this.get('store').transaction();
+        return this.transitionToRoute('employment', transaction.createRecord(App.Employment, {
+          'debtor': this.get('controllers.debtor').content,
+          'debtorId': this.get('controllers.debtor').content.id
+        }));
+      },
+      "delete": function(item) {
+        item.deleteRecord();
+        return this.get('store').commit();
+      }
     }
   });
   
@@ -424,12 +433,14 @@ window.require.register("controllers/helpers/columnSorterController", function(e
       }
       return properties.get('firstObject');
     }).property('sortProperties.[]'),
-    toggleSort: function(column) {
-      if (this.get('sortedColumn') === column) {
-        return this.toggleProperty('sortAscending');
-      } else {
-        this.set('sortProperties', [column]);
-        return this.set('sortAscending', true);
+    actions: {
+      toggleSort: function(column) {
+        if (this.get('sortedColumn') === column) {
+          return this.toggleProperty('sortAscending');
+        } else {
+          this.set('sortProperties', [column]);
+          return this.set('sortAscending', true);
+        }
       }
     }
   });
@@ -835,9 +846,6 @@ window.require.register("controllers/lookupDataController", function(exports, re
 window.require.register("controllers/noteController", function(exports, require, module) {
   App.NoteController = Em.ObjectController.extend({
     needs: ['debtorAccount', 'actionCodes', 'resultCodes'],
-    close: function() {
-      return this.transitionToRoute('debtor');
-    },
     labelActionCode: (function() {
       var actionCode;
       actionCode = this.get('controllers.actionCodes').findProperty('id', this.get('actionCode'));
@@ -845,13 +853,18 @@ window.require.register("controllers/noteController", function(exports, require,
         return this.get('actionCode');
       }
       return actionCode.value;
-    }).property('actionCode')
+    }).property('actionCode'),
+    actions: {
+      close: function() {
+        return this.transitionToRoute('debtorAccount');
+      }
+    }
   });
   
 });
 window.require.register("controllers/notesController", function(exports, require, module) {
   App.NotesController = App.ColumnSorterController.extend({
-    needs: ['actionCodes'],
+    needs: ['actionCodes', 'debtor'],
     columns: (function() {
       return [
         Em.Object.create({
@@ -868,25 +881,21 @@ window.require.register("controllers/notesController", function(exports, require
     loaded: (function() {
       this.set('sortProperties', ['time']);
       return this.set('sortAscending', false);
-    }).observes('content.@each')
+    }).observes('content.@each'),
+    addNote: function(note) {
+      var id;
+      id = note.id;
+      if (typeof this._idCache[id] === 'undefined') {
+        this.pushObject(note);
+        return this._idCache[id] = note.id;
+      }
+    }
   });
   
 });
 window.require.register("controllers/personController", function(exports, require, module) {
   App.PersonController = App.EditObjectController.extend({
     needs: ['countries', 'relationships', 'titles', 'suffixes'],
-    setSelections: function() {
-      this.get('controllers.countries').setSelectedByIdStr(this.get('country'));
-      this.get('controllers.relationships').setSelectedByIdNum(this.get('relationship'));
-      this.get('controllers.titles').setSelectedById(this.get('title'));
-      return this.get('controllers.suffixes').setSelectedById(this.get('suffix'));
-    },
-    getSelections: function() {
-      this.set('country', this.get('controllers.countries').getSelectedId());
-      this.set('relationship', this.get('controllers.relationships').getSelectedId());
-      this.set('title', this.get('controllers.titles').getSelectedId());
-      return this.set('suffix', this.get('controllers.suffixes').getSelectedId());
-    },
     relationshipLoaded: (function() {
       return this.get('labelRelationship');
     }).observes('@controllers.relationships.isLoaded'),
@@ -897,7 +906,21 @@ window.require.register("controllers/personController", function(exports, requir
         return null;
       }
       return relationship.label;
-    }).property('relationship')
+    }).property('relationship'),
+    actions: {
+      setSelections: function() {
+        this.get('controllers.countries').setSelectedByIdStr(this.get('country'));
+        this.get('controllers.relationships').setSelectedByIdNum(this.get('relationship'));
+        this.get('controllers.titles').setSelectedById(this.get('title'));
+        return this.get('controllers.suffixes').setSelectedById(this.get('suffix'));
+      },
+      getSelections: function() {
+        this.set('country', this.get('controllers.countries').getSelectedId());
+        this.set('relationship', this.get('controllers.relationships').getSelectedId());
+        this.set('title', this.get('controllers.titles').getSelectedId());
+        return this.set('suffix', this.get('controllers.suffixes').getSelectedId());
+      }
+    }
   });
   
 });
@@ -921,93 +944,23 @@ window.require.register("controllers/personsController", function(exports, requi
         })
       ];
     }).property(),
-    create: function() {
-      var transaction;
-      transaction = this.get('store').transaction();
-      return this.transitionToRoute('person', transaction.createRecord(App.Person, {
-        'debtor': this.get('controllers.debtor').content,
-        'debtorId': this.get('controllers.debtor').content.id
-      }));
-    },
-    "delete": function(item) {
-      var transaction;
-      transaction = this.get('store').transaction();
-      transaction.add(item);
-      item.deleteRecord();
-      return transaction.commit();
-    }
-  });
-  
-});
-window.require.register("controllers/tableController", function(exports, require, module) {
-  App.LazyDataSource = Em.ArrayProxy.extend({
-    objectAt: function(idx) {
-      var date, row;
-      date = void 0;
-      row = void 0;
-      row = this.get('content')[idx];
-      if (row) {
-        return row;
+    actions: {
+      create: function() {
+        var transaction;
+        transaction = this.get('store').transaction();
+        return this.transitionToRoute('person', transaction.createRecord(App.Person, {
+          'debtor': this.get('controllers.debtor').content,
+          'debtorId': this.get('controllers.debtor').content.id
+        }));
+      },
+      "delete": function(item) {
+        var transaction;
+        transaction = this.get('store').transaction();
+        transaction.add(item);
+        item.deleteRecord();
+        return transaction.commit();
       }
-      date = new Date();
-      date.setDate(date.getDate() + idx);
-      row = {
-        index: idx,
-        date: date,
-        open: Math.random() * 100 - 50,
-        high: Math.random() * 100 - 50,
-        low: Math.random() * 100 - 50,
-        close: Math.random() * 100 - 50,
-        volume: Math.random() * 1000000
-      };
-      this.get('content')[idx] = row;
-      return row;
     }
-  });
-
-  App.TableController = Em.Table.TableController.extend({
-    hasHeader: true,
-    hasFooter: false,
-    numFixedColumns: 0,
-    rowHeight: 30,
-    fluidTable: true,
-    columns: Em.computed(function() {
-      var columnNames, columns, dateColumn, entryColumn;
-      columnNames = void 0;
-      columns = void 0;
-      dateColumn = void 0;
-      entryColumn = void 0;
-      columnNames = ['open', 'high times', 'low', 'close', 'volume'];
-      entryColumn = Em.Table.ColumnDefinition.create({
-        columnWidth: '10%',
-        headerCellName: 'Entry',
-        getCellContent: function(row) {
-          return row['index'];
-        }
-      });
-      dateColumn = Em.Table.ColumnDefinition.create({
-        columnWidth: '30%',
-        headerCellName: 'Date',
-        getCellContent: function(row) {
-          return row['date'].toDateString();
-        }
-      });
-      columns = columnNames.map(function(key, index) {
-        var name;
-        name = void 0;
-        name = key.charAt(0).toUpperCase() + key.slice(1);
-        return Em.Table.ColumnDefinition.create({
-          columnWidth: '12%',
-          headerCellName: name,
-          getCellContent: function(row) {
-            return row[key].toFixed(2);
-          }
-        });
-      });
-      columns.unshift(dateColumn);
-      columns.unshift(entryColumn);
-      return columns;
-    }).property()
   });
   
 });
@@ -1105,6 +1058,20 @@ window.require.register("helpers/handlebarsHelpers", function(exports, require, 
   });
   
 });
+window.require.register("helpers/pollster", function(exports, require, module) {
+  App.Pollster = {
+    start: function() {
+      return this.timer = setInterval(this.onPoll.bind(this), 5000);
+    },
+    stop: function() {
+      return clearInterval(this.timer);
+    },
+    onPoll: function() {
+      return App.NotesController.refresh();
+    }
+  };
+  
+});
 window.require.register("initialize", function(exports, require, module) {
   window.App = require('app');
 
@@ -1169,6 +1136,8 @@ window.require.register("initialize", function(exports, require, module) {
   require('models/indexClient');
 
   require('models/indexDebtor');
+
+  require('models/debtorNote');
 
   require('routes/indexRoute');
 
@@ -1385,7 +1354,12 @@ window.require.register("models/debtor", function(exports, require, module) {
       state = this.get('state') || '';
       zip = this.get('zip') || '';
       return address1 + ' ' + address2 + ' ' + address3 + city + ' ' + state + ' ' + zip;
-    }).property('address1', 'address2', 'address3', 'city', 'state', 'zip')
+    }).property('address1', 'address2', 'address3', 'city', 'state', 'zip'),
+    refresh: function() {
+      var self;
+      self = this;
+      return self.reload();
+    }
   });
   
 });
@@ -1396,6 +1370,18 @@ window.require.register("models/debtorAccount", function(exports, require, modul
     creditorId: DS.attr('number'),
     client: DS.belongsTo('App.Client'),
     debtor: DS.belongsTo('App.Debtor')
+  });
+  
+});
+window.require.register("models/debtorNote", function(exports, require, module) {
+  App.DebtorNote = DS.Model.extend({
+    time: DS.attr('date'),
+    actionCode: DS.attr('number'),
+    resultCode: DS.attr('number'),
+    message: DS.attr('string'),
+    userid: DS.attr('number'),
+    clientId: DS.attr('number'),
+    debtorId: DS.attr('number')
   });
   
 });
@@ -2044,7 +2030,7 @@ window.require.register("templates/_processing", function(exports, require, modu
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "App.AJAX_LOADER_IMG", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("\" alt=\"loading\" height=\"100\" width=\"100\" /></div><div class=\"pagination-centered\"><h4>Processing...</h4></div></div></div>");
+    data.buffer.push("\" alt=\"loading\" /></div><div class=\"pagination-centered\"><h4>Processing...</h4></div></div></div>");
     return buffer;
     
   });module.exports = module.id;
@@ -3318,7 +3304,7 @@ window.require.register("templates/loading", function(exports, require, module) 
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "App.AJAX_LOADER_IMG", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("\" alt=\"loading\" height=\"100\" width=\"100\" /></div><div class=\"pagination-centered\"><h4>Loading...</h4></div></div></div>");
+    data.buffer.push("\" alt=\"loading\" /></div><div class=\"pagination-centered\"><h4>Loading...</h4></div></div></div>");
     return buffer;
     
   });module.exports = module.id;

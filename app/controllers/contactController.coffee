@@ -10,6 +10,18 @@ App.ContactController = App.EditObjectController.extend
 
   isConfirming: false
 
+  labelPhoneType: (->
+    type = @get('controllers.phoneTypes').findProperty('id', @get('type'))
+    return null   if type == null || type == undefined
+    type.label
+  ).property('type')
+
+  labelPhoneStatus: (->
+    status = @get('controllers.phoneStatuses').findProperty('id', @get('status'))
+    return null   if status == null || status == undefined
+    status.label
+  ).property('status')
+  
   setSelections: ->
     @get('controllers.countries').setSelectedByIdStr(@get('country'))
     @get('controllers.phoneTypes').setSelectedById(@get('type'))
@@ -23,15 +35,3 @@ App.ContactController = App.EditObjectController.extend
     @set('status', @get('controllers.phoneStatuses').getSelectedId())
     @set('source', @get('controllers.sources').getSelectedId())
     @set('consent', @get('controllers.yesNo').getSelectedId())
-
-  labelPhoneType: (->
-    type = @get('controllers.phoneTypes').findProperty('id', @get('type'))
-    return null   if type == null || type == undefined
-    type.label
-  ).property('type')
-
-  labelPhoneStatus: (->
-    status = @get('controllers.phoneStatuses').findProperty('id', @get('status'))
-    return null   if status == null || status == undefined
-    status.label
-  ).property('status')

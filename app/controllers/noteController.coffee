@@ -4,11 +4,13 @@ App.NoteController = Em.ObjectController.extend
     'actionCodes'
     'resultCodes'
   ]
-  close: ->
-    @transitionToRoute 'debtor'
 
   labelActionCode: (->
     actionCode = @get('controllers.actionCodes').findProperty('id', @get('actionCode'))
     return @get('actionCode')   if actionCode == null || actionCode == undefined
     actionCode.value
   ).property('actionCode')
+
+  actions:
+    close: ->
+      @transitionToRoute 'debtorAccount'

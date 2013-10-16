@@ -7,13 +7,15 @@ App.DebtorAccountRoute = Em.Route.extend
   setupController: (controller, model, queryParams) ->
     controller.set 'model', model
     @controllerFor('application').set 'params', @get('queryParameters')
-    # @controllerFor('application').set 'params', Em.Object.create
-    #   accountId:      model.id
-    #   clientId:       @get('queryParameters.clientId')
-    #   userId:         @get('queryParameters.userId')
-    #   canEditDebtor:  @get('queryParameters.canEditDebtor')
-    #   feePercentage:  @get('queryParameters.feePercentage')
     @controllerFor('countries').set 'content', App.Country.find()
     @controllerFor('relationships').set 'content', App.Relationship.find()
     @controllerFor('actionCodes').set 'content', App.ActionCode.find()
     @controllerFor('resultCodes').set 'content', App.ResultCode.find()
+
+  # actions:
+  #   reloadNotes: ->
+  #     console.log 'route:debtorAccount - reload action'
+  #     # if (@get('transaction') == null || @get('transaction') == undefined) && @get('isDirty') == true
+  #     #   @set('transaction', @get('store').transaction())
+  #     # notes
+  #     console.log @get('model')

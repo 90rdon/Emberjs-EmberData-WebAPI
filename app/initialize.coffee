@@ -6,6 +6,7 @@ window.App = require 'app'
 #/////////////////////////////////
 
 require 'helpers/handlebarsHelpers'
+# require 'helpers/pollster'
 # require 'helpers/datePicker'
 
 #/////////////////////////////////
@@ -47,6 +48,7 @@ require 'models/resultCode'
 require 'models/debtorAccount'
 require 'models/indexClient'
 require 'models/indexDebtor'
+require 'models/debtorNote'
 
 #/////////////////////////////////
 #// Routes

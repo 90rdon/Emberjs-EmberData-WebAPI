@@ -16,12 +16,13 @@ App.ContactsController = App.ColumnSorterController.extend
     Em.Object.create(column: 'status')
   ]).property()
 
-  create: ->
-    transaction = @get('store').transaction()
-    @transitionToRoute 'contact', transaction.createRecord(App.Contact, 'debtor': @get('controllers.debtor').content, 'debtorId': @get('controllers.debtor').content.id)
+  actions:
+    create: ->
+      transaction = @get('store').transaction()
+      @transitionToRoute 'contact', transaction.createRecord(App.Contact, 'debtor': @get('controllers.debtor').content, 'debtorId': @get('controllers.debtor').content.id)
 
-  delete: (item) ->
-    item.deleteRecord()
-    @get('store').commit()
+    delete: (item) ->
+      item.deleteRecord()
+      @get('store').commit()
 
  

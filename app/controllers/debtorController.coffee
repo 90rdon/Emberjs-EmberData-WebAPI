@@ -17,6 +17,14 @@ App.DebtorController = App.EditObjectController.extend
     'debtorAccount'
   ]
 
+  toCancel: false
+  toHold: false
+  loading: true
+  processing: false
+  cancellationSuccess: false
+  holdSuccess: false
+  confirmationNumber: null
+
   accountId: (->
     @get('controllers.debtorAccount.id')
   ).property('controllers.debtorAccount.id')
@@ -30,6 +38,11 @@ App.DebtorController = App.EditObjectController.extend
     true
   ).property()
   
+  loaded:(->
+    @set('loading', false)
+    # setInterval (=> @poll()), 30000
+  ).observes('content.isLoaded')
+
   setSelections: ->
     @get('controllers.consumerFlags').setSelectedById(@get('type'))
     @get('controllers.titles').setSelectedById(@get('title'))
@@ -46,84 +59,78 @@ App.DebtorController = App.EditObjectController.extend
     @set('optIn', @get('controllers.yesNo').getSelectedId())
     @set('country', @get('controllers.countries').getSelectedId())
 
-  close: ->
-    @set('isEditing', false)
-    # @transitionToRoute 'index'
-    window.close()
+  actions:
+    close: ->
+      @set('isEditing', false)
+      # @transitionToRoute 'index'
+      window.close()
 
-  makePayment: ->
-    window.open App.paymentPostingUrl
+    makePayment: ->
+      window.open App.paymentPostingUrl
 
-  toCancel: false
-  toHold: false
-  loading: true
-  processing: false
-  cancellationSuccess: false
-  holdSuccess: false
-  confirmationNumber: null
+    sendCancellation: ->
+      self = @
+      @set('toCancel', false)
+      @set('processing', true)
+      $.ajax
+        url: App.serverUrl + '/' + App.serverNamespace + '/cancellation'
+        dataType: 'json'
+        type: 'POST'
+        data:
+          accountId:        @get('accountId')
+          agencyId:         @get('controllers.debtorAccount.agencyId')
+          userId:           @get('params.userId')
+          shortCode:        @get('controllers.cancellationCodes').getSelectedId()
+          debtorId:         @get('id')
+          clientId:         @get('params.clientId')
+          creditorId:       @get('creditorId')
+        success: (response) ->
+          self.get('content').refresh()
+          Em.run.later (->
+            self.set('processing', false)
+            self.set('cancellationSuccess', true)), 5000
 
-  loaded:(->
-    @set('loading', false)
-    setInterval (=> @poll()), 10000
-  ).observes('content.isLoaded')
+    sendHold: ->
+      self = @
+      @set('toHold', false)
+      @set('processing', true)
+      $.ajax
+        url: App.serverUrl + '/' + App.serverNamespace + '/holdAccount'
+        dataType: 'json'
+        type: 'POST'
+        data:
+          accountId:        @get('accountId')
+          agencyId:         @get('controllers.debtorAccount.agencyId')
+          userId:           @get('params.userId')
+          debtorId:         @get('id')
+          clientId:         @get('params.clientId')
+          creditorId:       @get('creditorId')
+        success: (response) ->
+          self.get('content').refresh()
+          Em.run.later (->
+            self.set('processing', false)
+            self.set('holdSuccess', true)), 5000
 
-  sendCancellation: ->
-    self = @
-    @set('toCancel', false)
-    @set('processing', true)
-    $.ajax
-      url: App.serverUrl + '/' + App.serverNamespace + '/cancellation'
-      dataType: 'json'
-      type: 'POST'
-      data:
-        accountId:        @get('accountId')
-        agencyId:         @get('controllers.debtorAccount.agencyId')
-        userId:           @get('params.userId')
-        shortCode:        @get('controllers.cancellationCodes').getSelectedId()
-        debtorId:         @get('id')
-        clientId:         @get('params.clientId')
-        creditorId:       @get('creditorId')
-      success: (response) ->
-        self.set('processing', false)
-        self.set('cancellationSuccess', true)
+    cancellation: ->
+      @toggleProperty('toCancel')
+      false
 
-  sendHold: ->
-    self = @
-    @set('toHold', false)
-    @set('processing', true)
-    $.ajax
-      url: App.serverUrl + '/' + App.serverNamespace + '/holdAccount'
-      dataType: 'json'
-      type: 'POST'
-      data:
-        accountId:        @get('accountId')
-        agencyId:         @get('controllers.debtorAccount.agencyId')
-        userId:           @get('params.userId')
-        debtorId:         @get('id')
-        clientId:         @get('params.clientId')
-        creditorId:       @get('creditorId')
-      success: (response) ->
-        self.set('processing', false)
-        self.set('cancellationSuccess', true)
+    holdAccount: ->
+      @toggleProperty('toHold')
+      false
 
-  poll: ->
-    console.log 'account id = ' + @get('accountId')
-    # @set('controllers.notes.content', App.Notes.find({ debtorId: @get('controllers.debtorAccount.id') }))
+    hideLoading: ->
+      @toggleProperty('loading')
+      false
 
-  hideLoading: ->
-    @toggleProperty('loading')
+    showProcessing: ->
+      @toggleProperty('processing')
+      false
 
-  showProcessing: ->
-    @toggleProperty('processing')
-        
-  holdAccount: ->
-    @toggleProperty('toHold')
+    closeCancelSuccess: ->
+      @toggleProperty('cancellationSuccess')
+      false
 
-  cancellation: ->
-    @toggleProperty('toCancel')
-
-  closeCancelSuccess: ->
-    @toggleProperty('cancellationSuccess')
-
-  closeHoldSuccess: ->
-    @toggleProperty('holdSuccess')
+    closeHoldSuccess: ->
+      @toggleProperty('holdSuccess')
+      false
