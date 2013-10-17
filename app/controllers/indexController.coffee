@@ -28,21 +28,27 @@ App.IndexController = App.ColumnSorterController.extend
       align: 'text-align:left;'
     })
     Em.Object.create({
-      column: 'totalOriginalBalance'
-      label: 'originalBalance'
+      column: 'placementDate'
+      label: 'placementDate'
       width: 'width:15%;'
-      align: 'text-align:right;'
+      align: 'text-align:left;'
     })
     Em.Object.create({
-      column: 'currentBalance'
-      label: 'currentBalance'
-      width: 'width:15%;'
+      column: 'totalOriginalBalance'
+      label: 'originalBalance'
+      width: 'width:10%;'
       align: 'text-align:right;'
     })
     Em.Object.create({
       column: 'totalPayment'
       label: 'totalPayment'
-      width: 'width:15%;'
+      width: 'width:10%;'
+      align: 'text-align:right;'
+    })
+    Em.Object.create({
+      column: 'currentBalance'
+      label: 'currentBalance'
+      width: 'width:10%;'
       align: 'text-align:right;'
     })
     Em.Object.create({
@@ -84,6 +90,28 @@ App.IndexController = App.ColumnSorterController.extend
     result = Em.ArrayProxy.createWithMixins Em.SortableMixin, { content:@get('filteredContent'), sortProperties: @get('sortProperties'), sortAscending: @get('sortAscending') }
     @set('currentContent', result)
   ).observes('filteredContent')
+
+  # ----- paging -----
+  page: 1
+  perPage: 25
+  totalPages: (->
+    Math.ceil @get('length') / @get('perPage')
+  ).property('length', 'perPage')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

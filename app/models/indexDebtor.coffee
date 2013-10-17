@@ -1,5 +1,5 @@
 App.IndexDebtor = DS.Model.extend
-  debtorId:            DS.attr 'number'
+  debtorId:             DS.attr 'number'
   title:                DS.attr 'string'
   lastName:             DS.attr 'string'
   firstName:            DS.attr 'string'
@@ -10,6 +10,8 @@ App.IndexDebtor = DS.Model.extend
   totalPayment:         DS.attr 'number'
   clientId:             DS.attr 'number'
   status:               DS.attr 'string'
+  placementDate:        DS.attr 'date'
+  agencyId:             DS.attr 'number'
 
   indexClient:          DS.belongsTo 'App.IndexClient'
 

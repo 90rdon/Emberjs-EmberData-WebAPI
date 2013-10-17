@@ -33,6 +33,8 @@ namespace hunter_warfield.Core.Domain
 
         public string Description { get; set; }
 
+        public Int32 TotalDebtors { get; set; }
+
         public virtual List<IndexDebtorDto> IndexDebtors { get; set; }
 
         public Client ToEntity()

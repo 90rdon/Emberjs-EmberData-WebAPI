@@ -1,5 +1,5 @@
 h2
   .lead
-    | Account Number - {{=id}}
+    | Account Number - {{=agencyId}}
 
 outlet

@@ -1,6 +1,6 @@
 .modal
   .modal-header
-    button.close{action cancelEditing} &times;
+    button.close{action 'closeNote'} &times;
     h5 =date time
     .span2
       p Action Code:
@@ -13,4 +13,4 @@
       =message
 
   .modal-footer
-    button.btn{action 'close'} Close
+    button.btn{action 'closeNote'} Close

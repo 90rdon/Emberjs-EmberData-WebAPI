@@ -29,6 +29,10 @@ namespace hunter_warfield.Core.Domain
 
         public string Status { get; set; }
 
+        public DateTime PlacementDate { get; set; }
+
+        public Int64 AgencyId { get; set; }
+
         //[ForeignKey("DebtorAccount")]
         public Int64 DebtorId { get; set; }
 

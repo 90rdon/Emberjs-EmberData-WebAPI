@@ -33,18 +33,20 @@
           tr
             td style="width:15%"
               a href="#/account/{{unbound id}}/debtor/{{unbound debtorId}}?clientId={{unbound controller.params.clientId}}&userId={{unbound controller.params.userId}}&canEditDebtor={{unbound controller.params.canEditDebtor}}&feePercentage={{unbound controller.params.feePercentage}}" target="_blank"
-                =id
+                =agencyId
             td style="width:30%"
               =fullNameWithTitle
             td style="width:15%"
+              =date placementDate
+            td style="width:10%"
               .pull-right
                 =originalBalance
-            td style="width:15%"
-              .pull-right
-                =currBalance
-            td style="width:15%"
+            td style="width:10%"
               .pull-right
                 =payment
+            td style="width:10%"
+              .pull-right
+                =currBalance
             td style="width:10%"
               .pagination-centered
                 =status

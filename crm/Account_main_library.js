@@ -103,22 +103,22 @@ Security.UserInRole = {
 function SetDebtorIframe() {
     var canEditDebtor = false;
     var clientId = Xrm.Page.getAttribute("accountnumber").getValue();
-    var feePercentage = Xrm.Page.getAttribute("new_cancellationfeeperc").getValue();
+    var feePercentage = isNaN(parseFloat(Xrm.Page.getAttribute("new_cancellationfeeperc").getValue())) ? 0 : parseFloat(Xrm.Page.getAttribute("new_cancellationfeeperc").getValue());
     var userId = Xrm.Page.context.getUserId();
     var url, iframe;
 
     Security.UserInRole.checkUserInRole(
         ["Can Edit Debtor"],
         function () {
-            console.log("valid"); // The user is in one of the specifed roles.
             canEditDebtor = true;
             url = "https://crmtitaniuminterface.hunterwarfield.com/#/" + clientId + "/?userId=" + userId + "&canEditDebtor=true&feePercentage=" + feePercentage;
-            iframe = Xrm.Page.ui.controls.get("IFRAME_Debtors").setSrc(url);
+            //iframe = Xrm.Page.ui.controls.get("IFRAME_Debtors").setSrc(url);
+            Xrm.Page.getControl("IFRAME_Debtors").setSrc(url);
         },
         function () {
-            console.log("invalid"); // The user is not in one of the specifed roles.
             url = "https://crmtitaniuminterface.hunterwarfield.com/#/" + clientId + "/?userId=" + userId + "&canEditDebtor=false&feePercentage=" + feePercentage;
-            iframe = Xrm.Page.ui.controls.get("IFRAME_Debtors").setSrc(url);
+            //iframe = Xrm.Page.ui.controls.get("IFRAME_Debtors").setSrc(url);
+            Xrm.Page.getControl("IFRAME_Debtors").setSrc(url);
         }
     )
 }

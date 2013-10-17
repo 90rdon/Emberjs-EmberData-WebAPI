@@ -754,7 +754,7 @@ Security.UserInRole = {
 function SetDebtorIframe() {
     var canEditDebtor = false;
     var clientId = Xrm.Page.getAttribute("accountnumber").getValue();
-    var feePercentage = Xrm.Page.getAttribute("new_cancellationfeeperc").getValue();
+    var feePercentage = isNaN(parseFloat(Xrm.Page.getAttribute("new_cancellationfeeperc").getValue())) ? 0 : parseFloat(Xrm.Page.getAttribute("new_cancellationfeeperc").getValue());
     var userId = Xrm.Page.context.getUserId();
     var url, iframe;
 
@@ -764,6 +764,7 @@ function SetDebtorIframe() {
             canEditDebtor = true;
             url = "https://crmtitaniuminterface.hunterwarfield.com/#/" + clientId + "/?userId=" + userId + "&canEditDebtor=true&feePercentage=" + feePercentage;
             //iframe = Xrm.Page.ui.controls.get("IFRAME_Debtors").setSrc(url);
+            Xrm.Page.getControl("IFRAME_Debtors").setSrc(url);
         },
         function () {
             url = "https://crmtitaniuminterface.hunterwarfield.com/#/" + clientId + "/?userId=" + userId + "&canEditDebtor=false&feePercentage=" + feePercentage;

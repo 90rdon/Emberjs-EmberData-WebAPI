@@ -12,5 +12,5 @@ App.NoteController = Em.ObjectController.extend
   ).property('actionCode')
 
   actions:
-    close: ->
-      @transitionToRoute 'debtorAccount'
+    closeNote: ->
+      @transitionToRoute 'debtor'

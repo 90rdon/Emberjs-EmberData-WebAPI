@@ -20,19 +20,19 @@ namespace hunter_warfield.WebAPI.Controllers
 
         // GET api/Debtors
         //[Queryable(PageSize = 25)]
-        public override IEnumerable<DebtorDto> Get()
-        {
-            var result = db.Set<Debtor>()
-                .Include("Contacts")
-                .Include("Persons")
-                .Include("Employments")
-                .Include("Notes")
-                //.Where(d => d.ClientId == 159)
-                .AsEnumerable()
-                .Select(d => new DebtorDto(d));
+        //public override IEnumerable<DebtorDto> Get()
+        //{
+        //    var result = db.Set<Debtor>()
+        //        .Include("Contacts")
+        //        .Include("Persons")
+        //        .Include("Employments")
+        //        .Include("Notes")
+        //        //.Where(d => d.ClientId == 159)
+        //        .AsEnumerable()
+        //        .Select(d => new DebtorDto(d));
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public override void Put(DebtorDto value)
         {

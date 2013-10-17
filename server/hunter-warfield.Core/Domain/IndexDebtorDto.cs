@@ -24,6 +24,8 @@ namespace hunter_warfield.Core.Domain
             CurrentBalance = indexDebtor.CurrentBalance;
             TotalPayment = indexDebtor.TotalPayment;
             Status = indexDebtor.Status;
+            AgencyId = indexDebtor.AgencyId;
+            PlacementDate = indexDebtor.PlacementDate;
             DebtorId = indexDebtor.DebtorId;
             ClientId = indexDebtor.ClientId;
         }
@@ -49,6 +51,10 @@ namespace hunter_warfield.Core.Domain
 
         public string Status { get; set; }
 
+        public DateTime PlacementDate { get; set; }
+
+        public Int64 AgencyId { get; set; }
+
         public Int64 DebtorId { get; set; }
 
         public Int64 ClientId { get; set; }
@@ -67,6 +73,8 @@ namespace hunter_warfield.Core.Domain
                 CurrentBalance = CurrentBalance,
                 TotalPayment = TotalPayment,
                 Status = Status,
+                PlacementDate = PlacementDate,
+                AgencyId = AgencyId,
                 DebtorId = DebtorId,
                 ClientId = ClientId
             };

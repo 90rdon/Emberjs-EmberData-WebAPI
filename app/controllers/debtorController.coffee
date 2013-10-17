@@ -62,7 +62,6 @@ App.DebtorController = App.EditObjectController.extend
   actions:
     close: ->
       @set('isEditing', false)
-      # @transitionToRoute 'index'
       window.close()
 
     makePayment: ->

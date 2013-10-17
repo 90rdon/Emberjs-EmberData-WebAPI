@@ -16,15 +16,14 @@ App.PersonController = App.EditObjectController.extend
     relationship.label
   ).property('relationship')
 
-  actions:
-    setSelections: ->
-      @get('controllers.countries').setSelectedByIdStr(@get('country'))
-      @get('controllers.relationships').setSelectedByIdNum(@get('relationship'))
-      @get('controllers.titles').setSelectedById(@get('title'))
-      @get('controllers.suffixes').setSelectedById(@get('suffix'))
+  setSelections: ->
+    @get('controllers.countries').setSelectedByIdStr(@get('country'))
+    @get('controllers.relationships').setSelectedByIdNum(@get('relationship'))
+    @get('controllers.titles').setSelectedById(@get('title'))
+    @get('controllers.suffixes').setSelectedById(@get('suffix'))
 
-    getSelections: ->
-      @set('country', @get('controllers.countries').getSelectedId())
-      @set('relationship', @get('controllers.relationships').getSelectedId())
-      @set('title', @get('controllers.titles').getSelectedId())
-      @set('suffix', @get('controllers.suffixes').getSelectedId())
+  getSelections: ->
+    @set('country', @get('controllers.countries').getSelectedId())
+    @set('relationship', @get('controllers.relationships').getSelectedId())
+    @set('title', @get('controllers.titles').getSelectedId())
+    @set('suffix', @get('controllers.suffixes').getSelectedId())

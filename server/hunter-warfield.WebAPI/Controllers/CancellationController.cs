@@ -59,7 +59,7 @@ namespace hunter_warfield.WebAPI.Controllers
             note.DebtorId = codes.DebtorId;
             note.ClientId = defaultWorkgroupId;
             StringBuilder message = new StringBuilder();
-            message.AppendLine("Account Cancelled ---");
+            message.AppendLine("Account Cancelled for " + codes.AccountId);
             message.AppendLine("Confirmation Number: " + confirmationNumber);
             message.AppendLine("CRM User Id:         " + codes.UserId); 
             note.Message = message.ToString();
