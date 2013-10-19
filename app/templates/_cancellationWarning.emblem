@@ -1,0 +1,6 @@
+#cancellationWarning.modal-dialog style="display:none;z-index:1050;"
+  .modal-body
+    p
+      | Cancellation fee cannot exceed 20% charge.
+    span.pull-right
+      button.btn.btn-primary.btn-small{action close target='view'} Ok

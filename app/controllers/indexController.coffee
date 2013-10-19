@@ -63,6 +63,11 @@ App.IndexController = App.ColumnSorterController.extend
 
   filterStatus: null
 
+  loaded: (->
+    @set('sortProperties', ['placementDate'])
+    @set('sortAscending', false)
+  ).observes('content.isLoaded')
+
   filterDebtors: (->
     @get('filtered')
   ).observes('search')

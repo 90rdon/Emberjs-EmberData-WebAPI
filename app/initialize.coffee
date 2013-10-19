@@ -82,6 +82,7 @@ require 'templates/employment'
 require 'templates/employments'
 require 'templates/note'
 require 'templates/notes'
+require 'templates/note/_edit'
 require 'templates/_cancellation'
 require 'templates/modal_layout'
 require 'templates/empty'
@@ -91,6 +92,7 @@ require 'templates/_cancellationSuccess'
 require 'templates/_holdSuccess'
 require 'templates/_processing'
 require 'templates/loading'
+require 'templates/_cancellationWarning'
 
 #/////////////////////////////////
 #// Views
@@ -103,6 +105,8 @@ require 'views/datePickerField'
 require 'views/modalView'
 require 'views/confirmationView'
 require 'views/radioButtonView'
+require 'views/cancellationFeeView'
+require 'views/cancellationPopupView'
 
 #/////////////////////////////////
 #// Store

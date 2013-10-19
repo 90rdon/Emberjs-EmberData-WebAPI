@@ -24,6 +24,8 @@ App.DebtorController = App.EditObjectController.extend
   cancellationSuccess: false
   holdSuccess: false
   confirmationNumber: null
+  cancellationFee: 0
+  showCancellationWarning: false
 
   accountId: (->
     @get('controllers.debtorAccount.id')
@@ -40,7 +42,9 @@ App.DebtorController = App.EditObjectController.extend
   
   loaded:(->
     @set('loading', false)
-    # setInterval (=> @poll()), 30000
+    fee = @get('controllers.application.params.feePercentage') * 100
+    fee = 20 unless fee < 20
+    @set('cancellationFee', fee + '%')
   ).observes('content.isLoaded')
 
   setSelections: ->
@@ -69,25 +73,29 @@ App.DebtorController = App.EditObjectController.extend
 
     sendCancellation: ->
       self = @
-      @set('toCancel', false)
-      @set('processing', true)
-      $.ajax
-        url: App.serverUrl + '/' + App.serverNamespace + '/cancellation'
-        dataType: 'json'
-        type: 'POST'
-        data:
-          accountId:        @get('accountId')
-          agencyId:         @get('controllers.debtorAccount.agencyId')
-          userId:           @get('params.userId')
-          shortCode:        @get('controllers.cancellationCodes').getSelectedId()
-          debtorId:         @get('id')
-          clientId:         @get('params.clientId')
-          creditorId:       @get('creditorId')
-        success: (response) ->
-          self.get('content').refresh()
-          Em.run.later (->
-            self.set('processing', false)
-            self.set('cancellationSuccess', true)), 5000
+      if parseInt(@get('cancellationFee').replace('%', '')) > 20
+        @set('showCancellationWarning', true)
+      else
+        @set('showCancellationWarning', false)
+        @set('toCancel', false)
+        @set('processing', true)
+        $.ajax
+          url: App.serverUrl + '/' + App.serverNamespace + '/cancellation'
+          dataType: 'json'
+          type: 'POST'
+          data:
+            accountId:        @get('accountId')
+            agencyId:         @get('controllers.debtorAccount.agencyId')
+            userId:           @get('params.userId')
+            shortCode:        @get('controllers.cancellationCodes').getSelectedId()
+            debtorId:         @get('id')
+            clientId:         @get('params.clientId')
+            creditorId:       @get('creditorId')
+          success: (response) ->
+            self.get('content').refresh()
+            Em.run.later (->
+              self.set('processing', false)
+              self.set('cancellationSuccess', true)), 5000
 
     sendHold: ->
       self = @

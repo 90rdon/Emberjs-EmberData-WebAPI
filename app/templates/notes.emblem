@@ -2,6 +2,8 @@
   table.table.table-striped.row-border
     thead
       tr
+        th
+          button.btn.btn-primary.btn-mini{action create} +
         each columns itemController="columnItem"
           th{action toggleSort column}
             =humanize column
@@ -14,6 +16,7 @@
     tbody
       each controller itemController="note"
         tr
+          td
           td
             linkTo 'note' this
               date time

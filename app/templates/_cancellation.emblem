@@ -8,10 +8,10 @@
         label.control-label Cancellation Code
         .controls
           view  Em.Select    contentBinding='controllers.cancellationCodes' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.cancellationCodes.selected'
-      / .control-group
-      /   label.control-label Result Code
-      /   .controls
-      /     view  Em.Select    contentBinding='controllers.resultCodes' optionLabelPath='content.value' optionValuePath='content.id' selectionBinding='controllers.resultCodes.selected'
+        label.control-label Cancellation Fee %
+        .controls
+          App.CancellationFeeView valueBinding='cancellationFee' viewName='cancellationFee'
+          App.CancellationPopupView
   .modal-footer
     button.btn.btn-danger{action sendCancellation} Send Cancellation
     button.btn{action cancellation} Abort

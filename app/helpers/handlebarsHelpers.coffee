@@ -16,7 +16,17 @@ Em.Handlebars.helper 'humanize', (value, options) ->
 
 Em.Handlebars.helper 'date', (value, options) ->
   return value if value is null or value is undefined
+  escaped = moment(value).format('MMDDYYYY')
+  new Handlebars.SafeString(escaped)
+
+Em.Handlebars.helper 'smallDate', (value, options) ->
+  return value if value is null or value is undefined
   escaped = Handlebars.Utils.escapeExpression(value.toLocaleDateString())
+  new Handlebars.SafeString(escaped)
+
+Em.Handlebars.helper 'percent', (value, options) ->
+  return value if value is null or value is undefined
+  escaped = Handlebars.Utils.escapeExpression(value.toFixed(0) + '%')
   new Handlebars.SafeString(escaped)
 
 Em.Handlebars.helper 'currency', (value, options) ->

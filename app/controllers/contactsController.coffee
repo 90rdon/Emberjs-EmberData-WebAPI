@@ -24,5 +24,3 @@ App.ContactsController = App.ColumnSorterController.extend
     delete: (item) ->
       item.deleteRecord()
       @get('store').commit()
-
- 

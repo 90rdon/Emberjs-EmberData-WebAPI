@@ -1,0 +1,34 @@
+.modal
+  .modal-header
+    button.close{action cancelEditing} &times;
+    h5 Historical Event
+  .modal-body
+    .form.form-horizontal            
+      .control-group
+        label.control-label Type 
+        .controls
+          view  Em.Select    id='phoneTypes' contentBinding='controllers.phoneTypes' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.phoneTypes.selected' prompt='Type ...'
+        label.control-label Country
+        .controls
+          view  Em.Select    contentBinding='controllers.countries' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.countries.selected' prompt='Country ...'
+        label.control-label Phone
+        .controls
+          view Em.TextField valueBinding='phone' placeholder='Phone'
+        label.control-label Extension
+        .controls
+          view Em.TextField valueBinding='extension' placeholder='Extension'
+        label.control-label Score
+        .controls
+          view Em.TextField valueBinding='score' placeholder='Score'
+        label.control-label Status
+        .controls
+          view  Em.Select    contentBinding='controllers.phoneStatuses' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.phoneStatuses.selected' prompt='Status ...'
+        label.control-label Source
+        .controls
+          view  Em.Select    contentBinding='controllers.sources' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.sources.selected' prompt='Source ...'
+        label.control-label Consent
+        .controls
+          view  Em.Select    contentBinding='controllers.yesNo' optionLabelPath='content.label' optionValuePath='content.id' selectionBinding='controllers.yesNo.selected' prompt='Consent ...'
+  .modal-footer
+    button.btn.btn-success{action 'doneEditing'} Done
+    button.btn{action 'cancelEditing'} Cancel
