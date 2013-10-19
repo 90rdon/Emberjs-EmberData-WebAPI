@@ -37,7 +37,7 @@
             td style="width:30%"
               =fullNameWithTitle
             td style="width:15%"
-              =smallDate placementDate
+              =shortDate placementDate
             td style="width:10%"
               .pull-right
                 =originalBalance

@@ -10,7 +10,6 @@ App.CancellationFeeView = Em.TextField.extend
     ele.prop
       selectionStart: pos
       selectionEnd: pos
-
   , 'value')
 
   keyUp: (e) ->

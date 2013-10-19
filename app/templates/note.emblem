@@ -1,16 +1,2 @@
-.modal
-  .modal-header
-    button.close{action 'closeNote'} &times;
-    h5 =date time
-    .span2
-      p Action Code:
-        {{actionCode}}
-    p Result Code:
-      {{resultCode}}
-
-  .modal-body
-    p
-      =message
-
-  .modal-footer
-    button.btn{action 'closeNote'} Close
+.row-fluid
+  outlet

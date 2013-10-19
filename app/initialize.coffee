@@ -27,6 +27,8 @@ require 'controllers/personController'
 require 'controllers/employmentController'
 require 'controllers/employmentsController'
 require 'controllers/noteController'
+require 'controllers/noteNewController'
+require 'controllers/noteIndexController'
 require 'controllers/notesController'
 require 'controllers/lookupDataController'
 
@@ -57,6 +59,7 @@ require 'models/debtorNote'
 require 'routes/indexRoute'
 require 'routes/debtorAccountRoute'
 require 'routes/loadingRoute'
+# require 'routes/noteNewRoute'
 
 #//////////////////////////////////
 #// Templates
@@ -82,7 +85,8 @@ require 'templates/employment'
 require 'templates/employments'
 require 'templates/note'
 require 'templates/notes'
-require 'templates/note/_edit'
+require 'templates/note/new'
+require 'templates/note/index'
 require 'templates/_cancellation'
 require 'templates/modal_layout'
 require 'templates/empty'
@@ -98,8 +102,6 @@ require 'templates/_cancellationWarning'
 #// Views
 #/////////////////////////////////
 
-# require 'views/debtorsListView'
-# require 'views/contactsListView'
 require 'views/scrollView'
 require 'views/datePickerField'
 require 'views/modalView'
@@ -135,6 +137,7 @@ App.Router.map ->
       @resource   'contact',      path: 'contact/:contact_id',
       @resource   'person',       path: 'person/:person_id',
       @resource   'employment',   path: 'employment/:employment_id',
-      @resource   'note',         path: 'note/:note_id'
+      @resource   'note',         path: 'note/:note_id', ->
+        @route    'new'
 
 

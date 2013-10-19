@@ -14,12 +14,12 @@ Em.Handlebars.helper 'humanize', (value, options) ->
   escaped = Handlebars.Utils.escapeExpression(value)
   new Handlebars.SafeString(escaped)
 
-Em.Handlebars.helper 'date', (value, options) ->
+Em.Handlebars.helper 'shortDate', (value, options) ->
   return value if value is null or value is undefined
-  escaped = moment(value).format('MMDDYYYY')
+  escaped = moment(value).format('MM/DD/YYYY')
   new Handlebars.SafeString(escaped)
 
-Em.Handlebars.helper 'smallDate', (value, options) ->
+Em.Handlebars.helper 'date', (value, options) ->
   return value if value is null or value is undefined
   escaped = Handlebars.Utils.escapeExpression(value.toLocaleDateString())
   new Handlebars.SafeString(escaped)

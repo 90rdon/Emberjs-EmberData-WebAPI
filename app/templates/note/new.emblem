@@ -1,0 +1,13 @@
+.modal
+  .modal-header
+    button.close{action cancelNewNote} &times;
+    h5 Historical Event
+  .modal-body
+    .form.form-horizontal            
+      .control-group
+        label.control-label Message 
+        .controls
+          view Em.TextArea valueBinding='controllers.note.message' placeholder='Message'
+  .modal-footer
+    button.btn.btn-success{action 'saveNewNote'} Done
+    button.btn{action 'cancelNewNote'} Cancel

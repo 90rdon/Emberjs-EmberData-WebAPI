@@ -2,6 +2,7 @@ App.NotesController = App.ColumnSorterController.extend
   needs: [
     'actionCodes'
     'debtor'
+    'note'
   ]
 
   columns: (-> [
@@ -19,4 +20,4 @@ App.NotesController = App.ColumnSorterController.extend
   actions:
     create: ->
       transaction = @get('store').transaction()
-      @transitionToRoute 'note', transaction.createRecord(App.Note, 'debtor': @get('controllers.debtor').content, 'debtorId': @get('controllers.debtor').content.id)
+      @transitionToRoute 'note.new', transaction.createRecord(App.Note, 'debtor': @get('controllers.debtor').content, 'debtorId': @get('controllers.debtor').content.id)

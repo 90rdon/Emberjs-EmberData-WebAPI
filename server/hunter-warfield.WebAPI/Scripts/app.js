@@ -82,8 +82,8 @@
 window.require.register("app", function(exports, require, module) {
   module.exports = Em.Application.create({
     LOG_TRANSITIONS: true,
-    serverUrl: 'https://crmtitaniuminterface.hunterwarfield.com',
-    serverNamespace: 'api',
+    serverUrl: 'http://10.211.55.4',
+    serverNamespace: 'hunter-warfield/api',
     paymentPostingUrl: 'http://paymentposting.hunterwarfield.com'
   });
   
@@ -467,18 +467,18 @@ window.require.register("controllers/helpers/editObjectController", function(exp
       return this.setSelections();
     }).observes('@content.isLoaded'),
     dirtied: (function() {
-      if ((this.get('transaction') === null || this.get('transaction') === void 0) && this.get('isDirty') === true) {
+      if (!this.get('transaction') && this.get('isDirty') === true) {
         return this.set('transaction', this.get('store').transaction());
       }
     }).observes('isDirty'),
     actions: {
       edit: function() {
         this.set('isEditing', true);
-        return this.setSelection;
+        return this.setSelections();
       },
       doneEditing: function() {
         this.getSelections();
-        if (this.get('transaction') !== null || this.get('transaction') === void 0) {
+        if (this.get('transaction')) {
           this.get('transaction').commit();
         }
         this.set('isEditing', false);
@@ -486,8 +486,9 @@ window.require.register("controllers/helpers/editObjectController", function(exp
       },
       cancelEditing: function() {
         this.setSelections();
-        if (this.get('transaction') !== null || this.get('transaction') === void 0) {
+        if (this.get('transaction')) {
           this.get('transaction').rollback();
+          this.set('transaction', null);
         }
         this.set('isEditing', false);
         return this.transitionToRoute('debtor');
@@ -869,8 +870,8 @@ window.require.register("controllers/lookupDataController", function(exports, re
   
 });
 window.require.register("controllers/noteController", function(exports, require, module) {
-  App.NoteController = Em.ObjectController.extend({
-    needs: ['debtorAccount', 'actionCodes', 'resultCodes'],
+  App.NoteController = App.EditObjectController.extend({
+    needs: ['debtorAccount', 'actionCodes', 'resultCodes', 'application', 'debtor'],
     labelActionCode: (function() {
       var actionCode;
       actionCode = this.get('controllers.actionCodes').findProperty('id', this.get('actionCode'));
@@ -879,6 +880,34 @@ window.require.register("controllers/noteController", function(exports, require,
       }
       return actionCode.value;
     }).property('actionCode'),
+    setSelections: function() {
+      return false;
+    },
+    getSelections: function() {
+      return false;
+    },
+    actions: {
+      saveNote: function() {
+        this.set('content.actionCode', 211);
+        this.set('content.resultCode', 266);
+        this.set('userId', this.get('controllers.application.params.userId'));
+        this.set('debtorId', this.get('controllers.debtor.id'));
+        this.set('debtor', this.get('controllers.debtor.content'));
+        return this.send('doneEditing');
+      },
+      closeNote: function() {
+        return this.transitionToRoute('debtor');
+      },
+      cancelNote: function() {
+        return this.send('cancelEditing');
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/noteIndexController", function(exports, require, module) {
+  App.NoteIndexController = Em.ObjectController.extend({
+    needs: ['note'],
     actions: {
       closeNote: function() {
         return this.transitionToRoute('debtor');
@@ -887,9 +916,23 @@ window.require.register("controllers/noteController", function(exports, require,
   });
   
 });
+window.require.register("controllers/noteNewController", function(exports, require, module) {
+  App.NoteNewController = Em.ObjectController.extend({
+    needs: ['note', 'application', 'debtor'],
+    actions: {
+      saveNewNote: function() {
+        return this.get('controllers.note').send('saveNote');
+      },
+      cancelNewNote: function() {
+        return this.get('controllers.note').send('cancelNote');
+      }
+    }
+  });
+  
+});
 window.require.register("controllers/notesController", function(exports, require, module) {
   App.NotesController = App.ColumnSorterController.extend({
-    needs: ['actionCodes', 'debtor'],
+    needs: ['actionCodes', 'debtor', 'note'],
     columns: (function() {
       return [
         Em.Object.create({
@@ -911,7 +954,7 @@ window.require.register("controllers/notesController", function(exports, require
       create: function() {
         var transaction;
         transaction = this.get('store').transaction();
-        return this.transitionToRoute('note', transaction.createRecord(App.Note, {
+        return this.transitionToRoute('note.new', transaction.createRecord(App.Note, {
           'debtor': this.get('controllers.debtor').content,
           'debtorId': this.get('controllers.debtor').content.id
         }));
@@ -1050,16 +1093,16 @@ window.require.register("helpers/handlebarsHelpers", function(exports, require, 
     return new Handlebars.SafeString(escaped);
   });
 
-  Em.Handlebars.helper('date', function(value, options) {
+  Em.Handlebars.helper('shortDate', function(value, options) {
     var escaped;
     if (value === null || value === void 0) {
       return value;
     }
-    escaped = moment(value).format('MMDDYYYY');
+    escaped = moment(value).format('MM/DD/YYYY');
     return new Handlebars.SafeString(escaped);
   });
 
-  Em.Handlebars.helper('smallDate', function(value, options) {
+  Em.Handlebars.helper('date', function(value, options) {
     var escaped;
     if (value === null || value === void 0) {
       return value;
@@ -1148,6 +1191,10 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('controllers/noteController');
 
+  require('controllers/noteNewController');
+
+  require('controllers/noteIndexController');
+
   require('controllers/notesController');
 
   require('controllers/lookupDataController');
@@ -1228,7 +1275,9 @@ window.require.register("initialize", function(exports, require, module) {
 
   require('templates/notes');
 
-  require('templates/note/_edit');
+  require('templates/note/new');
+
+  require('templates/note/index');
 
   require('templates/_cancellation');
 
@@ -1292,6 +1341,8 @@ window.require.register("initialize", function(exports, require, module) {
           path: 'employment/:employment_id'
         }, this.resource('note', {
           path: 'note/:note_id'
+        }, function() {
+          return this.route('new');
         }))));
       });
     });
@@ -1654,6 +1705,10 @@ window.require.register("routes/indexRoute", function(exports, require, module) 
 });
 window.require.register("routes/loadingRoute", function(exports, require, module) {
   App.LoadingRoute = Em.Route.extend();
+  
+});
+window.require.register("routes/noteNewRoute", function(exports, require, module) {
+  
   
 });
 window.require.register("store/RESTfulAdapter", function(exports, require, module) {
@@ -3336,7 +3391,7 @@ window.require.register("templates/index", function(exports, require, module) {
     hashTypes = {};
     hashContexts = {};
     options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
-    data.buffer.push(escapeExpression(((stack1 = helpers.smallDate || depth0.smallDate),stack1 ? stack1.call(depth0, "placementDate", options) : helperMissing.call(depth0, "smallDate", "placementDate", options))));
+    data.buffer.push(escapeExpression(((stack1 = helpers.shortDate || depth0.shortDate),stack1 ? stack1.call(depth0, "placementDate", options) : helperMissing.call(depth0, "shortDate", "placementDate", options))));
     data.buffer.push("</td><td style=\"width:10%\"><div class=\"pull-right\">");
     hashTypes = {};
     hashContexts = {};
@@ -3420,28 +3475,43 @@ window.require.register("templates/note", function(exports, require, module) {
     var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
 
 
+    data.buffer.push("<div class=\"row-fluid\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/note/index", function(exports, require, module) {
+  Ember.TEMPLATES["note/index"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, options, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
+
+
     data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "closeNote", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">&times;</button><h5 ");
-    hashContexts = {'': depth0};
-    hashTypes = {'': "STRING"};
-    data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
-      '': ("date")
-    },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">time</h5><div class=\"span2\"><p>Action Code: ");
+    data.buffer.push(">&times;</button><div class=\"span4\"><h5>");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "actionCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</p></div><p>Result Code: ");
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.date || depth0.date),stack1 ? stack1.call(depth0, "controllers.note.time", options) : helperMissing.call(depth0, "date", "controllers.note.time", options))));
+    data.buffer.push("</h5></div><div class=\"span3\"><h6>Action Code: ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "resultCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(" </p></div><div class=\"modal-body\"><p>");
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "controllers.note.actionCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</h6></div><h6>Result Code: ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "message", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "controllers.note.resultCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" </h6></div><div class=\"modal-body\"><p>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "controllers.note.message", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</p></div><div class=\"modal-footer\"><button class=\"btn\" ");
     hashTypes = {};
     hashContexts = {};
@@ -3451,8 +3521,8 @@ window.require.register("templates/note", function(exports, require, module) {
     
   });module.exports = module.id;
 });
-window.require.register("templates/note/_edit", function(exports, require, module) {
-  Ember.TEMPLATES["note/_edit"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+window.require.register("templates/note/new", function(exports, require, module) {
+  Ember.TEMPLATES["note/new"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
   helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
     var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
@@ -3461,87 +3531,22 @@ window.require.register("templates/note/_edit", function(exports, require, modul
     data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push(">&times;</button><h5>Historical Event</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Type </label><div class=\"controls\">");
-    hashContexts = {'id': depth0,'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
-    hashTypes = {'id': "STRING",'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'id': ("phoneTypes"),
-      'contentBinding': ("controllers.phoneTypes"),
-      'optionLabelPath': ("content.label"),
-      'optionValuePath': ("content.id"),
-      'selectionBinding': ("controllers.phoneTypes.selected"),
-      'prompt': ("Type ...")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><label class=\"control-label\">Country</label><div class=\"controls\">");
-    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
-    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("controllers.countries"),
-      'optionLabelPath': ("content.label"),
-      'optionValuePath': ("content.id"),
-      'selectionBinding': ("controllers.countries.selected"),
-      'prompt': ("Country ...")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><label class=\"control-label\">Phone</label><div class=\"controls\">");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelNewNote", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Historical Event</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Message </label><div class=\"controls\">");
     hashContexts = {'valueBinding': depth0,'placeholder': depth0};
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("phone"),
-      'placeholder': ("Phone")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><label class=\"control-label\">Extension</label><div class=\"controls\">");
-    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
-    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("extension"),
-      'placeholder': ("Extension")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><label class=\"control-label\">Score</label><div class=\"controls\">");
-    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
-    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
-      'valueBinding': ("score"),
-      'placeholder': ("Score")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><label class=\"control-label\">Status</label><div class=\"controls\">");
-    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
-    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("controllers.phoneStatuses"),
-      'optionLabelPath': ("content.label"),
-      'optionValuePath': ("content.id"),
-      'selectionBinding': ("controllers.phoneStatuses.selected"),
-      'prompt': ("Status ...")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><label class=\"control-label\">Source</label><div class=\"controls\">");
-    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
-    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("controllers.sources"),
-      'optionLabelPath': ("content.label"),
-      'optionValuePath': ("content.id"),
-      'selectionBinding': ("controllers.sources.selected"),
-      'prompt': ("Source ...")
-    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><label class=\"control-label\">Consent</label><div class=\"controls\">");
-    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
-    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
-      'contentBinding': ("controllers.yesNo"),
-      'optionLabelPath': ("content.label"),
-      'optionValuePath': ("content.id"),
-      'selectionBinding': ("controllers.yesNo.selected"),
-      'prompt': ("Consent ...")
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextArea", {hash:{
+      'valueBinding': ("controllers.note.message"),
+      'placeholder': ("Message")
     },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><button class=\"btn btn-success\" ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "saveNewNote", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push(">Done</button><button class=\"btn\" ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelNewNote", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
     data.buffer.push(">Cancel</button></div></div>");
     return buffer;
     

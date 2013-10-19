@@ -10,19 +10,19 @@ App.EditObjectController = Em.ObjectController.extend
   ).observes('@content.isLoaded')
 
   dirtied: (->
-    if (@get('transaction') == null || @get('transaction') == undefined) && @get('isDirty') == true
+    if not @get('transaction') && @get('isDirty') == true
       @set('transaction', @get('store').transaction())
   ).observes('isDirty')
 
   actions:
     edit: ->
       @set('isEditing', true)
-      @setSelection
+      @setSelections()
 
     doneEditing: ->
       @getSelections()
       
-      if @get('transaction') != null || @get('transaction') == undefined
+      if @get('transaction')
         @get('transaction').commit()
 
       @set('isEditing', false)
@@ -31,8 +31,9 @@ App.EditObjectController = Em.ObjectController.extend
     cancelEditing: ->
       @setSelections()
 
-      if @get('transaction') != null || @get('transaction') == undefined
+      if @get('transaction')
         @get('transaction').rollback()
+        @set('transaction', null)
 
       @set('isEditing', false)
       @transitionToRoute 'debtor'

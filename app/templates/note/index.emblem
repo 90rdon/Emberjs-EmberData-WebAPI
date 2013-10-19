@@ -1,0 +1,18 @@
+.modal
+  .modal-header
+    button.close{action 'closeNote'} &times;
+    .span4
+      h5
+        =date controllers.note.time
+    .span3
+      h6 Action Code:
+        {{controllers.note.actionCode}}
+    h6 Result Code:
+      {{controllers.note.resultCode}}
+
+  .modal-body
+    p
+      =controllers.note.message
+
+  .modal-footer
+    button.btn{action 'closeNote'} Close
