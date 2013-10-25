@@ -13,23 +13,13 @@ using hunter_warfield.WebAPI.Helpers;
 
 namespace hunter_warfield.WebAPI.Controllers
 {
-    public class IndexClientsController : ApiController//BaseApiController<Client, IndexClientDto, Int64>
+    public class ClientDebtorsController : ApiController
     {
-        public IndexClientsController() { } //Includes = new[] { "ClientDebtors" }; }
+        public ClientDebtorsController() { }
 
         private hwiContext db = new hwiContext();
 
-        //public override ClientDto Get(Int64 id)
-        //{
-        //    string idStr = id.ToString();
-
-        //    var result = GetObject(DataStore.Find<Client>(t => t.LegacyId == idStr, new[] { "ClientDebtors" }));
-
-        
-        //    return result;
-        //}
-
-        public IndexClientDto Get(Int64 id, Int32 page = 1, Int32 limit = 50)
+        public IEnumerable<IndexDebtorDto> Get(Int64 id, Int32 page = 1, Int32 limit = 50)
         {
             Int32 startIndex = (page - 1) * limit + 1;
             Int32 endIndex= page * limit;
@@ -42,14 +32,6 @@ namespace hunter_warfield.WebAPI.Controllers
             //    .Where(s => s.ClientId == client.Id)
             //    .AsEnumerable()
             //    .Select(d => new ClientDebtorDto(d));
-
-            StringBuilder countSql = new StringBuilder();
-            countSql.Append("SELECT");
-            countSql.Append("   COUNT(cnsmr_accnt_id) ");
-            countSql.Append("FROM ");
-            countSql.Append("   cnsmr_accnt ");
-            countSql.Append("WHERE");
-            countSql.Append("   crdtr_id = {0}");
 
             StringBuilder sql = new StringBuilder();
             sql.Append("SELECT");
@@ -136,27 +118,13 @@ namespace hunter_warfield.WebAPI.Controllers
 
             //var returnResult = new DebtorDto(result);
 
-            var indexClientDto = new IndexClientDto(client);
-
-            if (indexClientDto.Id <= 0)
-                return null;
-
-            var totalDebtors = db.Database.SqlQuery<Int32>(string.Format(countSql.ToString(), client.Id)).SingleOrDefault();
+            //var indexClientDto = new IndexClientDto(client);
 
             var indexDebtorDto = db.Database.SqlQuery<IndexDebtor>(string.Format(sql.ToString(), client.Id, startIndex, endIndex))
                 .AsEnumerable()
                 .Select(d => new IndexDebtorDto(d));
 
-            indexClientDto.IndexDebtors.AddRange(indexDebtorDto);
-
-            indexClientDto.TotalDebtors = totalDebtors;
-
-            return indexClientDto;
-        }
-
-        private ClientDto GetObject(params Client[] arg)
-        {
-            return (ClientDto)Activator.CreateInstance(typeof(ClientDto), arg);
+            return indexDebtorDto;
         }
     }
 }

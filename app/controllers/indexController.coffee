@@ -4,12 +4,6 @@ App.IndexController = App.ColumnSorterController.extend
     'dataFilter'
   ]
 
-  filterCriteria: [
-    'Active'
-    'Open'
-    'All'
-  ]
-
   params: (->
     @get('controllers.application.params')
   ).property('controllers.application.params')
@@ -72,9 +66,9 @@ App.IndexController = App.ColumnSorterController.extend
     @get('filtered')
   ).observes('search')
 
-  filterByStatus: (->
-    console.log 'filtering status ' + @get('filterStatus')
-  ).observes('filterStatus')
+  # filterByStatus: (->
+  #   console.log 'filtering status ' + @get('filterStatus')
+  # ).observes('filterStatus')
 
   sorted: (->
     result = Em.ArrayProxy.createWithMixins Em.SortableMixin, { content:@get('filteredContent'), sortProperties: @get('sortProperties'), sortAscending: @get('sortAscending') }
@@ -88,8 +82,8 @@ App.IndexController = App.ColumnSorterController.extend
   filteredContent: (->
     regexp = new RegExp(@get('search'))
     result = @get('content').filter (item) ->
-      regexp.test item.get('id')
-  ).property('search', 'content.@each.id')
+      regexp.test item.get('agencyId')
+  ).property('search', 'content.@each.agencyId')
 
   filtered: (->
     result = Em.ArrayProxy.createWithMixins Em.SortableMixin, { content:@get('filteredContent'), sortProperties: @get('sortProperties'), sortAscending: @get('sortAscending') }
@@ -98,25 +92,19 @@ App.IndexController = App.ColumnSorterController.extend
 
   # ----- paging -----
   page: 1
-  perPage: 25
-  totalPages: (->
-    Math.ceil @get('length') / @get('perPage')
-  ).property('length', 'perPage')
+  perPage: 50
+  totalCount: 0
+  loadingMore: false
 
+  actions:
+    getMore: ->
+      return if @get('loadingMore')
+      @set('loadingMore', true)
+      @get('target').send('getMore')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    gotMore: (items, page) ->
+      @set 'loadingMore', false
+      @set 'page', page
+      # console.log 'before count = ' + @get('length')
+      @pushObjects items
+      # console.log 'after count = ' + @get('length')

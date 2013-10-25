@@ -15,6 +15,10 @@ App.IndexDebtor = DS.Model.extend
 
   indexClient:          DS.belongsTo 'App.IndexClient'
 
+  computedStatus: (->
+    return 'NEW'   if not @get('status')
+    @get('status')
+  ).property('status')
 
   fullName: (->
     first   = @get('firstName') || ''

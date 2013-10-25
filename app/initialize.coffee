@@ -109,6 +109,7 @@ require 'views/confirmationView'
 require 'views/radioButtonView'
 require 'views/cancellationFeeView'
 require 'views/cancellationPopupView'
+require 'views/indexView'
 
 #/////////////////////////////////
 #// Store

@@ -26,9 +26,9 @@
                 i class="icon-chevron-down"
 
 
-  .scrollable-350
-    table.table.table-striped
-      tbody
+  #debtors-grid.scrollable-350
+    table#table-body.table.table-striped
+      .tbody
         each currentContent
           tr
             td style="width:15%"
@@ -49,4 +49,9 @@
                 =currBalance
             td style="width:10%"
               .pagination-centered
-                =status
+                =computedStatus
+
+  if controller.loadingMore
+    .pagination-centered
+      span.label.label-info style="margin-top:45px;"
+        h6 Loading more ...

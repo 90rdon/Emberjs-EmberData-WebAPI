@@ -71,13 +71,6 @@ App.Debtor = DS.Model.extend
     'state',
     'zip' )
 
-  # didLoad: ->
-  #   self = @
-  #   console.log 'debtor did load'
-  #   console.log 'notes = ' + self.get('notes')
-  #   setInterval (->
-  #     self.refresh()), 10*1000
-
   refresh: ->
     self = @
     self.reload()

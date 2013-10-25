@@ -42,7 +42,7 @@ App.DebtorController = App.EditObjectController.extend
   
   loaded:(->
     @set('loading', false)
-    fee = @get('controllers.application.params.feePercentage') * 100
+    fee = @get('controllers.application.params.feePercentage')
     fee = 20 unless fee < 20
     @set('cancellationFee', fee + '%')
   ).observes('content.isLoaded')

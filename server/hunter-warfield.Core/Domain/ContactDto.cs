@@ -42,9 +42,9 @@ namespace hunter_warfield.Core.Domain
 
         public Int64 Score { get; set; }
 
-        public Int16 Status { get; set; }
+        public Int16? Status { get; set; }
 
-        public Int16 Source { get; set; }
+        public Int16? Source { get; set; }
 
         public string Consent { get; set; }
 

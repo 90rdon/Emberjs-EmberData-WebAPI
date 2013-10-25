@@ -2,7 +2,7 @@
   .row-fluid
     .span12
       address
-        h3
+        h4
           =title
           |  
           =fullName
