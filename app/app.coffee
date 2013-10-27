@@ -5,12 +5,12 @@ module.exports = Em.Application.create
 
   # web API
   # prod
-  serverUrl:        'https://crmtitaniuminterface.hunterwarfield.com'
-  serverNamespace:  'api'
+  # serverUrl:        'https://crmtitaniuminterface.hunterwarfield.com'
+  # serverNamespace:  'api'
   
-  # #dev
-  # serverUrl:        'http://10.211.55.4'
-  # serverNamespace:  'hunter-warfield/api'
+  #dev
+  serverUrl:        'http://10.211.55.4'
+  serverNamespace:  'hunter-warfield/api'
 
 
   paymentPostingUrl:'http://paymentposting.hunterwarfield.com'
