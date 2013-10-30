@@ -22,6 +22,16 @@ namespace hunter_warfield.Core.Domain
 
         [Key]
         public Int64 Id { get; set; }
+        // 6
+        public decimal TotalOriginalBalance { get; set; }
+        // 2
+        public decimal CurrentBalance { get; set; }
+        // 3
+        public decimal TotalPayment { get; set; }
+
+        public string Status { get; set; }
+
+        public DateTime PlacementDate { get; set; }
 
         public Int64 AgencyId { get; set; }
 

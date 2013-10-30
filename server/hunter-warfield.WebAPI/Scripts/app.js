@@ -1,4 +1,4339 @@
-(function(){"use strict";var e="undefined"!=typeof window?window:global;if("function"!=typeof e.require){var t={},n={},i=function(e,t){return{}.hasOwnProperty.call(e,t)},r=function(e,t){var n,i,r=[];n=/^\.\.?(\/|$)/.test(t)?[e,t].join("/").split("/"):t.split("/");for(var s=0,a=n.length;a>s;s++)i=n[s],".."===i?r.pop():"."!==i&&""!==i&&r.push(i);return r.join("/")},s=function(e){return e.split("/").slice(0,-1).join("/")},a=function(t){return function(n){var i=s(t),a=r(i,n);return e.require(a)}},o=function(e,t){var i={id:e,exports:{}};t(i.exports,a(e),i);var r=n[e]=i.exports;return r},l=function(e){var s=r(e,".");if(i(n,s))return n[s];if(i(t,s))return o(s,t[s]);var a=r(s,"./index");if(i(n,a))return n[a];if(i(t,a))return o(a,t[a]);throw Error('Cannot find module "'+e+'"')},c=function(e,n){if("object"==typeof e)for(var r in e)i(e,r)&&(t[r]=e[r]);else t[e]=n};e.require=l,e.require.define=c,e.require.register=c,e.require.brunch=!0}})(),window.require.register("app",function(e,t,n){n.exports=Em.Application.create({LOG_TRANSITIONS:!0,serverUrl:"https://crmtitaniuminterface.hunterwarfield.com",serverNamespace:"api",paymentPostingUrl:"http://paymentposting.hunterwarfield.com"})}),window.require.register("controllers/applicationController",function(){App.ApplicationController=Em.Controller.extend({params:[]})}),window.require.register("controllers/contactController",function(){App.ContactController=App.EditObjectController.extend({needs:["debtor","countries","phoneTypes","phoneStatuses","sources","yesNo"],isConfirming:!1,labelPhoneType:function(){var e;return e=this.get("controllers.phoneTypes").findProperty("id",this.get("type")),null===e||void 0===e?null:e.label}.property("type"),labelPhoneStatus:function(){var e;return e=this.get("controllers.phoneStatuses").findProperty("id",this.get("status")),null===e||void 0===e?null:e.label}.property("status"),setSelections:function(){return this.get("controllers.countries").setSelectedByIdStr(this.get("country")),this.get("controllers.phoneTypes").setSelectedById(this.get("type")),this.get("controllers.phoneStatuses").setSelectedById(this.get("status")),this.get("controllers.sources").setSelectedById(this.get("source")),this.get("controllers.yesNo").setSelectedById(this.get("consent"))},getSelections:function(){return this.set("country",this.get("controllers.countries").getSelectedId()),this.set("type",this.get("controllers.phoneTypes").getSelectedId()),this.set("status",this.get("controllers.phoneStatuses").getSelectedId()),this.set("source",this.get("controllers.sources").getSelectedId()),this.set("consent",this.get("controllers.yesNo").getSelectedId())}})}),window.require.register("controllers/contactsController",function(){App.ContactsController=App.ColumnSorterController.extend({needs:["debtor","contact","phoneTypes"],itemController:"contact",columns:function(){return[Em.Object.create({column:"phone"}),Em.Object.create({column:"extension"}),Em.Object.create({column:"type"}),Em.Object.create({column:"status"})]}.property(),actions:{create:function(){var e;return e=this.get("store").transaction(),this.transitionToRoute("contact",e.createRecord(App.Contact,{debtor:this.get("controllers.debtor").content,debtorId:this.get("controllers.debtor").content.id}))},"delete":function(e){return e.deleteRecord(),this.get("store").commit()}}})}),window.require.register("controllers/debtorController",function(){App.DebtorController=App.EditObjectController.extend({needs:["contacts","employments","persons","notes","countries","consumerFlags","titles","suffixes","validInvalid","yesNo","application","cancellationCodes","actionCodes","resultCodes","debtorAccount"],toCancel:!1,toHold:!1,loading:!0,processing:!1,cancellationSuccess:!1,holdSuccess:!1,confirmationNumber:null,cancellationFee:0,showCancellationWarning:!1,accountId:function(){return this.get("controllers.debtorAccount.id")}.property("controllers.debtorAccount.id"),params:function(){return this.get("controllers.application.params")}.property("controllers.application.params"),disableEdit:function(){return"true"===this.get("params.canEditDebtor")?!1:!0}.property(),loaded:function(){var e;return this.set("loading",!1),e=this.get("controllers.application.params.feePercentage"),20>e||(e=20),this.set("cancellationFee",e+"%")}.observes("content.isLoaded"),setSelections:function(){return this.get("controllers.consumerFlags").setSelectedById(this.get("type")),this.get("controllers.titles").setSelectedById(this.get("title")),this.get("controllers.suffixes").setSelectedById(this.get("suffix")),this.get("controllers.validInvalid").setSelectedById(this.get("emailValidity")),this.get("controllers.yesNo").setSelectedById(this.get("optIn")),this.get("controllers.countries").setSelectedById(this.get("country"))},getSelections:function(){return this.set("type",this.get("controllers.consumerFlags").getSelectedId()),this.set("title",this.get("controllers.titles").getSelectedId()),this.set("suffix",this.get("controllers.suffixes").getSelectedId()),this.set("emailValidity",this.get("controllers.validInvalid").getSelectedId()),this.set("optIn",this.get("controllers.yesNo").getSelectedId()),this.set("country",this.get("controllers.countries").getSelectedId())},actions:{close:function(){return this.set("isEditing",!1),window.close()},makePayment:function(){return window.open(App.paymentPostingUrl)},sendCancellation:function(){var e;return e=this,parseInt(this.get("cancellationFee").replace("%",""))>20?this.set("showCancellationWarning",!0):(this.set("showCancellationWarning",!1),this.set("toCancel",!1),this.set("processing",!0),$.ajax({url:App.serverUrl+"/"+App.serverNamespace+"/cancellation",dataType:"json",type:"POST",data:{accountId:this.get("accountId"),agencyId:this.get("controllers.debtorAccount.agencyId"),userId:this.get("params.userId"),shortCode:this.get("controllers.cancellationCodes").getSelectedId(),debtorId:this.get("id"),clientId:this.get("params.clientId"),creditorId:this.get("creditorId")},success:function(){return e.get("content").refresh(),Em.run.later(function(){return e.set("processing",!1),e.set("cancellationSuccess",!0)},5e3)}}))},sendHold:function(){var e;return e=this,this.set("toHold",!1),this.set("processing",!0),$.ajax({url:App.serverUrl+"/"+App.serverNamespace+"/holdAccount",dataType:"json",type:"POST",data:{accountId:this.get("accountId"),agencyId:this.get("controllers.debtorAccount.agencyId"),userId:this.get("params.userId"),debtorId:this.get("id"),clientId:this.get("params.clientId"),creditorId:this.get("creditorId")},success:function(){return e.get("content").refresh(),Em.run.later(function(){return e.set("processing",!1),e.set("holdSuccess",!0)},5e3)}})},cancellation:function(){return this.toggleProperty("toCancel"),!1},holdAccount:function(){return this.toggleProperty("toHold"),!1},hideLoading:function(){return this.toggleProperty("loading"),!1},showProcessing:function(){return this.toggleProperty("processing"),!1},closeCancelSuccess:function(){return this.toggleProperty("cancellationSuccess"),!1},closeHoldSuccess:function(){return this.toggleProperty("holdSuccess"),!1}}})}),window.require.register("controllers/debtorsController",function(){App.DebtorsController=App.ColumnSorterController.extend({columns:function(){return[Em.Object.create({column:"id"}),Em.Object.create({column:"firstName"}),Em.Object.create({column:"middleName"}),Em.Object.create({column:"lastName"}),Em.Object.create({column:"address1"}),Em.Object.create({column:"address2"}),Em.Object.create({column:"city"}),Em.Object.create({column:"state"}),Em.Object.create({column:"zip"})]}.property(),loaded:function(){return this.get("filtered")}.observes("@content.isLoaded"),filtering:function(){return this.get("filtered")}.observes("search"),filtered:function(){var e;return e=RegExp(this.get("search")),this.get("content").filter(function(t){return e.test(t.get("id"))})}.property("search","content.@each.id")})}),window.require.register("controllers/employmentController",function(){App.EmploymentController=App.EditObjectController.extend({needs:["debtor","associations","employmentStatuses","countries","sources"],labelEmploymentStatus:function(){var e;return e=this.get("controllers.employmentStatuses").findProperty("id",this.get("status")),null===e||void 0===e?null:e.label}.property("status"),labelSource:function(){var e;return e=this.get("controllers.sources").findProperty("id",this.get("source")),null===e||void 0===e?null:e.label}.property("source"),setSelections:function(){return this.get("controllers.associations").setSelectedById(this.get("association")),this.get("controllers.countries").setSelectedByIdStr(this.get("country")),this.get("controllers.employmentStatuses").setSelectedById(this.get("status")),this.get("controllers.sources").setSelectedById(this.get("source"))},getSelections:function(){return this.set("country",this.get("controllers.countries").getSelectedId()),this.set("status",this.get("controllers.employmentStatuses").getSelectedId()),this.set("association",this.get("controllers.associations").getSelectedId()),this.set("source",this.get("controllers.sources").getSelectedId())}})}),window.require.register("controllers/employmentsController",function(){App.EmploymentsController=App.ColumnSorterController.extend({needs:["debtor","employment"],columns:function(){return[Em.Object.create({column:"name"}),Em.Object.create({column:"status"}),Em.Object.create({column:"source"}),Em.Object.create({column:"phone"}),Em.Object.create({column:"title"}),Em.Object.create({column:"hireDate"})]}.property(),actions:{create:function(){var e;return e=this.get("store").transaction(),this.transitionToRoute("employment",e.createRecord(App.Employment,{debtor:this.get("controllers.debtor").content,debtorId:this.get("controllers.debtor").content.id}))},"delete":function(e){return e.deleteRecord(),this.get("store").commit()}}})}),window.require.register("controllers/helpers/columnItemController",function(){App.ColumnItemController=Em.ObjectController.extend({sortColumn:Em.computed.alias("parentController.sortedColumn"),sortAscending:Em.computed.alias("parentController.sortAscending"),sortDescending:Em.computed.not("sortAscending"),isSorted:function(){return this.get("sortColumn")===this.get("column")}.property("sortColumn","column"),sortedAsc:Em.computed.and("sortAscending","isSorted"),sortedDesc:Em.computed.and("sortDescending","isSorted")})}),window.require.register("controllers/helpers/columnSorterController",function(){App.ColumnSorterController=Em.ArrayController.extend({columns:[],sortedColumn:function(){var e;return e=this.get("sortProperties"),e?e.get("firstObject"):"undefined"}.property("sortProperties.[]"),actions:{toggleSort:function(e){return this.get("sortedColumn")===e?this.toggleProperty("sortAscending"):(this.set("sortProperties",[e]),this.set("sortAscending",!0))}}})}),window.require.register("controllers/helpers/editObjectController",function(){App.EditObjectController=Em.ObjectController.extend({isEditing:!1,confirmationId:function(){return"content-"+this.get("id")}.property("id"),loaded:function(){return this.setSelections()}.observes("@content.isLoaded"),dirtied:function(){return this.get("transaction")||this.get("isDirty")!==!0?void 0:this.set("transaction",this.get("store").transaction())}.observes("isDirty"),actions:{edit:function(){return this.set("isEditing",!0),this.setSelections()},doneEditing:function(){return this.getSelections(),this.get("transaction")&&this.get("transaction").commit(),this.set("isEditing",!1),this.transitionToRoute("debtor")},cancelEditing:function(){return this.setSelections(),this.get("transaction")&&(this.get("transaction").rollback(),this.set("transaction",null)),this.set("isEditing",!1),this.transitionToRoute("debtor")},deleteRecord:function(e){return e.deleteRecord(),this.get("store").commit()}}})}),window.require.register("controllers/indexController",function(){App.IndexController=App.ColumnSorterController.extend({needs:["application","dataFilter"],params:function(){return this.get("controllers.application.params")}.property("controllers.application.params"),columns:function(){return[Em.Object.create({column:"id",label:"accountNumber",width:"width:15%;",align:"text-align:left;"}),Em.Object.create({column:"fullName",label:"name",width:"width:30%;",align:"text-align:left;"}),Em.Object.create({column:"placementDate",label:"placementDate",width:"width:15%;",align:"text-align:left;"}),Em.Object.create({column:"totalOriginalBalance",label:"originalBalance",width:"width:10%;",align:"text-align:right;"}),Em.Object.create({column:"totalPayment",label:"totalPayment",width:"width:10%;",align:"text-align:right;"}),Em.Object.create({column:"currentBalance",label:"currentBalance",width:"width:10%;",align:"text-align:right;"}),Em.Object.create({column:"status",label:"status",width:"width:10%;",align:"text-align:center;"})]}.property(),currentContent:Em.A([]),filterStatus:null,loaded:function(){return this.set("sortProperties",["placementDate"]),this.set("sortAscending",!1)}.observes("content.isLoaded"),filterDebtors:function(){return this.get("filtered")}.observes("search"),sorted:function(){var e;return e=Em.ArrayProxy.createWithMixins(Em.SortableMixin,{content:this.get("filteredContent"),sortProperties:this.get("sortProperties"),sortAscending:this.get("sortAscending")}),this.set("currentContent",e)}.observes("arrangedContent","sortAscending"),changed:function(){return this.get("filtered")}.observes("content.@each"),filteredContent:function(){var e,t;return e=RegExp(this.get("search")),t=this.get("content").filter(function(t){return e.test(t.get("agencyId"))})}.property("search","content.@each.agencyId"),filtered:function(){var e;return e=Em.ArrayProxy.createWithMixins(Em.SortableMixin,{content:this.get("filteredContent"),sortProperties:this.get("sortProperties"),sortAscending:this.get("sortAscending")}),this.set("currentContent",e)}.observes("filteredContent"),page:1,perPage:50,totalCount:0,loadingMore:!1,actions:{getMore:function(){return this.get("loadingMore")?void 0:(this.set("loadingMore",!0),this.get("target").send("getMore"))},gotMore:function(e,t){return this.set("loadingMore",!1),this.set("page",t),this.pushObjects(e)}}})}),window.require.register("controllers/lookupDataController",function(){App.LookupDataController=Em.ArrayController.extend({selected:null,getSelectedId:function(){return this.get("selected.id")},getObjectById:function(e){return this.get("content").filterProperty("id",e).get("firstObject")},getLabelById:function(e){return this.get("content").filterProperty("id",e).get("firstObject.type")},setSelectedById:function(e){return this.set("selected",this.getObjectById(e))}}),App.ConsumerFlagsController=App.LookupDataController.extend({content:[Em.Object.create({id:"N",label:"Consumer"}),Em.Object.create({id:"Y",label:"Commerical"})]}),App.TitlesController=App.LookupDataController.extend({content:[Em.Object.create({id:"Dr."}),Em.Object.create({id:"Miss"}),Em.Object.create({id:"Mr."}),Em.Object.create({id:"Mrs."}),Em.Object.create({id:"Ms."}),Em.Object.create({id:"Prof"})]}),App.SuffixesController=App.LookupDataController.extend({content:[Em.Object.create({id:"Jr."}),Em.Object.create({id:"Sr."}),Em.Object.create({id:"Esq."}),Em.Object.create({id:"I"}),Em.Object.create({id:"II"}),Em.Object.create({id:"III"})]}),App.ValidInvalidController=App.LookupDataController.extend({content:[Em.Object.create({id:1,label:"Valid"}),Em.Object.create({id:2,label:"Invalid"})]}),App.YesNoController=App.LookupDataController.extend({content:[Em.Object.create({id:"Y",label:"Yes"}),Em.Object.create({id:"N",label:"No"})]}),App.PhoneTypesController=App.LookupDataController.extend({content:[Em.Object.create({id:0,label:"Unknown"}),Em.Object.create({id:1,label:"Home"}),Em.Object.create({id:2,label:"Work"}),Em.Object.create({id:3,label:"Cell"}),Em.Object.create({id:4,label:"Fax"}),Em.Object.create({id:5,label:"VOIP"})]}),App.PhoneStatusesController=App.LookupDataController.extend({content:[Em.Object.create({id:0,label:"Unknown"}),Em.Object.create({id:1,label:"Valid"}),Em.Object.create({id:2,label:"Invalid"}),Em.Object.create({id:3,label:"New"}),Em.Object.create({id:4,label:"Valid - Do not call"})]}),App.SourcesController=App.LookupDataController.extend({content:[Em.Object.create({id:0,label:"Unknown"}),Em.Object.create({id:1,label:"Type In"}),Em.Object.create({id:2,label:"Client"}),Em.Object.create({id:3,label:"Skip Trance"}),Em.Object.create({id:4,label:"Consumer Portal"})]}),App.AssociationsController=App.LookupDataController.extend({content:[Em.Object.create({id:"1",label:"Consumer"}),Em.Object.create({id:"2",label:"Spouse"})]}),App.EmploymentStatusesController=App.LookupDataController.extend({content:[Em.Object.create({id:1,label:"Employed"}),Em.Object.create({id:2,label:"Full Time"}),Em.Object.create({id:3,label:"Part Time"}),Em.Object.create({id:4,label:"Unemployed"}),Em.Object.create({id:5,label:"Other"}),Em.Object.create({id:6,label:"Self Employed"})]}),App.CountriesController=App.LookupDataController.extend({getObjectByIdStr:function(e){return this.get("content").filterProperty("idStr",e).get("firstObject")},setSelectedByIdStr:function(e){return this.set("selected",this.getObjectByIdStr(e))},loaded:function(){return this.set("sortAscending",!0)}.observes("@content.isloaded")}),App.RelationshipsController=App.LookupDataController.extend({getObjectByIdNum:function(e){return this.get("content").filterProperty("idNum",e).get("firstObject")},setSelectedByIdNum:function(e){return this.set("selected",this.getObjectByIdNum(e))}}),App.ActionCodesController=App.LookupDataController.extend({loaded:function(){return this.set("sortAscending",!0)}.observes("@content.isloaded")}),App.ResultCodesController=App.LookupDataController.extend({loaded:function(){return this.set("sortAscending",!0)}.observes("@content.isloaded")}),App.CancellationCodesController=App.LookupDataController.extend({content:[Em.Object.create({id:"A-CBC",label:"Cancelled by Client"}),Em.Object.create({id:"A-CBK",label:"Cancelled - Bankruptcy"}),Em.Object.create({id:"A-CBA",label:"Cancelled by Agency"}),Em.Object.create({id:"A-CDA",label:"Cancelled Duplicate Account"}),Em.Object.create({id:"A-CDE",label:"Cancelled Data Load Error"}),Em.Object.create({id:"A-CII",label:"Cancelled due to incomplete information"}),Em.Object.create({id:"A-COB",label:"Cancelled Out of Business"}),Em.Object.create({id:"A-CPF",label:"Cancelled Possible Fraud"}),Em.Object.create({id:"A-CPP",label:"Cancelled Paid Prior to Placement"})]}),App.DataFilterController=App.LookupDataController.extend({content:[Em.Object.create({name:"Active",value:"active"}),Em.Object.create({name:"Open",value:"open"}),Em.Object.create({name:"All",value:"all"})]})}),window.require.register("controllers/noteController",function(){App.NoteController=App.EditObjectController.extend({needs:["debtorAccount","actionCodes","resultCodes","application","debtor"],labelActionCode:function(){var e;return e=this.get("controllers.actionCodes").findProperty("id",this.get("actionCode")),null===e||void 0===e?this.get("actionCode"):e.value}.property("actionCode"),setSelections:function(){return!1},getSelections:function(){return!1},actions:{saveNote:function(){return this.set("content.actionCode",211),this.set("content.resultCode",266),this.set("userId",this.get("controllers.application.params.userId")),this.set("debtorId",this.get("controllers.debtor.id")),this.set("debtor",this.get("controllers.debtor.content")),this.send("doneEditing")},closeNote:function(){return this.transitionToRoute("debtor")},cancelNote:function(){return this.send("cancelEditing")}}})}),window.require.register("controllers/noteIndexController",function(){App.NoteIndexController=Em.ObjectController.extend({needs:["note"],actions:{closeNote:function(){return this.transitionToRoute("debtor")}}})}),window.require.register("controllers/noteNewController",function(){App.NoteNewController=Em.ObjectController.extend({needs:["note","application","debtor"],actions:{saveNewNote:function(){return this.get("controllers.note").send("saveNote")},cancelNewNote:function(){return this.get("controllers.note").send("cancelNote")}}})}),window.require.register("controllers/notesController",function(){App.NotesController=App.ColumnSorterController.extend({needs:["actionCodes","debtor","note"],columns:function(){return[Em.Object.create({column:"time"}),Em.Object.create({column:"actionCode"}),Em.Object.create({column:"resultCode"}),Em.Object.create({column:"message"})]}.property(),loaded:function(){return this.set("sortProperties",["time"]),this.set("sortAscending",!1)}.observes("content.@each"),actions:{create:function(){var e;return e=this.get("store").transaction(),this.transitionToRoute("note.new",e.createRecord(App.Note,{debtor:this.get("controllers.debtor").content,debtorId:this.get("controllers.debtor").content.id}))}}})}),window.require.register("controllers/personController",function(){App.PersonController=App.EditObjectController.extend({needs:["countries","relationships","titles","suffixes"],relationshipLoaded:function(){return this.get("labelRelationship")}.observes("@controllers.relationships.isLoaded"),labelRelationship:function(){var e;return e=this.get("controllers.relationships.content").findProperty("idNum",this.get("relationship")),null===e||void 0===e?null:e.label}.property("relationship"),setSelections:function(){return this.get("controllers.countries").setSelectedByIdStr(this.get("country")),this.get("controllers.relationships").setSelectedByIdNum(this.get("relationship")),this.get("controllers.titles").setSelectedById(this.get("title")),this.get("controllers.suffixes").setSelectedById(this.get("suffix"))},getSelections:function(){return this.set("country",this.get("controllers.countries").getSelectedId()),this.set("relationship",this.get("controllers.relationships").getSelectedId()),this.set("title",this.get("controllers.titles").getSelectedId()),this.set("suffix",this.get("controllers.suffixes").getSelectedId())}})}),window.require.register("controllers/personsController",function(){App.PersonsController=App.ColumnSorterController.extend({needs:["debtor","person"],columns:function(){return[Em.Object.create({column:"name"}),Em.Object.create({column:"relationship"}),Em.Object.create({column:"phone"}),Em.Object.create({column:"city"}),Em.Object.create({column:"state"}),Em.Object.create({column:"comment"})]}.property(),actions:{create:function(){var e;return e=this.get("store").transaction(),this.transitionToRoute("person",e.createRecord(App.Person,{debtor:this.get("controllers.debtor").content,debtorId:this.get("controllers.debtor").content.id}))},"delete":function(e){var t;return t=this.get("store").transaction(),t.add(e),e.deleteRecord(),t.commit()}}})}),window.require.register("helpers/datePicker",function(){App.DatePicker=Em.TextField.extend({classNames:["date-picker"],textToDateTransform:function(e,t){var n,i,r;return 2===arguments.length?t&&/\d{4}-\d{2}-\d{2}/.test(t)?(r=t.split("-"),n=new Date,n.setYear(r[0]),n.setMonth(r[1]-1),n.setDate(r[2]),this.set("date",n)):this.set("date",null):!t&&this.get("date")?(i=this.get("date").getMonth()+1,n=this.get("date").getDate(),10>i&&(i="0"+i),10>n&&(n="0"+n),"%@-%@-%@".fmt(this.get("date").getFullYear(),i,n)):t}.property(),placeholder:"yyyy-mm-dd",size:8,valueBinding:"textToDateTransform"})}),window.require.register("helpers/handlebarsHelpers",function(){Em.Handlebars.helper("titleize",function(e){var t,n;return null===e||void 0===e?e:(n=e.replace(/^([a-z])/,function(e){return e.toUpperCase()}),t=Handlebars.Utils.escapeExpression(n),new Handlebars.SafeString(t))}),Em.Handlebars.helper("humanize",function(e){var t;return null===e||void 0===e?e:(e=e.replace(/([A-Z]+|[0-9]+)/g," $1").replace(/^./,function(e){return e.toUpperCase()}),t=Handlebars.Utils.escapeExpression(e),new Handlebars.SafeString(t))}),Em.Handlebars.helper("shortDate",function(e){var t;return null===e||void 0===e?e:(t=moment(e).format("MM/DD/YYYY"),new Handlebars.SafeString(t))}),Em.Handlebars.helper("date",function(e){var t;return null===e||void 0===e?e:(t=Handlebars.Utils.escapeExpression(e.toLocaleDateString()),new Handlebars.SafeString(t))}),Em.Handlebars.helper("percent",function(e){var t;return null===e||void 0===e?e:(t=Handlebars.Utils.escapeExpression(e.toFixed(0)+"%"),new Handlebars.SafeString(t))}),Em.Handlebars.helper("currency",function(e){var t;return null===e||void 0===e?e:(t=Handlebars.Utils.escapeExpression("$"+e.toFixed(2)),new Handlebars.SafeString(t))}),Em.Handlebars.helper("summarize",function(e){var t;return null===e||void 0===e?e:(e=e.substr(0,255)+" ...",t=Handlebars.Utils.escapeExpression(e),new Handlebars.SafeString(t))}),Em.Handlebars.helper("toFixed",function(e,t){return e.toFixed(t)})}),window.require.register("helpers/pollster",function(){App.Pollster={start:function(){return this.timer=setInterval(this.onPoll.bind(this),5e3)},stop:function(){return clearInterval(this.timer)},onPoll:function(){return App.NotesController.refresh()}}}),window.require.register("initialize",function(e,t){window.App=t("app"),t("helpers/handlebarsHelpers"),t("controllers/applicationController"),t("controllers/helpers/columnItemController"),t("controllers/helpers/columnSorterController"),t("controllers/helpers/editObjectController"),t("controllers/contactController"),t("controllers/contactsController"),t("controllers/debtorController"),t("controllers/debtorsController"),t("controllers/indexController"),t("controllers/personsController"),t("controllers/personController"),t("controllers/employmentController"),t("controllers/employmentsController"),t("controllers/noteController"),t("controllers/noteNewController"),t("controllers/noteIndexController"),t("controllers/notesController"),t("controllers/lookupDataController"),t("models/client"),t("models/contact"),t("models/debtor"),t("models/employment"),t("models/note"),t("models/person"),t("models/relationship"),t("models/country"),t("models/phoneTypes"),t("models/actionCode"),t("models/resultCode"),t("models/debtorAccount"),t("models/indexClient"),t("models/indexDebtor"),t("models/debtorNote"),t("routes/indexRoute"),t("routes/debtorAccountRoute"),t("routes/loadingRoute"),t("templates/_well"),t("templates/about"),t("templates/application"),t("templates/contact/_edit"),t("templates/contact"),t("templates/contacts"),t("templates/contactDetail"),t("templates/debtor/_edit"),t("templates/debtor"),t("templates/debtorDetail"),t("templates/debtorAccount"),t("templates/index"),t("templates/person/_edit"),t("templates/person"),t("templates/persons"),t("templates/employment/_edit"),t("templates/employment"),t("templates/employments"),t("templates/note"),t("templates/notes"),t("templates/note/new"),t("templates/note/index"),t("templates/_cancellation"),t("templates/modal_layout"),t("templates/empty"),t("templates/_confirmation"),t("templates/_hold"),t("templates/_cancellationSuccess"),t("templates/_holdSuccess"),t("templates/_processing"),t("templates/loading"),t("templates/_cancellationWarning"),t("views/scrollView"),t("views/datePickerField"),t("views/modalView"),t("views/confirmationView"),t("views/radioButtonView"),t("views/cancellationFeeView"),t("views/cancellationPopupView"),t("views/indexView"),t("store/webapi/serializer"),t("store/webapi/adapter"),t("store/RESTfulAdapter"),App.AJAX_LOADER_IMG="/images/ajax_loader.gif",App.DEFAULT_CSS_TRANSITION_DURATION_MS=250,App.Router.map(function(){return this.resource("index",{path:"/:client_id"}),this.resource("debtorAccount",{path:"account/:debtor_account_id"},function(){return this.resource("debtor",{path:"debtor/:debtor_id"},function(){return this.resource("contact",{path:"contact/:contact_id"},this.resource("person",{path:"person/:person_id"},this.resource("employment",{path:"employment/:employment_id"},this.resource("note",{path:"note/:note_id"},function(){return this.route("new")}))))})})})}),window.require.register("models/actionCode",function(){App.ActionCode=DS.Model.extend({value:DS.attr("string"),description:DS.attr("string")})}),window.require.register("models/cancellation",function(){App.Cancellation=DS.Model.extend({debtorId:DS.attr("number"),actionCode:DS.attr("string"),resultCode:DS.attr("string")})}),window.require.register("models/client",function(){App.Client=DS.Model.extend({clientId:DS.attr("number"),legacyId:DS.attr("string"),description:DS.attr("string"),debtorAccounts:DS.hasMany("App.DebtorAccount")})}),window.require.register("models/contact",function(){App.Contact=DS.Model.extend({type:DS.attr("number"),typeLabel:DS.attr("string"),country:DS.attr("string"),phone:DS.attr("string"),extension:DS.attr("string"),score:DS.attr("number"),status:DS.attr("number"),source:DS.attr("number"),consent:DS.attr("string"),debtorId:DS.attr("number"),debtor:DS.belongsTo("App.Debtor")})}),window.require.register("models/country",function(){App.Country=DS.Model.extend({label:DS.attr("string"),idStr:function(){return this.get("id")+""}.property("id")})}),window.require.register("models/debtor",function(){App.Debtor=DS.Model.extend({type:DS.attr("string"),title:DS.attr("string"),lastName:DS.attr("string"),firstName:DS.attr("string"),middleName:DS.attr("string"),suffix:DS.attr("string"),dob:DS.attr("isodate"),ssn:DS.attr("string"),ein:DS.attr("string"),martialStatus:DS.attr("string"),email:DS.attr("string"),emailValidity:DS.attr("number"),optIn:DS.attr("string"),contact:DS.attr("string"),country:DS.attr("number"),address1:DS.attr("string"),address2:DS.attr("string"),address3:DS.attr("string"),city:DS.attr("string"),state:DS.attr("string"),zip:DS.attr("string"),county:DS.attr("string"),dlIssuer:DS.attr("string"),dlNumber:DS.attr("string"),passport:DS.attr("string"),pin:DS.attr("string"),debtorAccount:DS.belongsTo("App.DebtorAccount"),contacts:DS.hasMany("App.Contact"),persons:DS.hasMany("App.Person"),employments:DS.hasMany("App.Employment"),notes:DS.hasMany("App.Note"),fullName:function(){var e,t,n;return e=this.get("firstName")||"",n=this.get("middleName")||"",t=this.get("lastName")||"",e+" "+n+" "+t}.property("firstName","lastName","middleName"),fullNameWithTitle:function(){var e,t,n,i,r;return r=this.get("title")||"",e=this.get("firstName")||"",n=this.get("middleName")||"",t=this.get("lastName")||"",i=this.get("suffix")||"",r+" "+e+" "+n+" "+t+" "+i}.property("title","firstName","lastName","middleName","suffix"),fullAddress:function(){var e,t,n,i,r,s;return e=this.get("address1")||"",t=this.get("address2")||"",n=this.get("address3")||"",i=this.get("city")||"",r=this.get("state")||"",s=this.get("zip")||"",e+" "+t+" "+n+i+" "+r+" "+s}.property("address1","address2","address3","city","state","zip"),refresh:function(){var e;return e=this,e.reload()}})}),window.require.register("models/debtorAccount",function(){App.DebtorAccount=DS.Model.extend({debtorId:DS.attr("number"),agencyId:DS.attr("number"),creditorId:DS.attr("number"),client:DS.belongsTo("App.Client"),debtor:DS.belongsTo("App.Debtor")})}),window.require.register("models/debtorNote",function(){App.DebtorNote=DS.Model.extend({time:DS.attr("date"),actionCode:DS.attr("number"),resultCode:DS.attr("number"),message:DS.attr("string"),userid:DS.attr("number"),clientId:DS.attr("number"),debtorId:DS.attr("number")})}),window.require.register("models/employment",function(){App.Employment=DS.Model.extend({association:DS.attr("number"),name:DS.attr("string"),monthlyNetIncome:DS.attr("number"),position:DS.attr("string"),hireDate:DS.attr("isodate"),phone:DS.attr("string"),website:DS.attr("string"),status:DS.attr("number"),source:DS.attr("number"),jobTitle:DS.attr("string"),terminationDate:DS.attr("isodate"),yearlyIncome:DS.attr("number"),monthlyGrossIncome:DS.attr("number"),country:DS.attr("number"),address1:DS.attr("string"),address2:DS.attr("string"),address3:DS.attr("string"),city:DS.attr("string"),state:DS.attr("string"),zip:DS.attr("string"),county:DS.attr("string"),debtorId:DS.attr("number"),debtor:DS.belongsTo("App.Debtor")})}),window.require.register("models/indexClient",function(){App.IndexClient=DS.Model.extend({clientId:DS.attr("number"),legacyId:DS.attr("string"),description:DS.attr("string"),totalDebtors:DS.attr("number"),indexDebtors:DS.hasMany("App.IndexDebtor")})
-}),window.require.register("models/indexDebtor",function(){App.IndexDebtor=DS.Model.extend({debtorId:DS.attr("number"),title:DS.attr("string"),lastName:DS.attr("string"),firstName:DS.attr("string"),middleName:DS.attr("string"),suffix:DS.attr("string"),totalOriginalBalance:DS.attr("number"),currentBalance:DS.attr("number"),totalPayment:DS.attr("number"),clientId:DS.attr("number"),status:DS.attr("string"),placementDate:DS.attr("date"),agencyId:DS.attr("number"),indexClient:DS.belongsTo("App.IndexClient"),computedStatus:function(){return this.get("status")?this.get("status"):"NEW"}.property("status"),fullName:function(){var e,t,n;return e=this.get("firstName")||"",n=this.get("middleName")||"",t=this.get("lastName")||"",e+" "+n+" "+t}.property("firstName","lastName","middleName"),fullNameWithTitle:function(){var e,t,n,i,r;return r=this.get("title")||"",e=this.get("firstName")||"",n=this.get("middleName")||"",t=this.get("lastName")||"",i=this.get("suffix")||"",r+" "+e+" "+n+" "+t+" "+i}.property("title","firstName","lastName","middleName","suffix"),originalBalance:function(){var e,t;return e=this.get("totalOriginalBalance"),t=parseFloat(e,10).toFixed(2),"$"+t}.property("totalOriginalBalance"),currBalance:function(){var e,t;return e=this.get("currentBalance"),t=parseFloat(e,10).toFixed(2),"$"+t}.property("currentBalance"),payment:function(){var e,t;return t=this.get("totalPayment"),e=parseFloat(t,10).toFixed(2),"$"+e}.property("totalPayment")})}),window.require.register("models/note",function(){App.Note=DS.Model.extend({time:DS.attr("date"),actionCode:DS.attr("number"),resultCode:DS.attr("number"),message:DS.attr("string"),userid:DS.attr("number"),clientId:DS.attr("number"),debtorId:DS.attr("number"),debtor:DS.belongsTo("App.Debtor")})}),window.require.register("models/person",function(){App.Person=DS.Model.extend({relationship:DS.attr("number"),title:DS.attr("string"),lastName:DS.attr("string"),firstName:DS.attr("string"),middleName:DS.attr("string"),suffix:DS.attr("string"),dob:DS.attr("date"),SSN:DS.attr("string"),startDate:DS.attr("date"),endDate:DS.attr("date"),claimNumber:DS.attr("string"),phone:DS.attr("string"),country:DS.attr("number"),address1:DS.attr("string"),address2:DS.attr("string"),address3:DS.attr("string"),city:DS.attr("string"),state:DS.attr("string"),zip:DS.attr("string"),county:DS.attr("string"),debtorId:DS.attr("number"),debtor:DS.belongsTo("App.Debtor"),fullName:function(){var e,t,n;return e=this.get("firstName")||"",n=this.get("middleName")||"",t=this.get("lastName")||"",e+" "+n+" "+t}.property("firstName","lastName","middleName"),fullNameWithTitle:function(){var e,t,n,i,r;return r=this.get("title")||"",e=this.get("firstName")||"",n=this.get("middleName")||"",t=this.get("lastName")||"",i=this.get("suffix")||"",r+" "+e+" "+n+" "+t+" "+i}.property("title","firstName","lastName","middleName","suffix")})}),window.require.register("models/phoneTypes",function(){App.PhoneTypes=DS.Model.extend({label:DS.attr("string")})}),window.require.register("models/relationship",function(){App.Relationship=DS.Model.extend({label:DS.attr("string"),idNum:function(){return parseInt(this.get("id"))}.property("id")})}),window.require.register("models/resultCode",function(){App.ResultCode=DS.Model.extend({value:DS.attr("string"),description:DS.attr("string")})}),window.require.register("routes/clientRoute",function(){App.ClientRoute=Em.Route.extend({model:function(e){return App.Client.find(e.client_id)},setupController:function(e,t){return e.set("model",t)}})}),window.require.register("routes/debtorAccountRoute",function(){App.DebtorAccountRoute=Em.Route.extend({observesParameters:["clientId","userId","canEditDebtor","feePercentage"],model:function(e){return App.DebtorAccount.find(e.debtor_account_id)},setupController:function(e,t){return e.set("model",t),this.controllerFor("application").set("params",this.get("queryParameters")),this.controllerFor("countries").set("content",App.Country.find()),this.controllerFor("relationships").set("content",App.Relationship.find()),this.controllerFor("actionCodes").set("content",App.ActionCode.find()),this.controllerFor("resultCodes").set("content",App.ResultCode.find())}})}),window.require.register("routes/indexRoute",function(){App.IndexRoute=Em.Route.extend({observesParameters:["userId","canEditDebtor","feePercentage"],clientId:null,model:function(e){return this.set("clientId",e.client_id),App.IndexClient.find(e.client_id)},setupController:function(e,t){return e.set("model",t.get("indexDebtors")),e.set("totalCount",t.get("data").totalDebtors),this.controllerFor("application").set("params",Em.Object.create({clientId:t.get("clientId"),userId:this.get("queryParameters.userId"),canEditDebtor:this.get("queryParameters.canEditDebtor"),feePercentage:this.get("queryParameters.feePercentage")}))},actions:{getMore:function(){var e,t,n,i,r,s;return e=this.get("controller"),n=e.get("page"),r=n-1,t=n+1,i=e.get("perPage"),s=e.get("totalCount"),n*i>s&&e.set("loadingMore",!1),$.ajax({url:App.serverUrl+"/"+App.serverNamespace+"/clientDebtors/"+this.get("clientId")+"/?page="+t+"&limit="+i,success:function(n){var i;return i=Em.A([]),n.forEach(function(e){var t;return t=App.IndexDebtor.createRecord(e),i.pushObject(t)}),e.send("gotMore",i,t)}})}}})}),window.require.register("routes/loadingRoute",function(){App.LoadingRoute=Em.Route.extend()}),window.require.register("routes/noteNewRoute",function(){}),window.require.register("store/RESTfulAdapter",function(){App.Store=DS.Store.extend({adapter:DS.WebAPIAdapter.extend({url:App.serverUrl,namespace:App.serverNamespace,bulkCommit:!1,antiForgeryTokenSelector:"#antiForgeryToken",plurals:{country:"countries",cancellation:"cancellation"},pluralize:function(e){var t;return t=this.get("plurals"),t&&t[e]||e+"s"}})}),DS.WebAPIAdapter.map("App.IndexClient",{indexDebtors:{embedded:"load"}}),DS.WebAPIAdapter.map("App.Client",{debtorAccounts:{embedded:"load"}}),DS.WebAPIAdapter.map("App.DebtorAccount",{debtor:{embedded:"load"}}),DS.WebAPIAdapter.map("App.Debtor",{contacts:{embedded:"load"},persons:{embedded:"load"},employments:{embedded:"load"},notes:{embedded:"load"}}),DS.WebAPIAdapter.map("App.Contact",{countries:{embedded:"load"}}),DS.WebAPIAdapter.configure("App.IndexClient",{sideloadAs:"indexClient",primaryKey:"id"}),DS.WebAPIAdapter.configure("App.IndexDebtor",{sideloadAs:"indexDebtor",primaryKey:"id"}),DS.WebAPIAdapter.configure("App.Client",{sideloadAs:"client",primaryKey:"id"}),DS.WebAPIAdapter.configure("App.DebtorAccount",{sideloadAs:"debtorAccount",primaryKey:"id"}),DS.WebAPIAdapter.configure("App.Debtor",{sideloadAs:"debtor",primaryKey:"id"}),DS.WebAPIAdapter.configure("App.Contact",{sideloadAs:"contact",primaryKey:"id"}),DS.WebAPIAdapter.configure("App.Person",{sideloadAs:"person",primaryKey:"id"}),DS.WebAPIAdapter.configure("App.Employment",{sideloadAs:"employment",primaryKey:"id"}),DS.WebAPIAdapter.configure("App.Note",{sideloadAs:"note",primaryKey:"id"}),DS.WebAPIAdapter.configure("App.Country",{sideloadAs:"country",primaryKey:"id"}),DS.WebAPIAdapter.configure("App.Relationship",{sideloadAs:"relationship",primaryKey:"id"})}),window.require.register("store/fixtureAdapter",function(){App.Store=DS.Store.extend({adapter:DS.FixtureAdapter.create()}),DS.RESTAdapter.map("App.Debtor",{address:{embedded:"always"}})}),window.require.register("store/webapi/adapter",function(){var e,t;t=function(e){throw Em.Logger.error(e,e.message),e},e=Em.get,DS.WebAPIAdapter=DS.RESTAdapter.extend({serializer:DS.WebAPISerializer,antiForgeryTokenSelector:null,shouldSave:function(){return!0},dirtyRecordsForBelongsToChange:null,createRecord:function(n,i,r){var s,a,o,l,c;return c=this.rootForType(i),s=this,o=this.serialize(r,{includeId:!1}),a=e(this,"serializer").configurationForType(i),l=a&&a.primaryKey,l&&delete o[l],this.ajax(this.buildURL(c),"POST",{data:o}).then(function(e){return s.didCreateRecord(n,i,r,e)},function(e){throw s.didError(n,i,r,e),e}).then(null,t)},updateRecord:function(n,i,r){var s,a,o,l;return o=e(r,"id"),s=this,l=this.rootForType(i),a=this.serialize(r,{includeId:!0}),this.ajax(this.buildURL(l,o),"PUT",{data:a},"text").then(function(e){return s.didSaveRecord(n,i,r,e),r.set("error","")},function(){return s.didSaveRecord(n,i,r),r.set("error","Server update failed")}).then(null,t)},deleteRecord:function(n,i,r){var s,a,o,l,c;return o=e(r,"id"),s=this,c=this.rootForType(i),a=e(this,"serializer").configurationForType(i),l=a&&a.primaryKey,this.ajax(this.buildURL(c,o),"DELETE").then(function(e){return e[l]===o?s.didSaveRecord(n,i,r):s.didSaveRecord(n,i,r,e)},function(e){throw s.didError(n,i,r,e),e}).then(null,t)},ajax:function(t,n,i){var r;return r=this,new Em.RSVP.Promise(function(s,a){var o,l;return i=i||{},i.url=t,i.type=n,i.dataType="json",i.context=r,i.data&&"GET"!==n&&(i.contentType="application/json; charset=utf-8",i.data=JSON.stringify(i.data)),l=e(r,"antiForgeryTokenSelector"),l&&(o=$(l).val(),o&&(i.headers={RequestVerificationToken:o})),i.success=function(e){return Em.run(null,s,e)},i.error=function(e,t,n){return Em.run(null,a,n)},jQuery.ajax(i)})}}),DS.WebAPIAdapter.registerTransform("isodate",{deserialize:function(e){return e},serialize:function(e){return e}})}),window.require.register("store/webapi/serializer",function(){var e;e=Em.get,DS.WebAPISerializer=DS.JSONSerializer.extend({keyForAttributeName:function(e,t){return t},extractMany:function(e,t,n,i){var r,s,a,o,l;if(l=this.rootForType(n),l=this.pluralize(l),s=void 0,t instanceof Array?s=t:(this.sideload(e,n,t,l),this.extractMeta(e,n,t),s=t[l]),s){for(o=[],i&&(i=i.toArray()),r=0;s.length>r;)i&&e.updateId(i[r],s[r]),a=this.extractRecordRepresentation(e,n,s[r]),o.push(a),r++;return e.populateArray(o)}},extract:function(e,t,n,i){return i&&e.updateId(i,t),this.extractRecordRepresentation(e,n,t)},rootForType:function(e){var t,n,i;return i=""+e,Em.assert("Your model must not be anonymous. It was "+e,"("!==i.charAt(0)),n=i.split("."),t=n[n.length-1],t.toLowerCase()}})}),window.require.register("templates/_cancellation",function(e,t,n){Ember.TEMPLATES._cancellation=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-header"><button class="close" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancellation",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>&times;</button><h5>Account Cancellation</h5></div><div class="model-body"><div class="form form-horizontal"><div class="control-group"><label class="control-label">Cancellation Code</label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.cancellationCodes",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.cancellationCodes.selected"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Cancellation Fee %</label><div class="controls">'),a={valueBinding:t,viewName:t},s={valueBinding:"STRING",viewName:"STRING"},r.buffer.push(l(n.view.call(t,"App.CancellationFeeView",{hash:{valueBinding:"cancellationFee",viewName:"cancellationFee"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),s={},a={},r.buffer.push(l(n.view.call(t,"App.CancellationPopupView",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div></div></div></div><div class="modal-footer"><button class="btn btn-danger" '),s={},a={},r.buffer.push(l(n.action.call(t,"sendCancellation",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>Send Cancellation</button><button class="btn" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancellation",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(">Abort</button></div></div>"),o}),n.exports=n.id}),window.require.register("templates/_cancellationSuccess",function(e,t,n){Ember.TEMPLATES._cancellationSuccess=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-header"><h5>Cancellation</h5></div><div class="modal-body"><h6>Account Cancelled Successfully</h6></div><div class="modal-footer"><button class="btn" '),s={},a={},r.buffer.push(l(n.action.call(t,"closeCancelSuccess",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(">Close</button></div></div>"),o}),n.exports=n.id}),window.require.register("templates/_cancellationWarning",function(e,t,n){Ember.TEMPLATES._cancellationWarning=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div id="cancellationWarning" class="modal-dialog" style="display:none;z-index:1050;"><div class="modal-body"><p>Cancellation fee cannot exceed 20% charge.</p><span class="pull-right"><button class="btn btn-primary btn-small" '),s={target:t},a={target:"STRING"},r.buffer.push(l(n.action.call(t,"close",{hash:{target:"view"},contexts:[t],types:["ID"],hashContexts:s,hashTypes:a,data:r}))),r.buffer.push(">Ok</button></span></div></div>"),o}),n.exports=n.id}),window.require.register("templates/_confirmation",function(e,t,n){Ember.TEMPLATES._confirmation=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal-dialog" '),s={id:t},a={id:"STRING"},r.buffer.push(l(n.bindAttr.call(t,{hash:{id:"controller.confirmationId"},contexts:[],types:[],hashContexts:s,hashTypes:a,data:r}))),r.buffer.push(' style="display:none;z-index:1050;"><div class="modal-body"><p>Do you want to delete this record?</p><span class="pull-right"><button class="btn btn-small" '),s={target:t},a={target:"STRING"},r.buffer.push(l(n.action.call(t,"deleteRecord","",{hash:{target:"controller"},contexts:[t,t],types:["ID","ID"],hashContexts:s,hashTypes:a,data:r}))),r.buffer.push('>Yes</button><button class="btn btn-primary btn-small" '),s={target:t},a={target:"STRING"},r.buffer.push(l(n.action.call(t,"close",{hash:{target:"view"},contexts:[t],types:["ID"],hashContexts:s,hashTypes:a,data:r}))),r.buffer.push(">No</button></span></div></div>"),o}),n.exports=n.id}),window.require.register("templates/_hold",function(e,t,n){Ember.TEMPLATES._hold=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-header"><button class="close" '),s={},a={},r.buffer.push(l(n.action.call(t,"holdAccount",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>&times;</button><h5>Hold Account</h5></div><div class="modal-body"><h6>Do you want to put a hold on this account?</h6></div><div class="modal-footer"><button class="btn btn-warning" '),s={},a={},r.buffer.push(l(n.action.call(t,"sendHold",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>Hold Account</button><button class="btn" '),s={},a={},r.buffer.push(l(n.action.call(t,"holdAccount",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(">Abort</button></div></div>"),o}),n.exports=n.id}),window.require.register("templates/_holdSuccess",function(e,t,n){Ember.TEMPLATES._holdSuccess=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-header"><h5>Hold Account</h5></div><div class="modal-body"><h6>Account Hold Successfully</h6></div><div class="modal-footer"><button class="btn" '),s={},a={},r.buffer.push(l(n.action.call(t,"closeHoldSuccess",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(">Close</button></div></div>"),o}),n.exports=n.id}),window.require.register("templates/_processing",function(e,t,n){Ember.TEMPLATES._processing=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-body"><div class="pagination-centered"><img src="'),s={},a={},r.buffer.push(l(n.unbound.call(t,"App.AJAX_LOADER_IMG",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('" alt="loading" /></div><div class="pagination-centered"><h4>Processing...</h4></div></div></div>'),o}),n.exports=n.id}),window.require.register("templates/_well",function(e,t,n){Ember.TEMPLATES._well=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{},r.buffer.push("<div class=\"well\"><h3>Welcome to the 'Debtor to CRM Project'</h3><p>This is a partial.</p><p>Find me in <code>app/templates/_well.emblem</code></p></div>")}),n.exports=n.id}),window.require.register("templates/about",function(e,t,n){Ember.TEMPLATES.about=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o,l,c="",u=n.helperMissing,h=this.escapeExpression;return r.buffer.push("<h2>About</h2><p>Find me in <code>templates/about.emblem</code></p>"),a={},o={},l={hash:{},contexts:[t],types:["STRING"],hashContexts:o,hashTypes:a,data:r},r.buffer.push(h((s=n.partial||t.partial,s?s.call(t,"well",l):u.call(t,"partial","well",l)))),c}),n.exports=n.id}),window.require.register("templates/application",function(e,t,n){Ember.TEMPLATES.application=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="container-fluid"><div id="page">'),s={},a={},r.buffer.push(l(n._triageMustache.call(t,"outlet",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push("</div></div>"),o}),n.exports=n.id}),window.require.register("templates/contact",function(e,t,n){Ember.TEMPLATES.contact=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o,l,c="",u=n.helperMissing,h=this.escapeExpression;return r.buffer.push('<div class="row-fluid">'),a={},o={},l={hash:{},contexts:[t],types:["STRING"],hashContexts:o,hashTypes:a,data:r},r.buffer.push(h((s=n.partial||t.partial,s?s.call(t,"contact/edit",l):u.call(t,"partial","contact/edit",l)))),r.buffer.push("</div>"),c}),n.exports=n.id}),window.require.register("templates/contact/_edit",function(e,t,n){Ember.TEMPLATES["contact/_edit"]=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-header"><button class="close" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancelEditing",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>&times;</button><h5>Contact Phone Record</h5></div><div class="modal-body"><div class="form form-horizontal"><div class="control-group"><label class="control-label">Type </label><div class="controls">'),a={id:t,contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={id:"STRING",contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{id:"phoneTypes",contentBinding:"controllers.phoneTypes",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.phoneTypes.selected",prompt:"Type ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Country</label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.countries",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.countries.selected",prompt:"Country ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Phone</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"phone",placeholder:"Phone"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Extension</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"extension",placeholder:"Extension"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Score</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"score",placeholder:"Score"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Status</label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.phoneStatuses",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.phoneStatuses.selected",prompt:"Status ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Source</label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.sources",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.sources.selected",prompt:"Source ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Consent</label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.yesNo",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.yesNo.selected",prompt:"Consent ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div></div></div></div><div class="modal-footer"><button class="btn btn-success" '),s={},a={},r.buffer.push(l(n.action.call(t,"doneEditing",{hash:{},contexts:[t],types:["STRING"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>Done</button><button class="btn" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancelEditing",{hash:{},contexts:[t],types:["STRING"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(">Cancel</button></div></div>"),o}),n.exports=n.id}),window.require.register("templates/contactDetail",function(e,t,n){Ember.TEMPLATES.contactDetail=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<button class="btn" '),s={},a={},r.buffer.push(l(n.action.call(t,"delete","",{hash:{},contexts:[t,t],types:["ID","ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>-</button><div class="span2"><a '),s={},a={},r.buffer.push(l(n.action.call(t,"openModal","",{hash:{},contexts:[t,t],types:["STRING","ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(' href="#">'),s={},a={},r.buffer.push(l(n._triageMustache.call(t,"phone",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</a></div><div class="span5">'),s={},a={},r.buffer.push(l(n._triageMustache.call(t,"type",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(" "),s={},a={},r.buffer.push(l(n._triageMustache.call(t,"status",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><div class="span5">'),s={},a={},r.buffer.push(l(n._triageMustache.call(t,"extension",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push("</div><hr />"),o}),n.exports=n.id}),window.require.register("templates/contacts",function(e,t,n){Ember.TEMPLATES.contacts=Ember.Handlebars.template(function(e,t,n,i,r){function s(e,t){var i,r,s,c,u,h="";return t.buffer.push("<th "),s={},c={},t.buffer.push(m(n.action.call(e,"toggleSort","column",{hash:{},contexts:[e,e],types:["ID","ID"],hashContexts:c,hashTypes:s,data:t}))),t.buffer.push(">"),s={},c={},u={hash:{},contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t},t.buffer.push(m((i=n.humanize||e.humanize,i?i.call(e,"column",u):g.call(e,"humanize","column",u)))),s={},c={},r=n["if"].call(e,"sortedAsc",{hash:{},inverse:b.program(4,o,t),fn:b.program(2,a,t),contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t}),(r||0===r)&&t.buffer.push(r),s={},c={},r=n["if"].call(e,"sortedDesc",{hash:{},inverse:b.program(4,o,t),fn:b.program(6,l,t),contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t}),(r||0===r)&&t.buffer.push(r),t.buffer.push("</th>"),h}function a(e,t){t.buffer.push('<i class="icon-chevron-up"></i>')}function o(){var e="";return e}function l(e,t){t.buffer.push('<i class="icon-chevron-down"></i>')}function c(e,t){var i,r,s,a,l,c="";return t.buffer.push('<tr><td><button class="btn btn-mini" '),s={id:e},a={id:"STRING"},t.buffer.push(m(n.bindAttr.call(e,{hash:{id:"id"},contexts:[],types:[],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push(">-</button>"),s={contentBinding:e},a={contentBinding:"STRING"},t.buffer.push(m(n.view.call(e,"App.ConfirmationView",{hash:{contentBinding:"this"},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},l={hash:{},inverse:b.program(4,o,t),fn:b.program(9,u,t),contexts:[e,e],types:["STRING","ID"],hashContexts:s,hashTypes:a,data:t},i=n.linkTo||e.linkTo,r=i?i.call(e,"contact","",l):g.call(e,"linkTo","contact","",l),(r||0===r)&&t.buffer.push(r),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"extension",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"labelPhoneType",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"labelPhoneStatus",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td></tr>"),c}function u(e,t){var i,r;i={},r={},t.buffer.push(m(n._triageMustache.call(e,"phone",{hash:{},contexts:[e],types:["ID"],hashContexts:r,hashTypes:i,data:t})))}this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var h,d,p,f="",m=this.escapeExpression,g=n.helperMissing,b=this;return r.buffer.push('<div class="row-fluid"><table class="table table-striped row-border"><thead><tr><th><button class="btn btn-primary btn-mini" '),d={},p={},r.buffer.push(m(n.action.call(t,"create",{hash:{},contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}))),r.buffer.push(">+</button></th>"),p={itemController:t},d={itemController:"STRING"},h=n.each.call(t,"columns",{hash:{itemController:"columnItem"},inverse:b.program(4,o,r),fn:b.program(1,s,r),contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push("</tr></thead><tbody>"),d={},p={},h=n.each.call(t,"controller",{hash:{},inverse:b.program(4,o,r),fn:b.program(8,c,r),contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push("</tbody></table></div>"),f}),n.exports=n.id}),window.require.register("templates/datepicker",function(e,t,n){Ember.TEMPLATES.datepicker=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s="";return s}),n.exports=n.id}),window.require.register("templates/debtor",function(e,t,n){Ember.TEMPLATES.debtor=Ember.Handlebars.template(function(e,t,n,i,r){function s(e,t){var i,r,s,a;r={},s={},a={hash:{},contexts:[e],types:["STRING"],hashContexts:s,hashTypes:r,data:t},t.buffer.push(E((i=n.partial||e.partial,i?i.call(e,"debtor/edit",a):y.call(e,"partial","debtor/edit",a))))}function a(e,t){var i,r,s="";return t.buffer.push('<button class="btn btn-small" '),i={},r={},t.buffer.push(E(n.action.call(e,"edit",{hash:{},contexts:[e],types:["STRING"],hashContexts:r,hashTypes:i,data:t}))),t.buffer.push(" "),r={disabled:e},i={disabled:"STRING"},t.buffer.push(E(n.bindAttr.call(e,{hash:{disabled:"disableEdit"},contexts:[],types:[],hashContexts:r,hashTypes:i,data:t}))),t.buffer.push(">Edit</button>"),s}function o(e,t){var i,r,s,a;r={},s={},a={hash:{},contexts:[e],types:["STRING"],hashContexts:s,hashTypes:r,data:t},t.buffer.push(E((i=n.partial||e.partial,i?i.call(e,"processing",a):y.call(e,"partial","processing",a))))}function l(){var e="";return e}function c(e,t){var i,r,s,a;r={},s={},a={hash:{},contexts:[e],types:["STRING"],hashContexts:s,hashTypes:r,data:t},t.buffer.push(E((i=n.partial||e.partial,i?i.call(e,"cancellation",a):y.call(e,"partial","cancellation",a))))}function u(e,t){var i,r,s,a;r={},s={},a={hash:{},contexts:[e],types:["STRING"],hashContexts:s,hashTypes:r,data:t},t.buffer.push(E((i=n.partial||e.partial,i?i.call(e,"hold",a):y.call(e,"partial","hold",a))))}function h(e,t){var i,r,s,a;r={},s={},a={hash:{},contexts:[e],types:["STRING"],hashContexts:s,hashTypes:r,data:t},t.buffer.push(E((i=n.partial||e.partial,i?i.call(e,"cancellationSuccess",a):y.call(e,"partial","cancellationSuccess",a))))}function d(e,t){var i,r,s,a;r={},s={},a={hash:{},contexts:[e],types:["STRING"],hashContexts:s,hashTypes:r,data:t},t.buffer.push(E((i=n.partial||e.partial,i?i.call(e,"holdSuccess",a):y.call(e,"partial","holdSuccess",a))))}this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var p,f,m,g,b,v="",y=n.helperMissing,E=this.escapeExpression,w=this;return r.buffer.push('<div class="container-fluid"><div class="row-fluid"><div class="span12"><address><h4>'),m={},g={},r.buffer.push(E(n._triageMustache.call(t,"title",{hash:{},contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push(" "),m={},g={},r.buffer.push(E(n._triageMustache.call(t,"fullName",{hash:{},contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push(" "),m={},g={},r.buffer.push(E(n._triageMustache.call(t,"suffix",{hash:{},contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push('<div class="span4 pull-right"><button class="btn btn-primary btn-small" '),m={},g={},r.buffer.push(E(n.action.call(t,"close",{hash:{},contexts:[t],types:["STRING"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push(">Close</button>"),m={},g={},p=n["if"].call(t,"isEditing",{hash:{},inverse:w.program(3,a,r),fn:w.program(1,s,r),contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}),(p||0===p)&&r.buffer.push(p),r.buffer.push("</div></h4><h4 "),g={"":t},m={"":"STRING"},r.buffer.push(E(n.bindAttr.call(t,{hash:{"":"ssn"},contexts:[],types:[],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push('></h4><hr /><div class="intro"><div class="span6"><p>Address</p><h6>'),m={},g={},r.buffer.push(E(n._triageMustache.call(t,"address1",{hash:{},contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push("<br />"),m={},g={},r.buffer.push(E(n._triageMustache.call(t,"city",{hash:{},contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push(", "),m={},g={},r.buffer.push(E(n._triageMustache.call(t,"state",{hash:{},contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push(" "),m={},g={},r.buffer.push(E(n._triageMustache.call(t,"zip",{hash:{},contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push('</h6></div><div class="span6"><p>Email</p><h5 '),g={"":t},m={"":"STRING"},r.buffer.push(E(n.bindAttr.call(t,{hash:{"":"email"},contexts:[],types:[],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push('></h5></div></div><div class="span4 pull-right"><button class="btn btn-danger btn-small" '),m={},g={},r.buffer.push(E(n.action.call(t,"cancellation",{hash:{},contexts:[t],types:["STRING"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push('>Cancel Account</button><button class="btn btn-warning btn-small" '),m={},g={},r.buffer.push(E(n.action.call(t,"holdAccount",{hash:{},contexts:[t],types:["STRING"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push('>Hold Account</button><button class="btn btn-success btn-small" '),m={},g={},r.buffer.push(E(n.action.call(t,"makePayment",{hash:{},contexts:[t],types:["STRING"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push('>Make Payment</button></div></address></div></div><hr /><div id="contacts" class="accordion"><div class="accordion-group"><div class="accordion-heading"><a class="accordion-toggle" data-toggle="collapse" data-parent="#contacts" href="#collapseContacts"><h5>Contact Phone Records</h5></a></div><div id="collapseContacts" class="accordion-body collapse in"><div class="accordion-inner"><div class="row-fluid"><div class="span12">'),m={},g={},b={hash:{},contexts:[t,t],types:["STRING","ID"],hashContexts:g,hashTypes:m,data:r},r.buffer.push(E((p=n.render||t.render,p?p.call(t,"contacts","contacts",b):y.call(t,"render","contacts","contacts",b)))),r.buffer.push('</div></div></div></div></div></div><div id="persons" class="accordion"><div class="accordion-group"><div class="accordion-heading"><a class="accordion-toggle" data-toggle="collapse" data-parent="#persons" href="#collapsePersons"><h5>Related Persons</h5></a></div><div id="collapsePersons" class="accordion-body collapse in"><div class="accordion-inner"><div class="row-fluid"><div class="span12">'),m={},g={},b={hash:{},contexts:[t,t],types:["STRING","ID"],hashContexts:g,hashTypes:m,data:r},r.buffer.push(E((p=n.render||t.render,p?p.call(t,"persons","persons",b):y.call(t,"render","persons","persons",b)))),r.buffer.push('</div></div></div></div></div></div><div id="employments" class="accordion"><div class="accordion-group"><div class="accordion-heading"><a class="accordion-toggle" data-toggle="collapse" data-parent="#employments" href="#collapseEmployments"><h5>Employment Records</h5></a></div><div id="collapseEmployments" class="accordion-body collapse in"><div class="accordion-inner"><div class="row-fluid"><div class="span12">'),m={},g={},b={hash:{},contexts:[t,t],types:["STRING","ID"],hashContexts:g,hashTypes:m,data:r},r.buffer.push(E((p=n.render||t.render,p?p.call(t,"employments","employments",b):y.call(t,"render","employments","employments",b)))),r.buffer.push('</div></div></div></div></div></div><div id="notes" class="accordion"><div class="accordion-group"><div class="accordion-heading"><a class="accordion-toggle" data-toggle="collapse" data-parent="#notes" href="#collapseNotes"><h5>Historical Events</h5></a></div><div id="collapseNotes" class="accordion-body collapse in"><div class="accordion-inner"><div class="row-fluid"><div class="span12">'),m={},g={},b={hash:{},contexts:[t,t],types:["STRING","ID"],hashContexts:g,hashTypes:m,data:r},r.buffer.push(E((p=n.render||t.render,p?p.call(t,"notes","notes",b):y.call(t,"render","notes","notes",b)))),r.buffer.push("</div></div></div></div></div></div>"),m={},g={},f=n["if"].call(t,"processing",{hash:{},inverse:w.program(7,l,r),fn:w.program(5,o,r),contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}),(f||0===f)&&r.buffer.push(f),m={},g={},f=n["if"].call(t,"toCancel",{hash:{},inverse:w.program(7,l,r),fn:w.program(9,c,r),contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}),(f||0===f)&&r.buffer.push(f),m={},g={},f=n["if"].call(t,"toHold",{hash:{},inverse:w.program(7,l,r),fn:w.program(11,u,r),contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}),(f||0===f)&&r.buffer.push(f),m={},g={},f=n["if"].call(t,"cancellationSuccess",{hash:{},inverse:w.program(7,l,r),fn:w.program(13,h,r),contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}),(f||0===f)&&r.buffer.push(f),m={},g={},f=n["if"].call(t,"holdSuccess",{hash:{},inverse:w.program(7,l,r),fn:w.program(15,d,r),contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}),(f||0===f)&&r.buffer.push(f),m={},g={},r.buffer.push(E(n._triageMustache.call(t,"outlet",{hash:{},contexts:[t],types:["ID"],hashContexts:g,hashTypes:m,data:r}))),r.buffer.push("</div>"),v
-}),n.exports=n.id}),window.require.register("templates/debtor/_edit",function(e,t,n){Ember.TEMPLATES["debtor/_edit"]=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-header"><button class="close" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancelEditing",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>&times;</button><h5>Debtor Record</h5></div><div class="modal-body"><div class="form form-horizontal"><div class="control-group"><label class="control-label">Type </label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.consumerFlags",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.consumerFlags.selected"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Title</label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.titles",optionLabelPath:"content.id",optionValuePath:"content.id",selectionBinding:"controllers.titles.selected",prompt:"Title ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Last Name</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"lastName",placeholder:"Last Name"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">First Name</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"firstName",placeholder:"First Name"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Middle Name</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"middleName",placeholder:"Middle Name"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Suffix</label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.suffixes",optionLabelPath:"content.id",optionValuePath:"content.id",selectionBinding:"controllers.suffixes.selected",prompt:"Suffix ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Date of Birth</label><div class="controls">'),a={valueBinding:t},s={valueBinding:"STRING"},r.buffer.push(l(n.view.call(t,"App.DatePickerField",{hash:{valueBinding:"dob"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">SSN</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"ssn",placeholder:"SSN"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Martial Status</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"maritalStatus",placeholder:"Martial Status"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Email</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"email",placeholder:"Email"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Email Validity</label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.validInvalid",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.validInvalid.selected",prompt:"Email Validity ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Opt-In</label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.yesNo",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.yesNo.selected",prompt:"Email Opt-in ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Commerical Contact</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"contact",placeholder:"Commerical Contact"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">Country</label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.countries",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.countries.selected",prompt:"Country ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">Address 1</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"address1",placeholder:"Address 1"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">Address 2</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"address2",placeholder:"Address 2"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">Address 3 </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"address3",placeholder:"Address 3"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">City </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"city",placeholder:"City"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">State </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"state",placeholder:"State"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">Zip Code </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"zip",placeholder:"Zip code"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">County </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"county",placeholder:"County"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">Driver License Issuer </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"dlIssuer",placeholder:"Driver License Issuer"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">Driver License Number</label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"dlNumber",placeholder:"Driver License Number"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">Passport Number </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"passport",placeholder:"Passport Number"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label ms-crm-Field-Normal">PIN </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"pin",placeholder:"PIN"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div></div></div></div><div class="modal-footer"><button class="btn btn-success" '),s={},a={},r.buffer.push(l(n.action.call(t,"doneEditing",{hash:{},contexts:[t],types:["STRING"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>Done</button><button class="btn" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancelEditing",{hash:{},contexts:[t],types:["STRING"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(">Cancel</button></div></div>"),o}),n.exports=n.id}),window.require.register("templates/debtorAccount",function(e,t,n){Ember.TEMPLATES.debtorAccount=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<h3><div class="lead">Account Number - '),s={},a={},r.buffer.push(l(n._triageMustache.call(t,"agencyId",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push("</div></h3>"),s={},a={},r.buffer.push(l(n._triageMustache.call(t,"outlet",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),o}),n.exports=n.id}),window.require.register("templates/debtorDetail",function(e,t,n){Ember.TEMPLATES.debtorDetail=Ember.Handlebars.template(function(e,t,n,i,r){function s(e,t){var i,r;i={},r={},t.buffer.push(p(n._triageMustache.call(e,"id",{hash:{},contexts:[e],types:["ID"],hashContexts:r,hashTypes:i,data:t})))}function a(){var e="";return e}this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var o,l,c,u,h,d="",p=this.escapeExpression,f=this,m=n.helperMissing;return r.buffer.push('<div class="row"><div class="span2">'),c={},u={},h={hash:{},inverse:f.program(3,a,r),fn:f.program(1,s,r),contexts:[t,t],types:["STRING","ID"],hashContexts:u,hashTypes:c,data:r},o=n.linkTo||t.linkTo,l=o?o.call(t,"debtor","",h):m.call(t,"linkTo","debtor","",h),(l||0===l)&&r.buffer.push(l),r.buffer.push('</div><div class="span4">'),c={},u={},r.buffer.push(p(n._triageMustache.call(t,"title",{hash:{},contexts:[t],types:["ID"],hashContexts:u,hashTypes:c,data:r}))),r.buffer.push(" "),c={},u={},r.buffer.push(p(n._triageMustache.call(t,"fullName",{hash:{},contexts:[t],types:["ID"],hashContexts:u,hashTypes:c,data:r}))),r.buffer.push(" "),c={},u={},r.buffer.push(p(n._triageMustache.call(t,"suffix",{hash:{},contexts:[t],types:["ID"],hashContexts:u,hashTypes:c,data:r}))),r.buffer.push('</div><div class="span6">'),c={},u={},r.buffer.push(p(n._triageMustache.call(t,"zip",{hash:{},contexts:[t],types:["ID"],hashContexts:u,hashTypes:c,data:r}))),r.buffer.push("</div></div><hr />"),d}),n.exports=n.id}),window.require.register("templates/employment",function(e,t,n){Ember.TEMPLATES.employment=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o,l,c="",u=n.helperMissing,h=this.escapeExpression;return r.buffer.push('<div class="row-fluid">'),a={},o={},l={hash:{},contexts:[t],types:["STRING"],hashContexts:o,hashTypes:a,data:r},r.buffer.push(h((s=n.partial||t.partial,s?s.call(t,"employment/edit",l):u.call(t,"partial","employment/edit",l)))),r.buffer.push("</div>"),c}),n.exports=n.id}),window.require.register("templates/employment/_edit",function(e,t,n){Ember.TEMPLATES["employment/_edit"]=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-header"><button class="close" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancelEditing",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>&times;</button><h5>Employment Record</h5></div><div class="modal-body"><div class="form form-horizontal"><div class="control-group"><label class="control-label">Relationship </label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.associations",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.associations.selected",prompt:"Relationship ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Employer Name </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"name",placeholder:"Name"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Position </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"position",placeholder:"Position"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Hire Date </label><div class="controls">'),a={valueBinding:t},s={valueBinding:"STRING"},r.buffer.push(l(n.view.call(t,"App.DatePickerField",{hash:{valueBinding:"hireDate"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Termination Date </label><div class="controls">'),a={valueBinding:t},s={valueBinding:"STRING"},r.buffer.push(l(n.view.call(t,"App.DatePickerField",{hash:{valueBinding:"terminationDate"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Phone </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"phone",placeholder:"Phone"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Website </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"website",placeholder:"Website"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Status </label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.employmentStatuses",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.employmentStatuses.selected",prompt:"Employment Status ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Source </label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.sources",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.sources.selected",prompt:"Source ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Job Title </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"jobTitle",placeholder:"Job Title"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Yearly Income </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"yearlyIncome",placeholder:"Yearly Income"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Monthly Gross Income </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"monthlyGrossIncome",placeholder:"Monthly Gross Income"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Monthly Net Income </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"monthlyNetIncome",placeholder:"Monthly Net Income"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Country </label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.countries",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.countries.selected",prompt:"Country ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Address 1 </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"address1",placeholder:"Address 1"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Address 2 </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"address2",placeholder:"Address 2"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Address 3 </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"address3",placeholder:"Address 3"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">City </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"city",placeholder:"City"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">State </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"state",placeholder:"State"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Zip Code </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"zip",placeholder:"Zip"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">County </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"county",placeholder:"County"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div></div></div></div><div class="modal-footer"><button class="btn btn-success" '),s={},a={},r.buffer.push(l(n.action.call(t,"doneEditing",{hash:{},contexts:[t],types:["STRING"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>Done</button><button class="btn" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancelEditing",{hash:{},contexts:[t],types:["STRING"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(">Cancel</button></div></div>"),o}),n.exports=n.id}),window.require.register("templates/employments",function(e,t,n){Ember.TEMPLATES.employments=Ember.Handlebars.template(function(e,t,n,i,r){function s(e,t){var i,r,s,c,u,h="";return t.buffer.push("<th "),s={},c={},t.buffer.push(m(n.action.call(e,"toggleSort","column",{hash:{},contexts:[e,e],types:["ID","ID"],hashContexts:c,hashTypes:s,data:t}))),t.buffer.push(">"),s={},c={},u={hash:{},contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t},t.buffer.push(m((i=n.humanize||e.humanize,i?i.call(e,"column",u):g.call(e,"humanize","column",u)))),s={},c={},r=n["if"].call(e,"sortedAsc",{hash:{},inverse:b.program(4,o,t),fn:b.program(2,a,t),contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t}),(r||0===r)&&t.buffer.push(r),s={},c={},r=n["if"].call(e,"sortedDesc",{hash:{},inverse:b.program(4,o,t),fn:b.program(6,l,t),contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t}),(r||0===r)&&t.buffer.push(r),t.buffer.push("</th>"),h}function a(e,t){t.buffer.push('<i class="icon-chevron-up"></i>')}function o(){var e="";return e}function l(e,t){t.buffer.push('<i class="icon-chevron-down"></i>')}function c(e,t){var i,r,s,a,l,c="";return t.buffer.push('<tr><td><button class="btn btn-mini" '),s={id:e},a={id:"STRING"},t.buffer.push(m(n.bindAttr.call(e,{hash:{id:"id"},contexts:[],types:[],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push(">-</button>"),s={contentBinding:e},a={contentBinding:"STRING"},t.buffer.push(m(n.view.call(e,"App.ConfirmationView",{hash:{contentBinding:"this"},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},l={hash:{},inverse:b.program(4,o,t),fn:b.program(9,u,t),contexts:[e,e],types:["STRING","ID"],hashContexts:s,hashTypes:a,data:t},i=n.linkTo||e.linkTo,r=i?i.call(e,"employment","",l):g.call(e,"linkTo","employment","",l),(r||0===r)&&t.buffer.push(r),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"labelEmploymentStatus",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"labelSource",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"phone",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"jobTitle",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"hireDate",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td></tr>"),c}function u(e,t){var i,r;i={},r={},t.buffer.push(m(n._triageMustache.call(e,"name",{hash:{},contexts:[e],types:["ID"],hashContexts:r,hashTypes:i,data:t})))}this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var h,d,p,f="",m=this.escapeExpression,g=n.helperMissing,b=this;return r.buffer.push('<div class="row-fluid"><table class="table table-striped row-border"><thead><tr><th><button class="btn btn-primary btn-mini" '),d={},p={},r.buffer.push(m(n.action.call(t,"create",{hash:{},contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}))),r.buffer.push(">+</button></th>"),p={itemController:t},d={itemController:"STRING"},h=n.each.call(t,"columns",{hash:{itemController:"columnItem"},inverse:b.program(4,o,r),fn:b.program(1,s,r),contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push("</tr></thead><tbody>"),p={itemController:t},d={itemController:"STRING"},h=n.each.call(t,"controller",{hash:{itemController:"employment"},inverse:b.program(4,o,r),fn:b.program(8,c,r),contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push("</tbody></table></div>"),f}),n.exports=n.id}),window.require.register("templates/empty",function(e,t,n){Ember.TEMPLATES.empty=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s="";return s}),n.exports=n.id}),window.require.register("templates/index",function(e,t,n){Ember.TEMPLATES.index=Ember.Handlebars.template(function(e,t,n,i,r){function s(e,t){var i,r,s,c,u,h="";return t.buffer.push("<th "),s={},c={},t.buffer.push(m(n.action.call(e,"toggleSort","column",{hash:{},contexts:[e,e],types:["ID","ID"],hashContexts:c,hashTypes:s,data:t}))),t.buffer.push(" "),c={style:e},s={style:"STRING"},t.buffer.push(m(n.bindAttr.call(e,{hash:{style:"width"},contexts:[],types:[],hashContexts:c,hashTypes:s,data:t}))),t.buffer.push("><p "),c={style:e},s={style:"STRING"},t.buffer.push(m(n.bindAttr.call(e,{hash:{style:"align"},contexts:[],types:[],hashContexts:c,hashTypes:s,data:t}))),t.buffer.push(">"),s={},c={},u={hash:{},contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t},t.buffer.push(m((i=n.humanize||e.humanize,i?i.call(e,"label",u):g.call(e,"humanize","label",u)))),s={},c={},r=n["if"].call(e,"sortedAsc",{hash:{},inverse:b.program(4,o,t),fn:b.program(2,a,t),contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t}),(r||0===r)&&t.buffer.push(r),s={},c={},r=n["if"].call(e,"sortedDesc",{hash:{},inverse:b.program(4,o,t),fn:b.program(6,l,t),contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t}),(r||0===r)&&t.buffer.push(r),t.buffer.push("</p></th>"),h}function a(e,t){t.buffer.push('<i class="icon-chevron-up"></i>')}function o(){var e="";return e}function l(e,t){t.buffer.push('<i class="icon-chevron-down"></i>')}function c(e,t){var i,r,s,a,o="";return t.buffer.push('<tr><td style="width:15%"><a href="#/account/'),r={},s={},t.buffer.push(m(n.unbound.call(e,"id",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push("/debtor/"),r={},s={},t.buffer.push(m(n.unbound.call(e,"debtorId",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push("?clientId="),r={},s={},t.buffer.push(m(n.unbound.call(e,"controller.params.clientId",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push("&userId="),r={},s={},t.buffer.push(m(n.unbound.call(e,"controller.params.userId",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push("&canEditDebtor="),r={},s={},t.buffer.push(m(n.unbound.call(e,"controller.params.canEditDebtor",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push("&feePercentage="),r={},s={},t.buffer.push(m(n.unbound.call(e,"controller.params.feePercentage",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push('" target="_blank">'),r={},s={},t.buffer.push(m(n._triageMustache.call(e,"agencyId",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push('</a></td><td style="width:30%">'),r={},s={},t.buffer.push(m(n._triageMustache.call(e,"fullNameWithTitle",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push('</td><td style="width:15%">'),r={},s={},a={hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t},t.buffer.push(m((i=n.shortDate||e.shortDate,i?i.call(e,"placementDate",a):g.call(e,"shortDate","placementDate",a)))),t.buffer.push('</td><td style="width:10%"><div class="pull-right">'),r={},s={},t.buffer.push(m(n._triageMustache.call(e,"originalBalance",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push('</div></td><td style="width:10%"><div class="pull-right">'),r={},s={},t.buffer.push(m(n._triageMustache.call(e,"payment",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push('</div></td><td style="width:10%"><div class="pull-right">'),r={},s={},t.buffer.push(m(n._triageMustache.call(e,"currBalance",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push('</div></td><td style="width:10%"><div class="pagination-centered">'),r={},s={},t.buffer.push(m(n._triageMustache.call(e,"computedStatus",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t}))),t.buffer.push("</div></td></tr>"),o}function u(e,t){t.buffer.push('<div class="pagination-centered"><span class="label label-info" style="margin-top:45px;"><h6>Loading more ...</h6></span></div>')}this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var h,d,p,f="",m=this.escapeExpression,g=n.helperMissing,b=this;return r.buffer.push('<div class="container-fluid"><div class="pull-right"><div class="search-query form form-horizontal"><div class="control-group"><label class="control-label">Search Debtors</label><div class="controls">'),d={valueBinding:t,placeholder:t},p={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(m(n.view.call(t,"Em.TextField",{hash:{valueBinding:"controller.search",placeholder:"filter by Id"},contexts:[t],types:["ID"],hashContexts:d,hashTypes:p,data:r}))),r.buffer.push('</div></div></div></div></div><div class="row-fluid row-border"><table class="table" style="margin-bottom: 0px;"><thead><tr>'),d={itemController:t},p={itemController:"STRING"},h=n.each.call(t,"columns",{hash:{itemController:"columnItem"},inverse:b.program(4,o,r),fn:b.program(1,s,r),contexts:[t],types:["ID"],hashContexts:d,hashTypes:p,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push('</tr></thead></table><div id="debtors-grid" class="scrollable-350"><table id="table-body" class="table table-striped"><div class="tbody">'),p={},d={},h=n.each.call(t,"currentContent",{hash:{},inverse:b.program(4,o,r),fn:b.program(8,c,r),contexts:[t],types:["ID"],hashContexts:d,hashTypes:p,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push("</div></table></div>"),p={},d={},h=n["if"].call(t,"controller.loadingMore",{hash:{},inverse:b.program(4,o,r),fn:b.program(10,u,r),contexts:[t],types:["ID"],hashContexts:d,hashTypes:p,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push("</div>"),f
-}),n.exports=n.id}),window.require.register("templates/loading",function(e,t,n){Ember.TEMPLATES.loading=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-body"><div class="pagination-centered"><img src="'),s={},a={},r.buffer.push(l(n.unbound.call(t,"App.AJAX_LOADER_IMG",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('" alt="loading" /></div><div class="pagination-centered"><h4>Loading...</h4></div></div></div>'),o}),n.exports=n.id}),window.require.register("templates/modal_layout",function(e,t,n){Ember.TEMPLATES.modal_layout=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal-backdrop fade">&nbsp;</div><div class="model fade">'),s={},a={},r.buffer.push(l(n._triageMustache.call(t,"yield",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push("</div>"),o}),n.exports=n.id}),window.require.register("templates/note",function(e,t,n){Ember.TEMPLATES.note=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="row-fluid">'),s={},a={},r.buffer.push(l(n._triageMustache.call(t,"outlet",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push("</div>"),o}),n.exports=n.id}),window.require.register("templates/note/index",function(e,t,n){Ember.TEMPLATES["note/index"]=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o,l,c="",u=this.escapeExpression,h=n.helperMissing;return r.buffer.push('<div class="modal"><div class="modal-header"><button class="close" '),a={},o={},r.buffer.push(u(n.action.call(t,"closeNote",{hash:{},contexts:[t],types:["STRING"],hashContexts:o,hashTypes:a,data:r}))),r.buffer.push('>&times;</button><div class="span4"><h5>'),a={},o={},l={hash:{},contexts:[t],types:["ID"],hashContexts:o,hashTypes:a,data:r},r.buffer.push(u((s=n.date||t.date,s?s.call(t,"controllers.note.time",l):h.call(t,"date","controllers.note.time",l)))),r.buffer.push('</h5></div><div class="span3"><h6>Action Code: '),a={},o={},r.buffer.push(u(n._triageMustache.call(t,"controllers.note.actionCode",{hash:{},contexts:[t],types:["ID"],hashContexts:o,hashTypes:a,data:r}))),r.buffer.push("</h6></div><h6>Result Code: "),a={},o={},r.buffer.push(u(n._triageMustache.call(t,"controllers.note.resultCode",{hash:{},contexts:[t],types:["ID"],hashContexts:o,hashTypes:a,data:r}))),r.buffer.push(' </h6></div><div class="modal-body"><p>'),a={},o={},r.buffer.push(u(n._triageMustache.call(t,"controllers.note.message",{hash:{},contexts:[t],types:["ID"],hashContexts:o,hashTypes:a,data:r}))),r.buffer.push('</p></div><div class="modal-footer"><button class="btn" '),a={},o={},r.buffer.push(u(n.action.call(t,"closeNote",{hash:{},contexts:[t],types:["STRING"],hashContexts:o,hashTypes:a,data:r}))),r.buffer.push(">Close</button></div></div>"),c}),n.exports=n.id}),window.require.register("templates/note/new",function(e,t,n){Ember.TEMPLATES["note/new"]=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-header"><button class="close" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancelNewNote",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>&times;</button><h5>Historical Event</h5></div><div class="modal-body"><div class="form form-horizontal"><div class="control-group"><label class="control-label">Message </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextArea",{hash:{valueBinding:"controllers.note.message",placeholder:"Message"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div></div></div></div><div class="modal-footer"><button class="btn btn-success" '),s={},a={},r.buffer.push(l(n.action.call(t,"saveNewNote",{hash:{},contexts:[t],types:["STRING"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>Done</button><button class="btn" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancelNewNote",{hash:{},contexts:[t],types:["STRING"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(">Cancel</button></div></div>"),o}),n.exports=n.id}),window.require.register("templates/notes",function(e,t,n){Ember.TEMPLATES.notes=Ember.Handlebars.template(function(e,t,n,i,r){function s(e,t){var i,r,s,c,u,h="";return t.buffer.push("<th "),s={},c={},t.buffer.push(m(n.action.call(e,"toggleSort","column",{hash:{},contexts:[e,e],types:["ID","ID"],hashContexts:c,hashTypes:s,data:t}))),t.buffer.push(">"),s={},c={},u={hash:{},contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t},t.buffer.push(m((i=n.humanize||e.humanize,i?i.call(e,"column",u):g.call(e,"humanize","column",u)))),s={},c={},r=n["if"].call(e,"sortedAsc",{hash:{},inverse:b.program(4,o,t),fn:b.program(2,a,t),contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t}),(r||0===r)&&t.buffer.push(r),s={},c={},r=n["if"].call(e,"sortedDesc",{hash:{},inverse:b.program(4,o,t),fn:b.program(6,l,t),contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t}),(r||0===r)&&t.buffer.push(r),t.buffer.push("</th>"),h}function a(e,t){t.buffer.push('<i class="icon-chevron-up"></i>')}function o(){var e="";return e}function l(e,t){t.buffer.push('<i class="icon-chevron-down"></i>')}function c(e,t){var i,r,s,a,l,c="";return t.buffer.push("<tr><td></td><td>"),s={},a={},l={hash:{},inverse:b.program(4,o,t),fn:b.program(9,u,t),contexts:[e,e],types:["STRING","ID"],hashContexts:a,hashTypes:s,data:t},i=n.linkTo||e.linkTo,r=i?i.call(e,"note","",l):g.call(e,"linkTo","note","",l),(r||0===r)&&t.buffer.push(r),t.buffer.push('</td><td><div class="span2">'),s={},a={},t.buffer.push(m(n._triageMustache.call(e,"labelActionCode",{hash:{},contexts:[e],types:["ID"],hashContexts:a,hashTypes:s,data:t}))),t.buffer.push('</div></td><td><div class="span2">'),s={},a={},t.buffer.push(m(n._triageMustache.call(e,"resultCode",{hash:{},contexts:[e],types:["ID"],hashContexts:a,hashTypes:s,data:t}))),t.buffer.push("</div></td><td>"),s={},a={},l={hash:{},contexts:[e],types:["ID"],hashContexts:a,hashTypes:s,data:t},t.buffer.push(m((i=n.summarize||e.summarize,i?i.call(e,"message",l):g.call(e,"summarize","message",l)))),t.buffer.push("</td></tr>"),c}function u(e,t){var i,r,s,a;r={},s={},a={hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:r,data:t},t.buffer.push(m((i=n.date||e.date,i?i.call(e,"time",a):g.call(e,"date","time",a))))}this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var h,d,p,f="",m=this.escapeExpression,g=n.helperMissing,b=this;return r.buffer.push('<div class="row-fluid"><table class="table table-striped row-border"><thead><tr><th><button class="btn btn-primary btn-mini" '),d={},p={},r.buffer.push(m(n.action.call(t,"create",{hash:{},contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}))),r.buffer.push(">+</button></th>"),p={itemController:t},d={itemController:"STRING"},h=n.each.call(t,"columns",{hash:{itemController:"columnItem"},inverse:b.program(4,o,r),fn:b.program(1,s,r),contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push("</tr></thead><tbody>"),p={itemController:t},d={itemController:"STRING"},h=n.each.call(t,"controller",{hash:{itemController:"note"},inverse:b.program(4,o,r),fn:b.program(8,c,r),contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push("</tbody></table><hr /></div>"),f}),n.exports=n.id}),window.require.register("templates/person",function(e,t,n){Ember.TEMPLATES.person=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o,l,c="",u=n.helperMissing,h=this.escapeExpression;return r.buffer.push('<div class="row-fluid">'),a={},o={},l={hash:{},contexts:[t],types:["STRING"],hashContexts:o,hashTypes:a,data:r},r.buffer.push(h((s=n.partial||t.partial,s?s.call(t,"person/edit",l):u.call(t,"partial","person/edit",l)))),r.buffer.push("</div>"),c}),n.exports=n.id}),window.require.register("templates/person/_edit",function(e,t,n){Ember.TEMPLATES["person/_edit"]=Ember.Handlebars.template(function(e,t,n,i,r){this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var s,a,o="",l=this.escapeExpression;return r.buffer.push('<div class="modal"><div class="modal-header"><button class="close" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancelEditing",{hash:{},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>&times;</button><h5>Related Person</h5></div><div class="modal-body"><div class="form form-horizontal"><div class="control-group"><label class="control-label">Relationship </label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.relationships",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.relationships.selected",prompt:"Relationship ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Title </label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.titles",optionLabelPath:"content.id",optionValuePath:"content.id",selectionBinding:"controllers.titles.selected",prompt:"Title ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Last Name </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"lastName",placeholder:"Last Name"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">First Name </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"firstName",placeholder:"First Name"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Middle Name </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"middleName",placeholder:"Middle Name"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Suffix </label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.suffixes",optionLabelPath:"content.id",optionValuePath:"content.id",selectionBinding:"controllers.suffixes.selected",prompt:"Suffix ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Date of Birth </label><div class="controls">'),a={valueBinding:t},s={valueBinding:"STRING"},r.buffer.push(l(n.view.call(t,"App.DatePickerField",{hash:{valueBinding:"dob"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">SSN </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"ssn",placeholder:"SSN"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Relationship Start Date </label><div class="controls">'),a={valueBinding:t},s={valueBinding:"STRING"},r.buffer.push(l(n.view.call(t,"App.DatePickerField",{hash:{valueBinding:"startDate"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Relationship End Date </label><div class="controls">'),a={valueBinding:t},s={valueBinding:"STRING"},r.buffer.push(l(n.view.call(t,"App.DatePickerField",{hash:{valueBinding:"endDate"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Claim Number </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"claimNumber",placeholder:"Claim Number"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Phone </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"phone",placeholder:"Phone"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Country </label><div class="controls">'),a={contentBinding:t,optionLabelPath:t,optionValuePath:t,selectionBinding:t,prompt:t},s={contentBinding:"STRING",optionLabelPath:"STRING",optionValuePath:"STRING",selectionBinding:"STRING",prompt:"STRING"},r.buffer.push(l(n.view.call(t,"Em.Select",{hash:{contentBinding:"controllers.countries",optionLabelPath:"content.label",optionValuePath:"content.id",selectionBinding:"controllers.countries.selected",prompt:"Country ..."},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Address 1 </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"address1",placeholder:"Address 1"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Address 2 </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"address2",placeholder:"Address 2"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Address 3 </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"address3",placeholder:"Address 3"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">City </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"city",placeholder:"City"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">State </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"state",placeholder:"State"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Zip Code </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"zip",placeholder:"Zip code"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">County </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextField",{hash:{valueBinding:"county",placeholder:"County"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div><label class="control-label">Comment </label><div class="controls">'),a={valueBinding:t,placeholder:t},s={valueBinding:"STRING",placeholder:"STRING"},r.buffer.push(l(n.view.call(t,"Em.TextArea",{hash:{valueBinding:"comment",placeholder:"Comment"},contexts:[t],types:["ID"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('</div></div></div></div><div class="modal-footer"><button class="btn btn-success" '),s={},a={},r.buffer.push(l(n.action.call(t,"doneEditing",{hash:{},contexts:[t],types:["STRING"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push('>Done</button><button class="btn" '),s={},a={},r.buffer.push(l(n.action.call(t,"cancelEditing",{hash:{},contexts:[t],types:["STRING"],hashContexts:a,hashTypes:s,data:r}))),r.buffer.push(">Cancel</button></div></div>"),o}),n.exports=n.id}),window.require.register("templates/persons",function(e,t,n){Ember.TEMPLATES.persons=Ember.Handlebars.template(function(e,t,n,i,r){function s(e,t){var i,r,s,c,u,h="";return t.buffer.push("<th "),s={},c={},t.buffer.push(m(n.action.call(e,"toggleSort","column",{hash:{},contexts:[e,e],types:["ID","ID"],hashContexts:c,hashTypes:s,data:t}))),t.buffer.push(">"),s={},c={},u={hash:{},contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t},t.buffer.push(m((i=n.humanize||e.humanize,i?i.call(e,"column",u):g.call(e,"humanize","column",u)))),s={},c={},r=n["if"].call(e,"sortedAsc",{hash:{},inverse:b.program(4,o,t),fn:b.program(2,a,t),contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t}),(r||0===r)&&t.buffer.push(r),s={},c={},r=n["if"].call(e,"sortedDesc",{hash:{},inverse:b.program(4,o,t),fn:b.program(6,l,t),contexts:[e],types:["ID"],hashContexts:c,hashTypes:s,data:t}),(r||0===r)&&t.buffer.push(r),t.buffer.push("</th>"),h}function a(e,t){t.buffer.push('<i class="icon-chevron-up"></i>')}function o(){var e="";return e}function l(e,t){t.buffer.push('<i class="icon-chevron-down"></i>')}function c(e,t){var i,r,s,a,l,c="";return t.buffer.push('<tr><td><button class="btn btn-mini" '),s={id:e},a={id:"STRING"},t.buffer.push(m(n.bindAttr.call(e,{hash:{id:"id"},contexts:[],types:[],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push(">-</button>"),s={contentBinding:e},a={contentBinding:"STRING"},t.buffer.push(m(n.view.call(e,"App.ConfirmationView",{hash:{contentBinding:"this"},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},l={hash:{},inverse:b.program(4,o,t),fn:b.program(9,u,t),contexts:[e,e],types:["STRING","ID"],hashContexts:s,hashTypes:a,data:t},i=n.linkTo||e.linkTo,r=i?i.call(e,"person","",l):g.call(e,"linkTo","person","",l),(r||0===r)&&t.buffer.push(r),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"labelRelationship",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"phone",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"city",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"state",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td><td>"),a={},s={},t.buffer.push(m(n._triageMustache.call(e,"comment",{hash:{},contexts:[e],types:["ID"],hashContexts:s,hashTypes:a,data:t}))),t.buffer.push("</td></tr>"),c}function u(e,t){var i,r;i={},r={},t.buffer.push(m(n._triageMustache.call(e,"fullName",{hash:{},contexts:[e],types:["ID"],hashContexts:r,hashTypes:i,data:t})))}this.compilerInfo=[4,">= 1.0.0"],n=this.merge(n,Ember.Handlebars.helpers),r=r||{};var h,d,p,f="",m=this.escapeExpression,g=n.helperMissing,b=this;return r.buffer.push('<div class="row-fluid"><table class="table table-striped row-border"><thead><tr><th><button class="btn btn-primary btn-mini" '),d={},p={},r.buffer.push(m(n.action.call(t,"create",{hash:{},contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}))),r.buffer.push(">+</button></th>"),p={itemController:t},d={itemController:"STRING"},h=n.each.call(t,"columns",{hash:{itemController:"columnItem"},inverse:b.program(4,o,r),fn:b.program(1,s,r),contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push("</tr></thead><tbody>"),p={itemController:t},d={itemController:"STRING"},h=n.each.call(t,"controller",{hash:{itemController:"person"},inverse:b.program(4,o,r),fn:b.program(8,c,r),contexts:[t],types:["ID"],hashContexts:p,hashTypes:d,data:r}),(h||0===h)&&r.buffer.push(h),r.buffer.push("</tbody></table></div>"),f}),n.exports=n.id}),window.require.register("views/cancellationFeeView",function(){App.CancellationFeeView=Em.TextField.extend({elementId:"cancellationFee",_updateElementValue:Em.observer(function(){var e,t,n,i;return e=this.$(),i=e.val().replace("%",""),t=i.length,n=t,this.$().val(this.get("value")),e.prop({selectionStart:n,selectionEnd:n})},"value"),keyUp:function(e){return this.interpretKeyEvents(e),this.set("value",this.get("value").replace("%","")+"%")}})}),window.require.register("views/cancellationPopupView",function(){App.CancellationPopupView=Em.View.extend({titlePrefix:"",parentSelector:"",contentSelector:"",templateName:"_cancellationWarning",willInsertElement:function(){return this.set("contentSelector","#cancellationWarning"),this.set("id","popoverCancellationFee"),this.set("parentSelector","#cancellationFee")},didInsertElement:function(){var e;return e=this,$(e.parentSelector).popover({html:!0,placement:"right",container:"body",title:"Cancellation Fee Limit",trigger:"manual",content:function(){var t;return t=$(e.contentSelector).html()}})},willDestroyElement:function(){return this.$().popover("destroy")},showWarning:function(){var e;return e=this,this.get("controller.showCancellationWarning")?$(e.parentSelector).popover("show"):$(e.parentSelector).popover("hide")}.observes("controller.showCancellationWarning"),actions:{close:function(){return this.set("controller.showCancellationWarning",!1)}}})}),window.require.register("views/confirmationView",function(){App.ConfirmationView=Em.View.extend({titlePrefix:"",parentSelector:"",contentSelector:"",templateName:"_confirmation",willInsertElement:function(){return this.set("contentSelector","#content-"+this.get("controller.id")),this.set("templateName","_confirmation"),this.set("id","popover"+this.get("controller.id")),this.set("parentSelector","#"+this.get("controller.id"))},didInsertElement:function(){var e;return e=this,$(e.parentSelector).popover({html:!0,placement:"right",container:"body",title:"Delete Confirmation",content:function(){var t;return t=$(e.contentSelector).html()}})},willDestroyElement:function(){return this.$().popover("destroy")},close:function(){var e;return e=this,$(e.parentSelector).popover("hide")}})}),window.require.register("views/contactView",function(){}),window.require.register("views/contactsListView",function(){}),window.require.register("views/datePickerField",function(){App.DatePickerField=Em.TextField.extend({classNames:["date-picker"],textToDateTransform:function(e,t){var n,i,r;return 2===arguments.length?t instanceof Date?(this.set("date",n),this.close()):t&&/\d{2}\/\d{2}\/\d{4}/.test(t)?(r=t.split("-"),n=new Date,n.setDate(r[0]),n.setMonth(r[1]-1),n.setYear(r[2]),this.set("date",n),this.close()):this.set("date",null):1===arguments.length&&this.get("date")?(i=this.get("date").getMonth()+1,n=this.get("date").getDate(),10>i&&(i="0"+i),10>n&&(n="0"+n),"%@-%@-%@".fmt(this.get("date").getFullYear(),i,n)):void 0}.property("value"),format:"mm/dd/yyyy",placeholder:Em.computed.alias("format"),size:8,valueBinding:"textToDateTransform",yesterday:function(){var e;return e=new Date,e.setDate(e.getDate()-1),e}.property(),didInsertElement:function(){var e=this;return this.$().datepicker({format:this.get("format"),autoclose:!0,todayHighlight:!0,keyboardNavigation:!1}).on("changeDate",function(t){return e.set("date",t.date),e.$().datepicker("setValue",t.date)})},close:function(){return this.$().datepicker("hide")}})}),window.require.register("views/debtorsListView",function(){}),window.require.register("views/fixedHeaderTableView",function(){App.FixedHeaderTableView=Em.View.extend({classNames:["table-fixed-header"],didInsertElement:function(){return this.$(".table-fixed-header").fixedHeader()}})}),window.require.register("views/indexView",function(){App.IndexView=Ember.View.extend({didInsertElement:function(){return $("#debtors-grid").on("scroll",$.proxy(this.didScroll,this))},willDestroyElement:function(){return $("#debtors-grid").off("scroll",$.proxy(this.didScroll,this))},didScroll:function(){return 1===this.isScrolledToBottom()?this.get("controller").send("getMore"):0===this.isScrolledToBottom()?console.log("did Scroll Up"):void 0},isScrolledToBottom:function(){var e,t,n,i,r;return t=$("#table-body").height(),n=$("#debtors-grid").height(),r=$("#debtors-grid").scrollTop(),e=t-n+20,i=e-r,0===r?0:0===i?1:2}})}),window.require.register("views/modalView",function(){App.ModalView=Ember.View.extend({templateName:"modal",title:"",content:"",classNames:["modal","fade","hide"],didInsertElement:function(){return this.$().modal("show"),this.$().one("hidden",this._viewDidHide)},_viewDidHide:function(){return this.isDestroyed?void 0:this.destroy()},close:function(){return this.$(".close").click()}})}),window.require.register("views/radioButtonView",function(){App.RadioButton=Em.CollectionView.extend({classNames:["btn-group"],itemViewClass:Em.View.extend({template:Em.Handlebars.compile("{{view.content.name}}"),tagName:"button",classNames:["btn"]}),attributeBindings:["data-toggle","name","type","value"],"data-toggle":"buttons-radio",click:function(){return this.set("controller.filterStatus",this.$().val())}})}),window.require.register("views/scrollView",function(){});
+(function(/*! Brunch !*/) {
+  'use strict';
+
+  var globals = typeof window !== 'undefined' ? window : global;
+  if (typeof globals.require === 'function') return;
+
+  var modules = {};
+  var cache = {};
+
+  var has = function(object, name) {
+    return ({}).hasOwnProperty.call(object, name);
+  };
+
+  var expand = function(root, name) {
+    var results = [], parts, part;
+    if (/^\.\.?(\/|$)/.test(name)) {
+      parts = [root, name].join('/').split('/');
+    } else {
+      parts = name.split('/');
+    }
+    for (var i = 0, length = parts.length; i < length; i++) {
+      part = parts[i];
+      if (part === '..') {
+        results.pop();
+      } else if (part !== '.' && part !== '') {
+        results.push(part);
+      }
+    }
+    return results.join('/');
+  };
+
+  var dirname = function(path) {
+    return path.split('/').slice(0, -1).join('/');
+  };
+
+  var localRequire = function(path) {
+    return function(name) {
+      var dir = dirname(path);
+      var absolute = expand(dir, name);
+      return globals.require(absolute);
+    };
+  };
+
+  var initModule = function(name, definition) {
+    var module = {id: name, exports: {}};
+    definition(module.exports, localRequire(name), module);
+    var exports = cache[name] = module.exports;
+    return exports;
+  };
+
+  var require = function(name) {
+    var path = expand(name, '.');
+
+    if (has(cache, path)) return cache[path];
+    if (has(modules, path)) return initModule(path, modules[path]);
+
+    var dirIndex = expand(path, './index');
+    if (has(cache, dirIndex)) return cache[dirIndex];
+    if (has(modules, dirIndex)) return initModule(dirIndex, modules[dirIndex]);
+
+    throw new Error('Cannot find module "' + name + '"');
+  };
+
+  var define = function(bundle, fn) {
+    if (typeof bundle === 'object') {
+      for (var key in bundle) {
+        if (has(bundle, key)) {
+          modules[key] = bundle[key];
+        }
+      }
+    } else {
+      modules[bundle] = fn;
+    }
+  };
+
+  globals.require = require;
+  globals.require.define = define;
+  globals.require.register = define;
+  globals.require.brunch = true;
+})();
+
+window.require.register("app", function(exports, require, module) {
+  module.exports = Em.Application.create({
+    LOG_TRANSITIONS: true,
+    serverUrl: 'http://10.211.55.4',
+    serverNamespace: 'hunter-warfield/api',
+    paymentPostingUrl: 'http://paymentposting.hunterwarfield.com'
+  });
+  
+});
+window.require.register("controllers/applicationController", function(exports, require, module) {
+  App.ApplicationController = Em.Controller.extend({
+    params: []
+  });
+  
+});
+window.require.register("controllers/contactController", function(exports, require, module) {
+  App.ContactController = App.EditObjectController.extend({
+    needs: ['debtor', 'countries', 'phoneTypes', 'phoneStatuses', 'sources', 'yesNo'],
+    isConfirming: false,
+    labelPhoneType: (function() {
+      var type;
+      type = this.get('controllers.phoneTypes').findProperty('id', this.get('type'));
+      if (type === null || type === void 0) {
+        return null;
+      }
+      return type.label;
+    }).property('type'),
+    labelPhoneStatus: (function() {
+      var status;
+      status = this.get('controllers.phoneStatuses').findProperty('id', this.get('status'));
+      if (status === null || status === void 0) {
+        return null;
+      }
+      return status.label;
+    }).property('status'),
+    setSelections: function() {
+      this.get('controllers.countries').setSelectedByIdStr(this.get('country'));
+      this.get('controllers.phoneTypes').setSelectedById(this.get('type'));
+      this.get('controllers.phoneStatuses').setSelectedById(this.get('status'));
+      this.get('controllers.sources').setSelectedById(this.get('source'));
+      return this.get('controllers.yesNo').setSelectedById(this.get('consent'));
+    },
+    getSelections: function() {
+      this.set('country', this.get('controllers.countries').getSelectedId());
+      this.set('type', this.get('controllers.phoneTypes').getSelectedId());
+      this.set('status', this.get('controllers.phoneStatuses').getSelectedId());
+      this.set('source', this.get('controllers.sources').getSelectedId());
+      return this.set('consent', this.get('controllers.yesNo').getSelectedId());
+    }
+  });
+  
+});
+window.require.register("controllers/contactsController", function(exports, require, module) {
+  App.ContactsController = App.ColumnSorterController.extend({
+    needs: ['debtor', 'contact', 'phoneTypes'],
+    itemController: 'contact',
+    columns: (function() {
+      return [
+        Em.Object.create({
+          column: 'phone'
+        }), Em.Object.create({
+          column: 'extension'
+        }), Em.Object.create({
+          column: 'type'
+        }), Em.Object.create({
+          column: 'status'
+        })
+      ];
+    }).property(),
+    actions: {
+      create: function() {
+        var transaction;
+        transaction = this.get('store').transaction();
+        return this.transitionToRoute('contact', transaction.createRecord(App.Contact, {
+          'debtor': this.get('controllers.debtor').content,
+          'debtorId': this.get('controllers.debtor').content.id
+        }));
+      },
+      "delete": function(item) {
+        item.deleteRecord();
+        return this.get('store').commit();
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/debtorController", function(exports, require, module) {
+  App.DebtorController = App.EditObjectController.extend({
+    needs: ['contacts', 'employments', 'persons', 'notes', 'countries', 'consumerFlags', 'titles', 'suffixes', 'validInvalid', 'yesNo', 'application', 'cancellationCodes', 'actionCodes', 'resultCodes', 'debtorAccount'],
+    toCancel: false,
+    toHold: false,
+    loading: true,
+    processing: false,
+    cancellationSuccess: false,
+    holdSuccess: false,
+    confirmationNumber: null,
+    cancellationFee: 0,
+    showCancellationWarning: false,
+    accountId: (function() {
+      return this.get('controllers.debtorAccount.id');
+    }).property('controllers.debtorAccount.id'),
+    params: (function() {
+      return this.get('controllers.application.params');
+    }).property('controllers.application.params'),
+    disableEdit: (function() {
+      if (this.get('params.canEditDebtor') === 'true') {
+        return false;
+      }
+      return true;
+    }).property(),
+    loaded: (function() {
+      var fee;
+      this.set('loading', false);
+      fee = this.get('controllers.application.params.feePercentage');
+      if (!(fee < 20)) {
+        fee = 20;
+      }
+      return this.set('cancellationFee', fee + '%');
+    }).observes('content.isLoaded'),
+    setSelections: function() {
+      this.get('controllers.consumerFlags').setSelectedById(this.get('type'));
+      this.get('controllers.titles').setSelectedById(this.get('title'));
+      this.get('controllers.suffixes').setSelectedById(this.get('suffix'));
+      this.get('controllers.validInvalid').setSelectedById(this.get('emailValidity'));
+      this.get('controllers.yesNo').setSelectedById(this.get('optIn'));
+      return this.get('controllers.countries').setSelectedById(this.get('country'));
+    },
+    getSelections: function() {
+      this.set('type', this.get('controllers.consumerFlags').getSelectedId());
+      this.set('title', this.get('controllers.titles').getSelectedId());
+      this.set('suffix', this.get('controllers.suffixes').getSelectedId());
+      this.set('emailValidity', this.get('controllers.validInvalid').getSelectedId());
+      this.set('optIn', this.get('controllers.yesNo').getSelectedId());
+      return this.set('country', this.get('controllers.countries').getSelectedId());
+    },
+    actions: {
+      close: function() {
+        this.set('isEditing', false);
+        return window.close();
+      },
+      makePayment: function() {
+        return window.open(App.paymentPostingUrl);
+      },
+      sendCancellation: function() {
+        var self;
+        self = this;
+        if (parseInt(this.get('cancellationFee').replace('%', '')) > 20) {
+          return this.set('showCancellationWarning', true);
+        } else {
+          this.set('showCancellationWarning', false);
+          this.set('toCancel', false);
+          this.set('processing', true);
+          return $.ajax({
+            url: App.serverUrl + '/' + App.serverNamespace + '/cancellation',
+            dataType: 'json',
+            type: 'POST',
+            data: {
+              accountId: this.get('accountId'),
+              agencyId: this.get('controllers.debtorAccount.agencyId'),
+              userId: this.get('params.userId'),
+              shortCode: this.get('controllers.cancellationCodes').getSelectedId(),
+              debtorId: this.get('id'),
+              clientId: this.get('params.clientId'),
+              creditorId: this.get('creditorId')
+            },
+            success: function(response) {
+              self.get('content').refresh();
+              return Em.run.later((function() {
+                self.set('processing', false);
+                return self.set('cancellationSuccess', true);
+              }), 5000);
+            }
+          });
+        }
+      },
+      sendHold: function() {
+        var self;
+        self = this;
+        this.set('toHold', false);
+        this.set('processing', true);
+        return $.ajax({
+          url: App.serverUrl + '/' + App.serverNamespace + '/holdAccount',
+          dataType: 'json',
+          type: 'POST',
+          data: {
+            accountId: this.get('accountId'),
+            agencyId: this.get('controllers.debtorAccount.agencyId'),
+            userId: this.get('params.userId'),
+            debtorId: this.get('id'),
+            clientId: this.get('params.clientId'),
+            creditorId: this.get('creditorId')
+          },
+          success: function(response) {
+            self.get('content').refresh();
+            return Em.run.later((function() {
+              self.set('processing', false);
+              return self.set('holdSuccess', true);
+            }), 5000);
+          }
+        });
+      },
+      cancellation: function() {
+        this.toggleProperty('toCancel');
+        return false;
+      },
+      holdAccount: function() {
+        this.toggleProperty('toHold');
+        return false;
+      },
+      hideLoading: function() {
+        this.toggleProperty('loading');
+        return false;
+      },
+      showProcessing: function() {
+        this.toggleProperty('processing');
+        return false;
+      },
+      closeCancelSuccess: function() {
+        this.toggleProperty('cancellationSuccess');
+        return false;
+      },
+      closeHoldSuccess: function() {
+        this.toggleProperty('holdSuccess');
+        return false;
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/debtorsController", function(exports, require, module) {
+  App.DebtorsController = App.ColumnSorterController.extend({
+    columns: (function() {
+      return [
+        Em.Object.create({
+          column: 'id'
+        }), Em.Object.create({
+          column: 'firstName'
+        }), Em.Object.create({
+          column: 'middleName'
+        }), Em.Object.create({
+          column: 'lastName'
+        }), Em.Object.create({
+          column: 'address1'
+        }), Em.Object.create({
+          column: 'address2'
+        }), Em.Object.create({
+          column: 'city'
+        }), Em.Object.create({
+          column: 'state'
+        }), Em.Object.create({
+          column: 'zip'
+        })
+      ];
+    }).property(),
+    loaded: (function() {
+      return this.get('filtered');
+    }).observes('@content.isLoaded'),
+    filtering: (function() {
+      return this.get('filtered');
+    }).observes('search'),
+    filtered: (function() {
+      var regexp;
+      regexp = new RegExp(this.get('search'));
+      return this.get('content').filter(function(item) {
+        return regexp.test(item.get('id'));
+      });
+    }).property('search', 'content.@each.id')
+  });
+  
+});
+window.require.register("controllers/employmentController", function(exports, require, module) {
+  App.EmploymentController = App.EditObjectController.extend({
+    needs: ['debtor', 'associations', 'employmentStatuses', 'countries', 'sources'],
+    labelEmploymentStatus: (function() {
+      var status;
+      status = this.get('controllers.employmentStatuses').findProperty('id', this.get('status'));
+      if (status === null || status === void 0) {
+        return null;
+      }
+      return status.label;
+    }).property('status'),
+    labelSource: (function() {
+      var source;
+      source = this.get('controllers.sources').findProperty('id', this.get('source'));
+      if (source === null || source === void 0) {
+        return null;
+      }
+      return source.label;
+    }).property('source'),
+    setSelections: function() {
+      this.get('controllers.associations').setSelectedById(this.get('association'));
+      this.get('controllers.countries').setSelectedByIdStr(this.get('country'));
+      this.get('controllers.employmentStatuses').setSelectedById(this.get('status'));
+      return this.get('controllers.sources').setSelectedById(this.get('source'));
+    },
+    getSelections: function() {
+      this.set('country', this.get('controllers.countries').getSelectedId());
+      this.set('status', this.get('controllers.employmentStatuses').getSelectedId());
+      this.set('association', this.get('controllers.associations').getSelectedId());
+      return this.set('source', this.get('controllers.sources').getSelectedId());
+    }
+  });
+  
+});
+window.require.register("controllers/employmentsController", function(exports, require, module) {
+  App.EmploymentsController = App.ColumnSorterController.extend({
+    needs: ['debtor', 'employment'],
+    columns: (function() {
+      return [
+        Em.Object.create({
+          column: 'name'
+        }), Em.Object.create({
+          column: 'status'
+        }), Em.Object.create({
+          column: 'source'
+        }), Em.Object.create({
+          column: 'phone'
+        }), Em.Object.create({
+          column: 'title'
+        }), Em.Object.create({
+          column: 'hireDate'
+        })
+      ];
+    }).property(),
+    actions: {
+      create: function() {
+        var transaction;
+        transaction = this.get('store').transaction();
+        return this.transitionToRoute('employment', transaction.createRecord(App.Employment, {
+          'debtor': this.get('controllers.debtor').content,
+          'debtorId': this.get('controllers.debtor').content.id
+        }));
+      },
+      "delete": function(item) {
+        item.deleteRecord();
+        return this.get('store').commit();
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/helpers/columnItemController", function(exports, require, module) {
+  App.ColumnItemController = Em.ObjectController.extend({
+    sortColumn: Em.computed.alias('parentController.sortedColumn'),
+    sortAscending: Em.computed.alias('parentController.sortAscending'),
+    sortDescending: Em.computed.not('sortAscending'),
+    isSorted: (function() {
+      return this.get('sortColumn') === this.get('column');
+    }).property('sortColumn', 'column'),
+    sortedAsc: Em.computed.and('sortAscending', 'isSorted'),
+    sortedDesc: Em.computed.and('sortDescending', 'isSorted')
+  });
+  
+});
+window.require.register("controllers/helpers/columnSorterController", function(exports, require, module) {
+  App.ColumnSorterController = Em.ArrayController.extend({
+    columns: [],
+    sortedColumn: (function() {
+      var properties;
+      properties = this.get('sortProperties');
+      if (!properties) {
+        return 'undefined';
+      }
+      return properties.get('firstObject');
+    }).property('sortProperties.[]'),
+    actions: {
+      toggleSort: function(column) {
+        if (this.get('sortedColumn') === column) {
+          return this.toggleProperty('sortAscending');
+        } else {
+          this.set('sortProperties', [column]);
+          return this.set('sortAscending', true);
+        }
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/helpers/editObjectController", function(exports, require, module) {
+  App.EditObjectController = Em.ObjectController.extend({
+    isEditing: false,
+    confirmationId: (function() {
+      return 'content-' + this.get('id');
+    }).property('id'),
+    loaded: (function() {
+      return this.setSelections();
+    }).observes('@content.isLoaded'),
+    dirtied: (function() {
+      if (!this.get('transaction') && this.get('isDirty') === true) {
+        return this.set('transaction', this.get('store').transaction());
+      }
+    }).observes('isDirty'),
+    actions: {
+      edit: function() {
+        this.set('isEditing', true);
+        return this.setSelections();
+      },
+      doneEditing: function() {
+        this.getSelections();
+        if (this.get('transaction')) {
+          this.get('transaction').commit();
+        }
+        this.set('isEditing', false);
+        return this.transitionToRoute('debtor');
+      },
+      cancelEditing: function() {
+        this.setSelections();
+        if (this.get('transaction')) {
+          this.get('transaction').rollback();
+          this.set('transaction', null);
+        }
+        this.set('isEditing', false);
+        return this.transitionToRoute('debtor');
+      },
+      deleteRecord: function(item) {
+        item.deleteRecord();
+        return this.get('store').commit();
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/indexController", function(exports, require, module) {
+  App.IndexController = App.ColumnSorterController.extend({
+    needs: ['application', 'dataFilter'],
+    params: (function() {
+      return this.get('controllers.application.params');
+    }).property('controllers.application.params'),
+    columns: (function() {
+      return [
+        Em.Object.create({
+          column: 'id',
+          label: 'accountNumber',
+          width: 'width:15%;',
+          align: 'text-align:left;'
+        }), Em.Object.create({
+          column: 'fullName',
+          label: 'name',
+          width: 'width:30%;',
+          align: 'text-align:left;'
+        }), Em.Object.create({
+          column: 'placementDate',
+          label: 'placementDate',
+          width: 'width:15%;',
+          align: 'text-align:left;'
+        }), Em.Object.create({
+          column: 'totalOriginalBalance',
+          label: 'originalBalance',
+          width: 'width:10%;',
+          align: 'text-align:right;'
+        }), Em.Object.create({
+          column: 'totalPayment',
+          label: 'totalPayment',
+          width: 'width:10%;',
+          align: 'text-align:right;'
+        }), Em.Object.create({
+          column: 'currentBalance',
+          label: 'currentBalance',
+          width: 'width:10%;',
+          align: 'text-align:right;'
+        }), Em.Object.create({
+          column: 'status',
+          label: 'status',
+          width: 'width:10%;',
+          align: 'text-align:center;'
+        })
+      ];
+    }).property(),
+    currentContent: Em.A([]),
+    filterStatus: null,
+    loaded: (function() {
+      this.set('sortProperties', ['placementDate']);
+      return this.set('sortAscending', false);
+    }).observes('content.isLoaded'),
+    filterDebtors: (function() {
+      return this.get('filtered');
+    }).observes('search'),
+    sorted: (function() {
+      var result;
+      result = Em.ArrayProxy.createWithMixins(Em.SortableMixin, {
+        content: this.get('filteredContent'),
+        sortProperties: this.get('sortProperties'),
+        sortAscending: this.get('sortAscending')
+      });
+      return this.set('currentContent', result);
+    }).observes('arrangedContent', 'sortAscending'),
+    changed: (function() {
+      return this.get('filtered');
+    }).observes('content.@each'),
+    filteredContent: (function() {
+      var regexp, result;
+      regexp = new RegExp(this.get('search'));
+      return result = this.get('content').filter(function(item) {
+        return regexp.test(item.get('agencyId'));
+      });
+    }).property('search', 'content.@each.agencyId'),
+    filtered: (function() {
+      var result;
+      result = Em.ArrayProxy.createWithMixins(Em.SortableMixin, {
+        content: this.get('filteredContent'),
+        sortProperties: this.get('sortProperties'),
+        sortAscending: this.get('sortAscending')
+      });
+      return this.set('currentContent', result);
+    }).observes('filteredContent'),
+    page: 1,
+    perPage: 50,
+    totalCount: 0,
+    loadingMore: false,
+    actions: {
+      getMore: function() {
+        if (this.get('loadingMore')) {
+          return;
+        }
+        this.set('loadingMore', true);
+        return this.get('target').send('getMore');
+      },
+      gotMore: function(items, page) {
+        this.set('loadingMore', false);
+        this.set('page', page);
+        return this.pushObjects(items);
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/lookupDataController", function(exports, require, module) {
+  App.LookupDataController = Em.ArrayController.extend({
+    selected: null,
+    getSelectedId: function() {
+      return this.get('selected.id');
+    },
+    getObjectById: function(id) {
+      return this.get('content').filterProperty('id', id).get('firstObject');
+    },
+    getLabelById: function(id) {
+      return this.get('content').filterProperty('id', id).get('firstObject.type');
+    },
+    setSelectedById: function(id) {
+      return this.set('selected', this.getObjectById(id));
+    }
+  });
+
+  App.ConsumerFlagsController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 'N',
+        label: 'Consumer'
+      }), Em.Object.create({
+        id: 'Y',
+        label: 'Commerical'
+      })
+    ]
+  });
+
+  App.TitlesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 'Dr.'
+      }), Em.Object.create({
+        id: 'Miss'
+      }), Em.Object.create({
+        id: 'Mr.'
+      }), Em.Object.create({
+        id: 'Mrs.'
+      }), Em.Object.create({
+        id: 'Ms.'
+      }), Em.Object.create({
+        id: 'Prof'
+      })
+    ]
+  });
+
+  App.SuffixesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 'Jr.'
+      }), Em.Object.create({
+        id: 'Sr.'
+      }), Em.Object.create({
+        id: 'Esq.'
+      }), Em.Object.create({
+        id: 'I'
+      }), Em.Object.create({
+        id: 'II'
+      }), Em.Object.create({
+        id: 'III'
+      })
+    ]
+  });
+
+  App.ValidInvalidController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 1,
+        label: 'Valid'
+      }), Em.Object.create({
+        id: 2,
+        label: 'Invalid'
+      })
+    ]
+  });
+
+  App.YesNoController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 'Y',
+        label: 'Yes'
+      }), Em.Object.create({
+        id: 'N',
+        label: 'No'
+      })
+    ]
+  });
+
+  App.PhoneTypesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 0,
+        label: 'Unknown'
+      }), Em.Object.create({
+        id: 1,
+        label: 'Home'
+      }), Em.Object.create({
+        id: 2,
+        label: 'Work'
+      }), Em.Object.create({
+        id: 3,
+        label: 'Cell'
+      }), Em.Object.create({
+        id: 4,
+        label: 'Fax'
+      }), Em.Object.create({
+        id: 5,
+        label: 'VOIP'
+      })
+    ]
+  });
+
+  App.PhoneStatusesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 0,
+        label: 'Unknown'
+      }), Em.Object.create({
+        id: 1,
+        label: 'Valid'
+      }), Em.Object.create({
+        id: 2,
+        label: 'Invalid'
+      }), Em.Object.create({
+        id: 3,
+        label: 'New'
+      }), Em.Object.create({
+        id: 4,
+        label: 'Valid - Do not call'
+      })
+    ]
+  });
+
+  App.SourcesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 0,
+        label: 'Unknown'
+      }), Em.Object.create({
+        id: 1,
+        label: 'Type In'
+      }), Em.Object.create({
+        id: 2,
+        label: 'Client'
+      }), Em.Object.create({
+        id: 3,
+        label: 'Skip Trance'
+      }), Em.Object.create({
+        id: 4,
+        label: 'Consumer Portal'
+      })
+    ]
+  });
+
+  App.AssociationsController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: '1',
+        label: 'Consumer'
+      }), Em.Object.create({
+        id: '2',
+        label: 'Spouse'
+      })
+    ]
+  });
+
+  App.EmploymentStatusesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 1,
+        label: 'Employed'
+      }), Em.Object.create({
+        id: 2,
+        label: 'Full Time'
+      }), Em.Object.create({
+        id: 3,
+        label: 'Part Time'
+      }), Em.Object.create({
+        id: 4,
+        label: 'Unemployed'
+      }), Em.Object.create({
+        id: 5,
+        label: 'Other'
+      }), Em.Object.create({
+        id: 6,
+        label: 'Self Employed'
+      })
+    ]
+  });
+
+  App.CountriesController = App.LookupDataController.extend({
+    getObjectByIdStr: function(id) {
+      return this.get('content').filterProperty('idStr', id).get('firstObject');
+    },
+    setSelectedByIdStr: function(id) {
+      return this.set('selected', this.getObjectByIdStr(id));
+    },
+    loaded: (function() {
+      return this.set('sortAscending', true);
+    }).observes('@content.isloaded')
+  });
+
+  App.RelationshipsController = App.LookupDataController.extend({
+    getObjectByIdNum: function(id) {
+      return this.get('content').filterProperty('idNum', id).get('firstObject');
+    },
+    setSelectedByIdNum: function(id) {
+      return this.set('selected', this.getObjectByIdNum(id));
+    }
+  });
+
+  App.ActionCodesController = App.LookupDataController.extend({
+    loaded: (function() {
+      return this.set('sortAscending', true);
+    }).observes('@content.isloaded')
+  });
+
+  App.ResultCodesController = App.LookupDataController.extend({
+    loaded: (function() {
+      return this.set('sortAscending', true);
+    }).observes('@content.isloaded')
+  });
+
+  App.CancellationCodesController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        id: 'A-CBC',
+        label: 'Cancelled by Client'
+      }), Em.Object.create({
+        id: 'A-CBK',
+        label: 'Cancelled - Bankruptcy'
+      }), Em.Object.create({
+        id: 'A-CBA',
+        label: 'Cancelled by Agency'
+      }), Em.Object.create({
+        id: 'A-CDA',
+        label: 'Cancelled Duplicate Account'
+      }), Em.Object.create({
+        id: 'A-CDE',
+        label: 'Cancelled Data Load Error'
+      }), Em.Object.create({
+        id: 'A-CII',
+        label: 'Cancelled due to incomplete information'
+      }), Em.Object.create({
+        id: 'A-COB',
+        label: 'Cancelled Out of Business'
+      }), Em.Object.create({
+        id: 'A-CPF',
+        label: 'Cancelled Possible Fraud'
+      }), Em.Object.create({
+        id: 'A-CPP',
+        label: 'Cancelled Paid Prior to Placement'
+      })
+    ]
+  });
+
+  App.DataFilterController = App.LookupDataController.extend({
+    content: [
+      Em.Object.create({
+        name: 'Active',
+        value: 'active'
+      }), Em.Object.create({
+        name: 'Open',
+        value: 'open'
+      }), Em.Object.create({
+        name: 'All',
+        value: 'all'
+      })
+    ]
+  });
+  
+});
+window.require.register("controllers/noteController", function(exports, require, module) {
+  App.NoteController = App.EditObjectController.extend({
+    needs: ['debtorAccount', 'actionCodes', 'resultCodes', 'application', 'debtor'],
+    labelActionCode: (function() {
+      var actionCode;
+      actionCode = this.get('controllers.actionCodes').findProperty('id', this.get('actionCode'));
+      if (actionCode === null || actionCode === void 0) {
+        return this.get('actionCode');
+      }
+      return actionCode.value;
+    }).property('actionCode'),
+    setSelections: function() {
+      return false;
+    },
+    getSelections: function() {
+      return false;
+    },
+    actions: {
+      saveNote: function() {
+        this.set('content.actionCode', 211);
+        this.set('content.resultCode', 266);
+        this.set('userId', this.get('controllers.application.params.userId'));
+        this.set('debtorId', this.get('controllers.debtor.id'));
+        this.set('debtor', this.get('controllers.debtor.content'));
+        return this.send('doneEditing');
+      },
+      closeNote: function() {
+        return this.transitionToRoute('debtor');
+      },
+      cancelNote: function() {
+        return this.send('cancelEditing');
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/noteIndexController", function(exports, require, module) {
+  App.NoteIndexController = Em.ObjectController.extend({
+    needs: ['note'],
+    actions: {
+      closeNote: function() {
+        return this.transitionToRoute('debtor');
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/noteNewController", function(exports, require, module) {
+  App.NoteNewController = Em.ObjectController.extend({
+    needs: ['note', 'application', 'debtor'],
+    actions: {
+      saveNewNote: function() {
+        return this.get('controllers.note').send('saveNote');
+      },
+      cancelNewNote: function() {
+        return this.get('controllers.note').send('cancelNote');
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/notesController", function(exports, require, module) {
+  App.NotesController = App.ColumnSorterController.extend({
+    needs: ['actionCodes', 'debtor', 'note'],
+    columns: (function() {
+      return [
+        Em.Object.create({
+          column: 'time'
+        }), Em.Object.create({
+          column: 'actionCode'
+        }), Em.Object.create({
+          column: 'resultCode'
+        }), Em.Object.create({
+          column: 'message'
+        })
+      ];
+    }).property(),
+    loaded: (function() {
+      this.set('sortProperties', ['time']);
+      return this.set('sortAscending', false);
+    }).observes('content.@each'),
+    actions: {
+      create: function() {
+        var transaction;
+        transaction = this.get('store').transaction();
+        return this.transitionToRoute('note.new', transaction.createRecord(App.Note, {
+          'debtor': this.get('controllers.debtor').content,
+          'debtorId': this.get('controllers.debtor').content.id
+        }));
+      }
+    }
+  });
+  
+});
+window.require.register("controllers/personController", function(exports, require, module) {
+  App.PersonController = App.EditObjectController.extend({
+    needs: ['countries', 'relationships', 'titles', 'suffixes'],
+    relationshipLoaded: (function() {
+      return this.get('labelRelationship');
+    }).observes('@controllers.relationships.isLoaded'),
+    labelRelationship: (function() {
+      var relationship;
+      relationship = this.get('controllers.relationships.content').findProperty('idNum', this.get('relationship'));
+      if (relationship === null || relationship === void 0) {
+        return null;
+      }
+      return relationship.label;
+    }).property('relationship'),
+    setSelections: function() {
+      this.get('controllers.countries').setSelectedByIdStr(this.get('country'));
+      this.get('controllers.relationships').setSelectedByIdNum(this.get('relationship'));
+      this.get('controllers.titles').setSelectedById(this.get('title'));
+      return this.get('controllers.suffixes').setSelectedById(this.get('suffix'));
+    },
+    getSelections: function() {
+      this.set('country', this.get('controllers.countries').getSelectedId());
+      this.set('relationship', this.get('controllers.relationships').getSelectedId());
+      this.set('title', this.get('controllers.titles').getSelectedId());
+      return this.set('suffix', this.get('controllers.suffixes').getSelectedId());
+    }
+  });
+  
+});
+window.require.register("controllers/personsController", function(exports, require, module) {
+  App.PersonsController = App.ColumnSorterController.extend({
+    needs: ['debtor', 'person'],
+    columns: (function() {
+      return [
+        Em.Object.create({
+          column: 'name'
+        }), Em.Object.create({
+          column: 'relationship'
+        }), Em.Object.create({
+          column: 'phone'
+        }), Em.Object.create({
+          column: 'city'
+        }), Em.Object.create({
+          column: 'state'
+        }), Em.Object.create({
+          column: 'comment'
+        })
+      ];
+    }).property(),
+    actions: {
+      create: function() {
+        var transaction;
+        transaction = this.get('store').transaction();
+        return this.transitionToRoute('person', transaction.createRecord(App.Person, {
+          'debtor': this.get('controllers.debtor').content,
+          'debtorId': this.get('controllers.debtor').content.id
+        }));
+      },
+      "delete": function(item) {
+        var transaction;
+        transaction = this.get('store').transaction();
+        transaction.add(item);
+        item.deleteRecord();
+        return transaction.commit();
+      }
+    }
+  });
+  
+});
+window.require.register("helpers/datePicker", function(exports, require, module) {
+  App.DatePicker = Em.TextField.extend({
+    classNames: ['date-picker'],
+    textToDateTransform: (function(key, value) {
+      var date, month, parts;
+      if (arguments.length === 2) {
+        if (value && /\d{4}-\d{2}-\d{2}/.test(value)) {
+          parts = value.split('-');
+          date = new Date();
+          date.setYear(parts[0]);
+          date.setMonth(parts[1] - 1);
+          date.setDate(parts[2]);
+          return this.set('date', date);
+        } else {
+          return this.set('date', null);
+        }
+      } else if (!value && this.get('date')) {
+        month = this.get('date').getMonth() + 1;
+        date = this.get('date').getDate();
+        if (month < 10) {
+          month = "0" + month;
+        }
+        if (date < 10) {
+          date = "0" + date;
+        }
+        return "%@-%@-%@".fmt(this.get('date').getFullYear(), month, date);
+      } else {
+        return value;
+      }
+    }).property(),
+    placeholder: "yyyy-mm-dd",
+    size: 8,
+    valueBinding: "textToDateTransform"
+  });
+  
+});
+window.require.register("helpers/handlebarsHelpers", function(exports, require, module) {
+  Em.Handlebars.helper('titleize', function(value, options) {
+    var escaped, title;
+    if (value === null || value === void 0) {
+      return value;
+    }
+    title = value.replace(/^([a-z])/, function(match) {
+      return match.toUpperCase();
+    });
+    escaped = Handlebars.Utils.escapeExpression(title);
+    return new Handlebars.SafeString(escaped);
+  });
+
+  Em.Handlebars.helper('humanize', function(value, options) {
+    var escaped;
+    if (value === null || value === void 0) {
+      return value;
+    }
+    value = value.replace(/([A-Z]+|[0-9]+)/g, " $1").replace(/^./, function(str) {
+      return str.toUpperCase();
+    });
+    escaped = Handlebars.Utils.escapeExpression(value);
+    return new Handlebars.SafeString(escaped);
+  });
+
+  Em.Handlebars.helper('shortDate', function(value, options) {
+    var escaped;
+    if (value === null || value === void 0) {
+      return value;
+    }
+    escaped = moment(value).format('MM/DD/YYYY');
+    return new Handlebars.SafeString(escaped);
+  });
+
+  Em.Handlebars.helper('date', function(value, options) {
+    var escaped;
+    if (value === null || value === void 0) {
+      return value;
+    }
+    escaped = Handlebars.Utils.escapeExpression(value.toLocaleDateString());
+    return new Handlebars.SafeString(escaped);
+  });
+
+  Em.Handlebars.helper('percent', function(value, options) {
+    var escaped;
+    if (value === null || value === void 0) {
+      return value;
+    }
+    escaped = Handlebars.Utils.escapeExpression(value.toFixed(0) + '%');
+    return new Handlebars.SafeString(escaped);
+  });
+
+  Em.Handlebars.helper('currency', function(value, options) {
+    var escaped;
+    if (value === null || value === void 0) {
+      return value;
+    }
+    escaped = Handlebars.Utils.escapeExpression('$' + value.toFixed(2));
+    return new Handlebars.SafeString(escaped);
+  });
+
+  Em.Handlebars.helper('summarize', function(value, oprions) {
+    var escaped;
+    if (value === null || value === void 0) {
+      return value;
+    }
+    value = value.substr(0, 255) + ' ...';
+    escaped = Handlebars.Utils.escapeExpression(value);
+    return new Handlebars.SafeString(escaped);
+  });
+
+  Em.Handlebars.helper('toFixed', function(number, digits) {
+    return number.toFixed(digits);
+  });
+  
+});
+window.require.register("helpers/pollster", function(exports, require, module) {
+  App.Pollster = {
+    start: function() {
+      return this.timer = setInterval(this.onPoll.bind(this), 5000);
+    },
+    stop: function() {
+      return clearInterval(this.timer);
+    },
+    onPoll: function() {
+      return App.NotesController.refresh();
+    }
+  };
+  
+});
+window.require.register("initialize", function(exports, require, module) {
+  window.App = require('app');
+
+  require('helpers/handlebarsHelpers');
+
+  require('controllers/applicationController');
+
+  require('controllers/helpers/columnItemController');
+
+  require('controllers/helpers/columnSorterController');
+
+  require('controllers/helpers/editObjectController');
+
+  require('controllers/contactController');
+
+  require('controllers/contactsController');
+
+  require('controllers/debtorController');
+
+  require('controllers/debtorsController');
+
+  require('controllers/indexController');
+
+  require('controllers/personsController');
+
+  require('controllers/personController');
+
+  require('controllers/employmentController');
+
+  require('controllers/employmentsController');
+
+  require('controllers/noteController');
+
+  require('controllers/noteNewController');
+
+  require('controllers/noteIndexController');
+
+  require('controllers/notesController');
+
+  require('controllers/lookupDataController');
+
+  require('models/client');
+
+  require('models/contact');
+
+  require('models/debtor');
+
+  require('models/employment');
+
+  require('models/note');
+
+  require('models/person');
+
+  require('models/relationship');
+
+  require('models/country');
+
+  require('models/phoneTypes');
+
+  require('models/actionCode');
+
+  require('models/resultCode');
+
+  require('models/debtorAccount');
+
+  require('models/indexClient');
+
+  require('models/indexDebtor');
+
+  require('models/debtorNote');
+
+  require('routes/indexRoute');
+
+  require('routes/debtorAccountRoute');
+
+  require('routes/loadingRoute');
+
+  require('templates/_well');
+
+  require('templates/about');
+
+  require('templates/application');
+
+  require('templates/contact/_edit');
+
+  require('templates/contact');
+
+  require('templates/contacts');
+
+  require('templates/contactDetail');
+
+  require('templates/debtor/_edit');
+
+  require('templates/debtor');
+
+  require('templates/debtorDetail');
+
+  require('templates/debtorAccount');
+
+  require('templates/index');
+
+  require('templates/person/_edit');
+
+  require('templates/person');
+
+  require('templates/persons');
+
+  require('templates/employment/_edit');
+
+  require('templates/employment');
+
+  require('templates/employments');
+
+  require('templates/note');
+
+  require('templates/notes');
+
+  require('templates/note/new');
+
+  require('templates/note/index');
+
+  require('templates/_cancellation');
+
+  require('templates/modal_layout');
+
+  require('templates/empty');
+
+  require('templates/_confirmation');
+
+  require('templates/_hold');
+
+  require('templates/_cancellationSuccess');
+
+  require('templates/_holdSuccess');
+
+  require('templates/_processing');
+
+  require('templates/loading');
+
+  require('templates/_cancellationWarning');
+
+  require('views/scrollView');
+
+  require('views/datePickerField');
+
+  require('views/modalView');
+
+  require('views/confirmationView');
+
+  require('views/radioButtonView');
+
+  require('views/cancellationFeeView');
+
+  require('views/cancellationPopupView');
+
+  require('views/indexView');
+
+  require('store/webapi/serializer');
+
+  require('store/webapi/adapter');
+
+  require('store/RESTfulAdapter');
+
+  App.AJAX_LOADER_IMG = "/images/ajax_loader.gif";
+
+  App.DEFAULT_CSS_TRANSITION_DURATION_MS = 250;
+
+  App.Router.map(function() {
+    this.resource('index', {
+      path: '/:client_id'
+    });
+    return this.resource('debtorAccount', {
+      path: 'account/:debtor_account_id'
+    }, function() {
+      return this.resource('debtor', {
+        path: 'debtor/:debtor_id'
+      }, function() {
+        return this.resource('contact', {
+          path: 'contact/:contact_id'
+        }, this.resource('person', {
+          path: 'person/:person_id'
+        }, this.resource('employment', {
+          path: 'employment/:employment_id'
+        }, this.resource('note', {
+          path: 'note/:note_id'
+        }, function() {
+          return this.route('new');
+        }))));
+      });
+    });
+  });
+  
+});
+window.require.register("models/actionCode", function(exports, require, module) {
+  App.ActionCode = DS.Model.extend({
+    value: DS.attr('string'),
+    description: DS.attr('string')
+  });
+  
+});
+window.require.register("models/cancellation", function(exports, require, module) {
+  App.Cancellation = DS.Model.extend({
+    debtorId: DS.attr('number'),
+    actionCode: DS.attr('string'),
+    resultCode: DS.attr('string')
+  });
+  
+});
+window.require.register("models/client", function(exports, require, module) {
+  App.Client = DS.Model.extend({
+    clientId: DS.attr('number'),
+    legacyId: DS.attr('string'),
+    description: DS.attr('string'),
+    debtorAccounts: DS.hasMany('App.DebtorAccount')
+  });
+  
+});
+window.require.register("models/contact", function(exports, require, module) {
+  App.Contact = DS.Model.extend({
+    type: DS.attr('number'),
+    typeLabel: DS.attr('string'),
+    country: DS.attr('string'),
+    phone: DS.attr('string'),
+    extension: DS.attr('string'),
+    score: DS.attr('number'),
+    status: DS.attr('number'),
+    source: DS.attr('number'),
+    consent: DS.attr('string'),
+    debtorId: DS.attr('number'),
+    debtor: DS.belongsTo('App.Debtor')
+  });
+  
+});
+window.require.register("models/country", function(exports, require, module) {
+  App.Country = DS.Model.extend({
+    label: DS.attr('string'),
+    idStr: (function() {
+      return this.get('id') + '';
+    }).property('id')
+  });
+  
+});
+window.require.register("models/debtor", function(exports, require, module) {
+  App.Debtor = DS.Model.extend({
+    type: DS.attr('string'),
+    title: DS.attr('string'),
+    lastName: DS.attr('string'),
+    firstName: DS.attr('string'),
+    middleName: DS.attr('string'),
+    suffix: DS.attr('string'),
+    dob: DS.attr('isodate'),
+    ssn: DS.attr('string'),
+    ein: DS.attr('string'),
+    martialStatus: DS.attr('string'),
+    email: DS.attr('string'),
+    emailValidity: DS.attr('number'),
+    optIn: DS.attr('string'),
+    contact: DS.attr('string'),
+    country: DS.attr('number'),
+    address1: DS.attr('string'),
+    address2: DS.attr('string'),
+    address3: DS.attr('string'),
+    city: DS.attr('string'),
+    state: DS.attr('string'),
+    zip: DS.attr('string'),
+    county: DS.attr('string'),
+    dlIssuer: DS.attr('string'),
+    dlNumber: DS.attr('string'),
+    passport: DS.attr('string'),
+    pin: DS.attr('string'),
+    debtorAccount: DS.belongsTo('App.DebtorAccount'),
+    contacts: DS.hasMany('App.Contact'),
+    persons: DS.hasMany('App.Person'),
+    employments: DS.hasMany('App.Employment'),
+    notes: DS.hasMany('App.Note'),
+    fullName: (function() {
+      var first, last, middle;
+      first = this.get('firstName') || '';
+      middle = this.get('middleName') || '';
+      last = this.get('lastName') || '';
+      return first + ' ' + middle + ' ' + last;
+    }).property('firstName', 'lastName', 'middleName'),
+    fullNameWithTitle: (function() {
+      var first, last, middle, suffix, title;
+      title = this.get('title') || '';
+      first = this.get('firstName') || '';
+      middle = this.get('middleName') || '';
+      last = this.get('lastName') || '';
+      suffix = this.get('suffix') || '';
+      return title + ' ' + first + ' ' + middle + ' ' + last + ' ' + suffix;
+    }).property('title', 'firstName', 'lastName', 'middleName', 'suffix'),
+    fullAddress: (function() {
+      var address1, address2, address3, city, state, zip;
+      address1 = this.get('address1') || '';
+      address2 = this.get('address2') || '';
+      address3 = this.get('address3') || '';
+      city = this.get('city') || '';
+      state = this.get('state') || '';
+      zip = this.get('zip') || '';
+      return address1 + ' ' + address2 + ' ' + address3 + city + ' ' + state + ' ' + zip;
+    }).property('address1', 'address2', 'address3', 'city', 'state', 'zip'),
+    refresh: function() {
+      var self;
+      self = this;
+      return self.reload();
+    }
+  });
+  
+});
+window.require.register("models/debtorAccount", function(exports, require, module) {
+  App.DebtorAccount = DS.Model.extend({
+    debtorId: DS.attr('number'),
+    agencyId: DS.attr('number'),
+    creditorId: DS.attr('number'),
+    placementDate: DS.attr('date'),
+    status: DS.attr('string'),
+    currentBalance: DS.attr('number'),
+    totalPayment: DS.attr('number'),
+    totalOriginalBalance: DS.attr('number'),
+    client: DS.belongsTo('App.Client'),
+    debtor: DS.belongsTo('App.Debtor'),
+    computedStatus: (function() {
+      if (!this.get('status')) {
+        return 'N/A';
+      }
+      return this.get('status');
+    }).property('status'),
+    originalBalance: (function() {
+      var balance, formatted;
+      balance = this.get('totalOriginalBalance');
+      formatted = parseFloat(balance, 10).toFixed(2);
+      return '$' + formatted;
+    }).property('totalOriginalBalance'),
+    currBalance: (function() {
+      var balance, formatted;
+      balance = this.get('currentBalance');
+      formatted = parseFloat(balance, 10).toFixed(2);
+      return '$' + formatted;
+    }).property('currentBalance'),
+    payment: (function() {
+      var formatted, payment;
+      payment = this.get('totalPayment');
+      formatted = parseFloat(payment, 10).toFixed(2);
+      return '$' + formatted;
+    }).property('totalPayment')
+  });
+  
+});
+window.require.register("models/debtorNote", function(exports, require, module) {
+  App.DebtorNote = DS.Model.extend({
+    time: DS.attr('date'),
+    actionCode: DS.attr('number'),
+    resultCode: DS.attr('number'),
+    message: DS.attr('string'),
+    userid: DS.attr('number'),
+    clientId: DS.attr('number'),
+    debtorId: DS.attr('number')
+  });
+  
+});
+window.require.register("models/employment", function(exports, require, module) {
+  App.Employment = DS.Model.extend({
+    association: DS.attr('number'),
+    name: DS.attr('string'),
+    monthlyNetIncome: DS.attr('number'),
+    position: DS.attr('string'),
+    hireDate: DS.attr('isodate'),
+    phone: DS.attr('string'),
+    website: DS.attr('string'),
+    status: DS.attr('number'),
+    source: DS.attr('number'),
+    jobTitle: DS.attr('string'),
+    terminationDate: DS.attr('isodate'),
+    yearlyIncome: DS.attr('number'),
+    monthlyGrossIncome: DS.attr('number'),
+    country: DS.attr('number'),
+    address1: DS.attr('string'),
+    address2: DS.attr('string'),
+    address3: DS.attr('string'),
+    city: DS.attr('string'),
+    state: DS.attr('string'),
+    zip: DS.attr('string'),
+    county: DS.attr('string'),
+    debtorId: DS.attr('number'),
+    debtor: DS.belongsTo('App.Debtor')
+  });
+  
+});
+window.require.register("models/indexClient", function(exports, require, module) {
+  App.IndexClient = DS.Model.extend({
+    clientId: DS.attr('number'),
+    legacyId: DS.attr('string'),
+    description: DS.attr('string'),
+    totalDebtors: DS.attr('number'),
+    indexDebtors: DS.hasMany('App.IndexDebtor')
+  });
+  
+});
+window.require.register("models/indexDebtor", function(exports, require, module) {
+  App.IndexDebtor = DS.Model.extend({
+    debtorId: DS.attr('number'),
+    title: DS.attr('string'),
+    lastName: DS.attr('string'),
+    firstName: DS.attr('string'),
+    middleName: DS.attr('string'),
+    suffix: DS.attr('string'),
+    totalOriginalBalance: DS.attr('number'),
+    currentBalance: DS.attr('number'),
+    totalPayment: DS.attr('number'),
+    clientId: DS.attr('number'),
+    status: DS.attr('string'),
+    placementDate: DS.attr('date'),
+    agencyId: DS.attr('number'),
+    indexClient: DS.belongsTo('App.IndexClient'),
+    computedStatus: (function() {
+      if (!this.get('status')) {
+        return 'N/A';
+      }
+      return this.get('status');
+    }).property('status'),
+    fullName: (function() {
+      var first, last, middle;
+      first = this.get('firstName') || '';
+      middle = this.get('middleName') || '';
+      last = this.get('lastName') || '';
+      return first + ' ' + middle + ' ' + last;
+    }).property('firstName', 'lastName', 'middleName'),
+    fullNameWithTitle: (function() {
+      var first, last, middle, suffix, title;
+      title = this.get('title') || '';
+      first = this.get('firstName') || '';
+      middle = this.get('middleName') || '';
+      last = this.get('lastName') || '';
+      suffix = this.get('suffix') || '';
+      return title + ' ' + first + ' ' + middle + ' ' + last + ' ' + suffix;
+    }).property('title', 'firstName', 'lastName', 'middleName', 'suffix'),
+    originalBalance: (function() {
+      var balance, formatted;
+      balance = this.get('totalOriginalBalance');
+      formatted = parseFloat(balance, 10).toFixed(2);
+      return '$' + formatted;
+    }).property('totalOriginalBalance'),
+    currBalance: (function() {
+      var balance, formatted;
+      balance = this.get('currentBalance');
+      formatted = parseFloat(balance, 10).toFixed(2);
+      return '$' + formatted;
+    }).property('currentBalance'),
+    payment: (function() {
+      var formatted, payment;
+      payment = this.get('totalPayment');
+      formatted = parseFloat(payment, 10).toFixed(2);
+      return '$' + formatted;
+    }).property('totalPayment')
+  });
+  
+});
+window.require.register("models/note", function(exports, require, module) {
+  App.Note = DS.Model.extend({
+    time: DS.attr('date'),
+    actionCode: DS.attr('number'),
+    resultCode: DS.attr('number'),
+    message: DS.attr('string'),
+    userid: DS.attr('number'),
+    clientId: DS.attr('number'),
+    debtorId: DS.attr('number'),
+    debtor: DS.belongsTo('App.Debtor')
+  });
+  
+});
+window.require.register("models/person", function(exports, require, module) {
+  App.Person = DS.Model.extend({
+    relationship: DS.attr('number'),
+    title: DS.attr('string'),
+    lastName: DS.attr('string'),
+    firstName: DS.attr('string'),
+    middleName: DS.attr('string'),
+    suffix: DS.attr('string'),
+    dob: DS.attr('date'),
+    SSN: DS.attr('string'),
+    startDate: DS.attr('date'),
+    endDate: DS.attr('date'),
+    claimNumber: DS.attr('string'),
+    phone: DS.attr('string'),
+    country: DS.attr('number'),
+    address1: DS.attr('string'),
+    address2: DS.attr('string'),
+    address3: DS.attr('string'),
+    city: DS.attr('string'),
+    state: DS.attr('string'),
+    zip: DS.attr('string'),
+    county: DS.attr('string'),
+    debtorId: DS.attr('number'),
+    debtor: DS.belongsTo('App.Debtor'),
+    fullName: (function() {
+      var first, last, middle;
+      first = this.get('firstName') || '';
+      middle = this.get('middleName') || '';
+      last = this.get('lastName') || '';
+      return first + ' ' + middle + ' ' + last;
+    }).property('firstName', 'lastName', 'middleName'),
+    fullNameWithTitle: (function() {
+      var first, last, middle, suffix, title;
+      title = this.get('title') || '';
+      first = this.get('firstName') || '';
+      middle = this.get('middleName') || '';
+      last = this.get('lastName') || '';
+      suffix = this.get('suffix') || '';
+      return title + ' ' + first + ' ' + middle + ' ' + last + ' ' + suffix;
+    }).property('title', 'firstName', 'lastName', 'middleName', 'suffix')
+  });
+  
+});
+window.require.register("models/phoneTypes", function(exports, require, module) {
+  App.PhoneTypes = DS.Model.extend({
+    label: DS.attr('string')
+  });
+  
+});
+window.require.register("models/relationship", function(exports, require, module) {
+  App.Relationship = DS.Model.extend({
+    label: DS.attr('string'),
+    idNum: (function() {
+      return parseInt(this.get('id'));
+    }).property('id')
+  });
+  
+});
+window.require.register("models/resultCode", function(exports, require, module) {
+  App.ResultCode = DS.Model.extend({
+    value: DS.attr('string'),
+    description: DS.attr('string')
+  });
+  
+});
+window.require.register("routes/clientRoute", function(exports, require, module) {
+  App.ClientRoute = Em.Route.extend({
+    model: function(params) {
+      return App.Client.find(params.client_id);
+    },
+    setupController: function(controller, model) {
+      return controller.set('model', model);
+    }
+  });
+  
+});
+window.require.register("routes/debtorAccountRoute", function(exports, require, module) {
+  App.DebtorAccountRoute = Em.Route.extend({
+    observesParameters: ['clientId', 'userId', 'canEditDebtor', 'feePercentage'],
+    model: function(params) {
+      return App.DebtorAccount.find(params.debtor_account_id);
+    },
+    setupController: function(controller, model, queryParams) {
+      controller.set('model', model);
+      this.controllerFor('application').set('params', this.get('queryParameters'));
+      this.controllerFor('countries').set('content', App.Country.find());
+      this.controllerFor('relationships').set('content', App.Relationship.find());
+      this.controllerFor('actionCodes').set('content', App.ActionCode.find());
+      return this.controllerFor('resultCodes').set('content', App.ResultCode.find());
+    }
+  });
+  
+});
+window.require.register("routes/indexRoute", function(exports, require, module) {
+  App.IndexRoute = Em.Route.extend({
+    observesParameters: ['userId', 'canEditDebtor', 'feePercentage'],
+    clientId: null,
+    model: function(params) {
+      this.set('clientId', params.client_id);
+      return App.IndexClient.find(params.client_id);
+    },
+    setupController: function(controller, model, queryParams) {
+      controller.set('model', model.get('indexDebtors'));
+      controller.set('totalCount', model.get('data').totalDebtors);
+      return this.controllerFor('application').set('params', Em.Object.create({
+        clientId: model.get('clientId'),
+        userId: this.get('queryParameters.userId'),
+        canEditDebtor: this.get('queryParameters.canEditDebtor'),
+        feePercentage: this.get('queryParameters.feePercentage')
+      }));
+    },
+    actions: {
+      getMore: function() {
+        var controller, nextPage, page, perPage, previousPage, totalCount;
+        controller = this.get('controller');
+        page = controller.get('page');
+        previousPage = page - 1;
+        nextPage = page + 1;
+        perPage = controller.get('perPage');
+        totalCount = controller.get('totalCount');
+        if (page * perPage > totalCount) {
+          controller.set('loadingMore', false);
+        }
+        return $.ajax({
+          url: App.serverUrl + '/' + App.serverNamespace + '/clientDebtors/' + this.get('clientId') + '/?page=' + nextPage + '&limit=' + perPage,
+          success: function(response) {
+            var debtors;
+            debtors = Em.A([]);
+            response.forEach(function(item) {
+              var debtor;
+              debtor = App.IndexDebtor.createRecord(item);
+              return debtors.pushObject(debtor);
+            });
+            return controller.send('gotMore', debtors, nextPage);
+          }
+        });
+      }
+    }
+  });
+  
+});
+window.require.register("routes/loadingRoute", function(exports, require, module) {
+  App.LoadingRoute = Em.Route.extend();
+  
+});
+window.require.register("routes/noteNewRoute", function(exports, require, module) {
+  
+  
+});
+window.require.register("store/RESTfulAdapter", function(exports, require, module) {
+  App.Store = DS.Store.extend({
+    adapter: DS.WebAPIAdapter.extend({
+      url: App.serverUrl,
+      namespace: App.serverNamespace,
+      bulkCommit: false,
+      antiForgeryTokenSelector: '#antiForgeryToken',
+      plurals: {
+        'country': 'countries',
+        'cancellation': 'cancellation'
+      },
+      pluralize: function(name) {
+        var plurals;
+        plurals = this.get('plurals');
+        return (plurals && plurals[name]) || name + 's';
+      }
+    })
+  });
+
+  DS.WebAPIAdapter.map('App.IndexClient', {
+    indexDebtors: {
+      embedded: 'load'
+    }
+  });
+
+  DS.WebAPIAdapter.map('App.Client', {
+    debtorAccounts: {
+      embedded: 'load'
+    }
+  });
+
+  DS.WebAPIAdapter.map('App.DebtorAccount', {
+    debtor: {
+      embedded: 'load'
+    }
+  });
+
+  DS.WebAPIAdapter.map('App.Debtor', {
+    contacts: {
+      embedded: 'load'
+    },
+    persons: {
+      embedded: 'load'
+    },
+    employments: {
+      embedded: 'load'
+    },
+    notes: {
+      embedded: 'load'
+    }
+  });
+
+  DS.WebAPIAdapter.map('App.Contact', {
+    countries: {
+      embedded: 'load'
+    }
+  });
+
+  DS.WebAPIAdapter.configure('App.IndexClient', {
+    sideloadAs: 'indexClient',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.IndexDebtor', {
+    sideloadAs: 'indexDebtor',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Client', {
+    sideloadAs: 'client',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.DebtorAccount', {
+    sideloadAs: 'debtorAccount',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Debtor', {
+    sideloadAs: 'debtor',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Contact', {
+    sideloadAs: 'contact',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Person', {
+    sideloadAs: 'person',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Employment', {
+    sideloadAs: 'employment',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Note', {
+    sideloadAs: 'note',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Country', {
+    sideloadAs: 'country',
+    primaryKey: 'id'
+  });
+
+  DS.WebAPIAdapter.configure('App.Relationship', {
+    sideloadAs: 'relationship',
+    primaryKey: 'id'
+  });
+  
+});
+window.require.register("store/fixtureAdapter", function(exports, require, module) {
+  App.Store = DS.Store.extend({
+    adapter: DS.FixtureAdapter.create()
+  });
+
+  DS.RESTAdapter.map('App.Debtor', {
+    address: {
+      embedded: 'always'
+    }
+  });
+  
+});
+window.require.register("store/webapi/adapter", function(exports, require, module) {
+  var get, rejectionHandler;
+
+  rejectionHandler = function(reason) {
+    Em.Logger.error(reason, reason.message);
+    throw reason;
+  };
+
+  get = Em.get;
+
+  DS.WebAPIAdapter = DS.RESTAdapter.extend({
+    serializer: DS.WebAPISerializer,
+    antiForgeryTokenSelector: null,
+    shouldSave: function(record) {
+      return true;
+    },
+    dirtyRecordsForBelongsToChange: null,
+    createRecord: function(store, type, record) {
+      var adapter, config, data, primaryKey, root;
+      root = this.rootForType(type);
+      adapter = this;
+      data = this.serialize(record, {
+        includeId: false
+      });
+      config = get(this, 'serializer').configurationForType(type);
+      primaryKey = config && config.primaryKey;
+      if (primaryKey) {
+        delete data[primaryKey];
+      }
+      return this.ajax(this.buildURL(root), 'POST', {
+        data: data
+      }).then(function(json) {
+        return adapter.didCreateRecord(store, type, record, json);
+      }, function(xhr) {
+        adapter.didError(store, type, record, xhr);
+        throw xhr;
+      }).then(null, rejectionHandler);
+    },
+    updateRecord: function(store, type, record) {
+      var adapter, data, id, root;
+      id = get(record, 'id');
+      adapter = this;
+      root = this.rootForType(type);
+      data = this.serialize(record, {
+        includeId: true
+      });
+      return this.ajax(this.buildURL(root, id), 'PUT', {
+        data: data
+      }, 'text').then(function(json) {
+        adapter.didSaveRecord(store, type, record, json);
+        return record.set('error', '');
+      }, function(xhr) {
+        adapter.didSaveRecord(store, type, record);
+        return record.set('error', 'Server update failed');
+      }).then(null, rejectionHandler);
+    },
+    deleteRecord: function(store, type, record) {
+      var adapter, config, id, primaryKey, root;
+      id = get(record, 'id');
+      adapter = this;
+      root = this.rootForType(type);
+      config = get(this, 'serializer').configurationForType(type);
+      primaryKey = config && config.primaryKey;
+      return this.ajax(this.buildURL(root, id), 'DELETE').then(function(json) {
+        if (json[primaryKey] === id) {
+          return adapter.didSaveRecord(store, type, record);
+        } else {
+          return adapter.didSaveRecord(store, type, record, json);
+        }
+      }, function(xhr) {
+        adapter.didError(store, type, record, xhr);
+        throw xhr;
+      }).then(null, rejectionHandler);
+    },
+    ajax: function(url, type, hash, dataType) {
+      var adapter;
+      adapter = this;
+      return new Em.RSVP.Promise(function(resolve, reject) {
+        var antiForgeryToken, antiForgeryTokenElemSelector;
+        hash = hash || {};
+        hash.url = url;
+        hash.type = type;
+        hash.dataType = 'json';
+        hash.context = adapter;
+        if (hash.data && type !== 'GET') {
+          hash.contentType = 'application/json; charset=utf-8';
+          hash.data = JSON.stringify(hash.data);
+        }
+        antiForgeryTokenElemSelector = get(adapter, 'antiForgeryTokenSelector');
+        if (antiForgeryTokenElemSelector) {
+          antiForgeryToken = $(antiForgeryTokenElemSelector).val();
+          if (antiForgeryToken) {
+            hash.headers = {
+              RequestVerificationToken: antiForgeryToken
+            };
+          }
+        }
+        hash.success = function(json) {
+          return Em.run(null, resolve, json);
+        };
+        hash.error = function(jqXHR, textStatus, errorThrown) {
+          return Em.run(null, reject, errorThrown);
+        };
+        return jQuery.ajax(hash);
+      });
+    }
+  });
+
+  DS.WebAPIAdapter.registerTransform("isodate", {
+    deserialize: function(serialized) {
+      return serialized;
+    },
+    serialize: function(deserialized) {
+      return deserialized;
+    }
+  });
+  
+});
+window.require.register("store/webapi/serializer", function(exports, require, module) {
+  var get;
+
+  get = Em.get;
+
+  DS.WebAPISerializer = DS.JSONSerializer.extend({
+    keyForAttributeName: function(type, name) {
+      return name;
+    },
+    extractMany: function(loader, json, type, records) {
+      var i, objects, reference, references, root;
+      root = this.rootForType(type);
+      root = this.pluralize(root);
+      objects = void 0;
+      if (json instanceof Array) {
+        objects = json;
+      } else {
+        this.sideload(loader, type, json, root);
+        this.extractMeta(loader, type, json);
+        objects = json[root];
+      }
+      if (objects) {
+        references = [];
+        if (records) {
+          records = records.toArray();
+        }
+        i = 0;
+        while (i < objects.length) {
+          if (records) {
+            loader.updateId(records[i], objects[i]);
+          }
+          reference = this.extractRecordRepresentation(loader, type, objects[i]);
+          references.push(reference);
+          i++;
+        }
+        return loader.populateArray(references);
+      }
+    },
+    extract: function(loader, json, type, record) {
+      if (record) {
+        loader.updateId(record, json);
+      }
+      return this.extractRecordRepresentation(loader, type, json);
+    },
+    rootForType: function(type) {
+      var name, parts, typeString;
+      typeString = type.toString();
+      Em.assert('Your model must not be anonymous. It was ' + type, typeString.charAt(0) !== '(');
+      parts = typeString.split('.');
+      name = parts[parts.length - 1];
+      return name.toLowerCase();
+    }
+  });
+  
+});
+window.require.register("templates/_cancellation", function(exports, require, module) {
+  Ember.TEMPLATES["_cancellation"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancellation", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Account Cancellation</h5></div><div class=\"model-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Cancellation Code</label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.cancellationCodes"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.cancellationCodes.selected")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Cancellation Fee %</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'viewName': depth0};
+    hashTypes = {'valueBinding': "STRING",'viewName': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.CancellationFeeView", {hash:{
+      'valueBinding': ("cancellationFee"),
+      'viewName': ("cancellationFee")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.CancellationPopupView", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><button class=\"btn btn-danger\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "sendCancellation", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Send Cancellation</button><button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancellation", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Abort</button></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/_cancellationSuccess", function(exports, require, module) {
+  Ember.TEMPLATES["_cancellationSuccess"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><h5>Cancellation</h5></div><div class=\"modal-body\"><h6>Account Cancelled Successfully</h6></div><div class=\"modal-footer\"><button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "closeCancelSuccess", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Close</button></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/_cancellationWarning", function(exports, require, module) {
+  Ember.TEMPLATES["_cancellationWarning"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div id=\"cancellationWarning\" class=\"modal-dialog\" style=\"display:none;z-index:1050;\"><div class=\"modal-body\"><p>Cancellation fee cannot exceed 20% charge.</p><span class=\"pull-right\"><button class=\"btn btn-primary btn-small\" ");
+    hashContexts = {'target': depth0};
+    hashTypes = {'target': "STRING"};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "close", {hash:{
+      'target': ("view")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Ok</button></span></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/_confirmation", function(exports, require, module) {
+  Ember.TEMPLATES["_confirmation"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashContexts, hashTypes, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal-dialog\" ");
+    hashContexts = {'id': depth0};
+    hashTypes = {'id': "STRING"};
+    data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
+      'id': ("controller.confirmationId")
+    },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" style=\"display:none;z-index:1050;\"><div class=\"modal-body\"><p>Do you want to delete this record?</p><span class=\"pull-right\"><button class=\"btn btn-small\" ");
+    hashContexts = {'target': depth0};
+    hashTypes = {'target': "STRING"};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "deleteRecord", "", {hash:{
+      'target': ("controller")
+    },contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Yes</button><button class=\"btn btn-primary btn-small\" ");
+    hashContexts = {'target': depth0};
+    hashTypes = {'target': "STRING"};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "close", {hash:{
+      'target': ("view")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">No</button></span></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/_hold", function(exports, require, module) {
+  Ember.TEMPLATES["_hold"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "holdAccount", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Hold Account</h5></div><div class=\"modal-body\"><h6>Do you want to put a hold on this account?</h6></div><div class=\"modal-footer\"><button class=\"btn btn-warning\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "sendHold", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Hold Account</button><button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "holdAccount", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Abort</button></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/_holdSuccess", function(exports, require, module) {
+  Ember.TEMPLATES["_holdSuccess"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><h5>Hold Account</h5></div><div class=\"modal-body\"><h6>Account Hold Successfully</h6></div><div class=\"modal-footer\"><button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "closeHoldSuccess", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Close</button></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/_processing", function(exports, require, module) {
+  Ember.TEMPLATES["_processing"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-body\"><div class=\"pagination-centered\"><img src=\"");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "App.AJAX_LOADER_IMG", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("\" alt=\"loading\" /></div><div class=\"pagination-centered\"><h4>Processing...</h4></div></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/_well", function(exports, require, module) {
+  Ember.TEMPLATES["_well"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    
+
+
+    data.buffer.push("<div class=\"well\"><h3>Welcome to the 'Debtor to CRM Project'</h3><p>This is a partial.</p><p>Find me in <code>app/templates/_well.emblem</code></p></div>");
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/about", function(exports, require, module) {
+  Ember.TEMPLATES["about"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<h2>About</h2><p>Find me in <code>templates/about.emblem</code></p>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial || depth0.partial),stack1 ? stack1.call(depth0, "well", options) : helperMissing.call(depth0, "partial", "well", options))));
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/application", function(exports, require, module) {
+  Ember.TEMPLATES["application"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"container-fluid\"><div id=\"page\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/contact", function(exports, require, module) {
+  Ember.TEMPLATES["contact"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"row-fluid\">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial || depth0.partial),stack1 ? stack1.call(depth0, "contact/edit", options) : helperMissing.call(depth0, "partial", "contact/edit", options))));
+    data.buffer.push("</div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/contact/_edit", function(exports, require, module) {
+  Ember.TEMPLATES["contact/_edit"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Contact Phone Record</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Type </label><div class=\"controls\">");
+    hashContexts = {'id': depth0,'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'id': "STRING",'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'id': ("phoneTypes"),
+      'contentBinding': ("controllers.phoneTypes"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.phoneTypes.selected"),
+      'prompt': ("Type ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Country</label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.countries"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.countries.selected"),
+      'prompt': ("Country ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Phone</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("phone"),
+      'placeholder': ("Phone")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Extension</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("extension"),
+      'placeholder': ("Extension")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Score</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("score"),
+      'placeholder': ("Score")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Status</label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.phoneStatuses"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.phoneStatuses.selected"),
+      'prompt': ("Status ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Source</label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.sources"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.sources.selected"),
+      'prompt': ("Source ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Consent</label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.yesNo"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.yesNo.selected"),
+      'prompt': ("Consent ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><button class=\"btn btn-success\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Done</button><button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Cancel</button></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/contactDetail", function(exports, require, module) {
+  Ember.TEMPLATES["contactDetail"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", "", {hash:{},contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">-</button><div class=\"span2\"><a ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "openModal", "", {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" href=\"#\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "phone", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</a></div><div class=\"span5\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "type", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "status", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><div class=\"span5\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "extension", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><hr />");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/contacts", function(exports, require, module) {
+  Ember.TEMPLATES["contacts"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+
+  function program1(depth0,data) {
+    
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
+    data.buffer.push("<th ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSort", "column", {hash:{},contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.humanize || depth0.humanize),stack1 ? stack1.call(depth0, "column", options) : helperMissing.call(depth0, "humanize", "column", options))));
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedAsc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedDesc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(6, program6, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</th>");
+    return buffer;
+    }
+  function program2(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-up\"></i>");
+    }
+
+  function program4(depth0,data) {
+    
+    var buffer = '';
+    return buffer;
+    }
+
+  function program6(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-down\"></i>");
+    }
+
+  function program8(depth0,data) {
+    
+    var buffer = '', stack1, stack2, hashContexts, hashTypes, options;
+    data.buffer.push("<tr><td><button class=\"btn btn-mini\" ");
+    hashContexts = {'id': depth0};
+    hashTypes = {'id': "STRING"};
+    data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
+      'id': ("id")
+    },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">-</button>");
+    hashContexts = {'contentBinding': depth0};
+    hashTypes = {'contentBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.ConfirmationView", {hash:{
+      'contentBinding': ("this")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},inverse:self.program(4, program4, data),fn:self.program(9, program9, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    stack2 = ((stack1 = helpers.linkTo || depth0.linkTo),stack1 ? stack1.call(depth0, "contact", "", options) : helperMissing.call(depth0, "linkTo", "contact", "", options));
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "extension", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "labelPhoneType", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "labelPhoneStatus", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td></tr>");
+    return buffer;
+    }
+  function program9(depth0,data) {
+    
+    var hashTypes, hashContexts;
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "phone", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    }
+
+    data.buffer.push("<div class=\"row-fluid\"><table class=\"table table-striped row-border\"><thead><tr><th><button class=\"btn btn-primary btn-mini\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "create", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">+</button></th>");
+    hashContexts = {'itemController': depth0};
+    hashTypes = {'itemController': "STRING"};
+    stack1 = helpers.each.call(depth0, "columns", {hash:{
+      'itemController': ("columnItem")
+    },inverse:self.program(4, program4, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tr></thead><tbody>");
+    hashTypes = {};
+    hashContexts = {};
+    stack1 = helpers.each.call(depth0, "controller", {hash:{},inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tbody></table></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/datepicker", function(exports, require, module) {
+  Ember.TEMPLATES["datepicker"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '';
+
+
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/debtor", function(exports, require, module) {
+  Ember.TEMPLATES["debtor"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, self=this;
+
+  function program1(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial || depth0.partial),stack1 ? stack1.call(depth0, "debtor/edit", options) : helperMissing.call(depth0, "partial", "debtor/edit", options))));
+    }
+
+  function program3(depth0,data) {
+    
+    var buffer = '', hashTypes, hashContexts;
+    data.buffer.push("<button class=\"btn btn-small\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "edit", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashContexts = {'disabled': depth0};
+    hashTypes = {'disabled': "STRING"};
+    data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
+      'disabled': ("disableEdit")
+    },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Edit</button>");
+    return buffer;
+    }
+
+  function program5(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial || depth0.partial),stack1 ? stack1.call(depth0, "processing", options) : helperMissing.call(depth0, "partial", "processing", options))));
+    }
+
+  function program7(depth0,data) {
+    
+    var buffer = '';
+    return buffer;
+    }
+
+  function program9(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial || depth0.partial),stack1 ? stack1.call(depth0, "cancellation", options) : helperMissing.call(depth0, "partial", "cancellation", options))));
+    }
+
+  function program11(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial || depth0.partial),stack1 ? stack1.call(depth0, "hold", options) : helperMissing.call(depth0, "partial", "hold", options))));
+    }
+
+  function program13(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial || depth0.partial),stack1 ? stack1.call(depth0, "cancellationSuccess", options) : helperMissing.call(depth0, "partial", "cancellationSuccess", options))));
+    }
+
+  function program15(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial || depth0.partial),stack1 ? stack1.call(depth0, "holdSuccess", options) : helperMissing.call(depth0, "partial", "holdSuccess", options))));
+    }
+
+    data.buffer.push("<div class=\"container-fluid\"><div class=\"row-fluid\"><div class=\"span12\"><address><h4>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "title", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "fullName", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "suffix", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("<div class=\"span4 pull-right\"><button class=\"btn btn-primary btn-small\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "close", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Close</button>");
+    hashTypes = {};
+    hashContexts = {};
+    stack1 = helpers['if'].call(depth0, "isEditing", {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</div></h4><h4 ");
+    hashContexts = {'': depth0};
+    hashTypes = {'': "STRING"};
+    data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
+      '': ("ssn")
+    },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("></h4><hr /><div class=\"intro\"><div class=\"span6\"><p>Address</p><h6>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "address1", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("<br />");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "city", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(", ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "state", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "zip", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</h6></div><div class=\"span6\"><p>Email</p><h5 ");
+    hashContexts = {'': depth0};
+    hashTypes = {'': "STRING"};
+    data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
+      '': ("email")
+    },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("></h5></div></div><div class=\"span4 pull-right\"><button class=\"btn btn-danger btn-small\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancellation", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Cancel Account</button><button class=\"btn btn-warning btn-small\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "holdAccount", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Hold Account</button><button class=\"btn btn-success btn-small\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "makePayment", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Make Payment</button></div></address></div></div><hr /><div id=\"contacts\" class=\"accordion\"><div class=\"accordion-group\"><div class=\"accordion-heading\"><a class=\"accordion-toggle\" data-toggle=\"collapse\" data-parent=\"#contacts\" href=\"#collapseContacts\"><h5>Contact Phone Records</h5></a></div><div id=\"collapseContacts\" class=\"accordion-body collapse in\"><div class=\"accordion-inner\"><div class=\"row-fluid\"><div class=\"span12\">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.render || depth0.render),stack1 ? stack1.call(depth0, "contacts", "contacts", options) : helperMissing.call(depth0, "render", "contacts", "contacts", options))));
+    data.buffer.push("</div></div></div></div></div></div><div id=\"persons\" class=\"accordion\"><div class=\"accordion-group\"><div class=\"accordion-heading\"><a class=\"accordion-toggle\" data-toggle=\"collapse\" data-parent=\"#persons\" href=\"#collapsePersons\"><h5>Related Persons</h5></a></div><div id=\"collapsePersons\" class=\"accordion-body collapse in\"><div class=\"accordion-inner\"><div class=\"row-fluid\"><div class=\"span12\">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.render || depth0.render),stack1 ? stack1.call(depth0, "persons", "persons", options) : helperMissing.call(depth0, "render", "persons", "persons", options))));
+    data.buffer.push("</div></div></div></div></div></div><div id=\"employments\" class=\"accordion\"><div class=\"accordion-group\"><div class=\"accordion-heading\"><a class=\"accordion-toggle\" data-toggle=\"collapse\" data-parent=\"#employments\" href=\"#collapseEmployments\"><h5>Employment Records</h5></a></div><div id=\"collapseEmployments\" class=\"accordion-body collapse in\"><div class=\"accordion-inner\"><div class=\"row-fluid\"><div class=\"span12\">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.render || depth0.render),stack1 ? stack1.call(depth0, "employments", "employments", options) : helperMissing.call(depth0, "render", "employments", "employments", options))));
+    data.buffer.push("</div></div></div></div></div></div><div id=\"notes\" class=\"accordion\"><div class=\"accordion-group\"><div class=\"accordion-heading\"><a class=\"accordion-toggle\" data-toggle=\"collapse\" data-parent=\"#notes\" href=\"#collapseNotes\"><h5>Historical Events</h5></a></div><div id=\"collapseNotes\" class=\"accordion-body collapse in\"><div class=\"accordion-inner\"><div class=\"row-fluid\"><div class=\"span12\">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.render || depth0.render),stack1 ? stack1.call(depth0, "notes", "notes", options) : helperMissing.call(depth0, "render", "notes", "notes", options))));
+    data.buffer.push("</div></div></div></div></div></div>");
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "processing", {hash:{},inverse:self.program(7, program7, data),fn:self.program(5, program5, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "toCancel", {hash:{},inverse:self.program(7, program7, data),fn:self.program(9, program9, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "toHold", {hash:{},inverse:self.program(7, program7, data),fn:self.program(11, program11, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "cancellationSuccess", {hash:{},inverse:self.program(7, program7, data),fn:self.program(13, program13, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "holdSuccess", {hash:{},inverse:self.program(7, program7, data),fn:self.program(15, program15, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/debtor/_edit", function(exports, require, module) {
+  Ember.TEMPLATES["debtor/_edit"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Debtor Record</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Type </label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.consumerFlags"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.consumerFlags.selected")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Title</label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.titles"),
+      'optionLabelPath': ("content.id"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.titles.selected"),
+      'prompt': ("Title ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Last Name</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("lastName"),
+      'placeholder': ("Last Name")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">First Name</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("firstName"),
+      'placeholder': ("First Name")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Middle Name</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("middleName"),
+      'placeholder': ("Middle Name")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Suffix</label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.suffixes"),
+      'optionLabelPath': ("content.id"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.suffixes.selected"),
+      'prompt': ("Suffix ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Date of Birth</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'valueBinding': ("dob")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">SSN</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("ssn"),
+      'placeholder': ("SSN")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Martial Status</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("maritalStatus"),
+      'placeholder': ("Martial Status")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Email</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("email"),
+      'placeholder': ("Email")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Email Validity</label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.validInvalid"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.validInvalid.selected"),
+      'prompt': ("Email Validity ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Opt-In</label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.yesNo"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.yesNo.selected"),
+      'prompt': ("Email Opt-in ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Commerical Contact</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("contact"),
+      'placeholder': ("Commerical Contact")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Country</label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.countries"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.countries.selected"),
+      'prompt': ("Country ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Address 1</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("address1"),
+      'placeholder': ("Address 1")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Address 2</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("address2"),
+      'placeholder': ("Address 2")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Address 3 </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("address3"),
+      'placeholder': ("Address 3")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">City </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("city"),
+      'placeholder': ("City")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">State </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("state"),
+      'placeholder': ("State")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Zip Code </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("zip"),
+      'placeholder': ("Zip code")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">County </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("county"),
+      'placeholder': ("County")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Driver License Issuer </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("dlIssuer"),
+      'placeholder': ("Driver License Issuer")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Driver License Number</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("dlNumber"),
+      'placeholder': ("Driver License Number")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">Passport Number </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("passport"),
+      'placeholder': ("Passport Number")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label ms-crm-Field-Normal\">PIN </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("pin"),
+      'placeholder': ("PIN")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><button class=\"btn btn-success\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Done</button><button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Cancel</button></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/debtorAccount", function(exports, require, module) {
+  Ember.TEMPLATES["debtorAccount"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"row-fluid\"><div class=\"span6\"><div class=\"span6\"><h3><div class=\"lead\">Account Number - ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "agencyId", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></h3><div class=\"intro\"><p>Account Status<h6>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "computedStatus", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</h6></p></div></div><div class=\"span4 pull-right\"><div class=\"intro\"><table class=\"table small-table\"><thead><tr><td><span class=\"span2\"></span></td><td><div class=\"pull-right\"><p>Account Balance</p></div></td></tr></thead><div class=\"tobdy\"><tr><td><p>Original balance:</p></td><td><div class=\"pull-right\"><h6>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "originalBalance", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</h6></div></td></tr><tr><td><p>Total payment:</p></td><td><div class=\"pull-right\"><h6>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "payment", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</h6></div></td></tr><tr><td><p>Current balance:</p></td><td><div class=\"pull-right\"><h6>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "currBalance", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</h6></div></td></tr></div></table></div></div></div></div>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/debtorDetail", function(exports, require, module) {
+  Ember.TEMPLATES["debtorDetail"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
+
+  function program1(depth0,data) {
+    
+    var hashTypes, hashContexts;
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "id", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    }
+
+  function program3(depth0,data) {
+    
+    var buffer = '';
+    return buffer;
+    }
+
+    data.buffer.push("<div class=\"row\"><div class=\"span2\">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    stack2 = ((stack1 = helpers.linkTo || depth0.linkTo),stack1 ? stack1.call(depth0, "debtor", "", options) : helperMissing.call(depth0, "linkTo", "debtor", "", options));
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</div><div class=\"span4\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "title", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "fullName", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "suffix", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><div class=\"span6\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "zip", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></div><hr />");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/employment", function(exports, require, module) {
+  Ember.TEMPLATES["employment"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"row-fluid\">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial || depth0.partial),stack1 ? stack1.call(depth0, "employment/edit", options) : helperMissing.call(depth0, "partial", "employment/edit", options))));
+    data.buffer.push("</div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/employment/_edit", function(exports, require, module) {
+  Ember.TEMPLATES["employment/_edit"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Employment Record</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Relationship </label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.associations"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.associations.selected"),
+      'prompt': ("Relationship ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Employer Name </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("name"),
+      'placeholder': ("Name")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Position </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("position"),
+      'placeholder': ("Position")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Hire Date </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'valueBinding': ("hireDate")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Termination Date </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'valueBinding': ("terminationDate")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Phone </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("phone"),
+      'placeholder': ("Phone")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Website </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("website"),
+      'placeholder': ("Website")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Status </label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.employmentStatuses"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.employmentStatuses.selected"),
+      'prompt': ("Employment Status ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Source </label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.sources"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.sources.selected"),
+      'prompt': ("Source ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Job Title </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("jobTitle"),
+      'placeholder': ("Job Title")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Yearly Income </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("yearlyIncome"),
+      'placeholder': ("Yearly Income")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Monthly Gross Income </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("monthlyGrossIncome"),
+      'placeholder': ("Monthly Gross Income")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Monthly Net Income </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("monthlyNetIncome"),
+      'placeholder': ("Monthly Net Income")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Country </label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.countries"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.countries.selected"),
+      'prompt': ("Country ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 1 </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("address1"),
+      'placeholder': ("Address 1")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 2 </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("address2"),
+      'placeholder': ("Address 2")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 3 </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("address3"),
+      'placeholder': ("Address 3")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">City </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("city"),
+      'placeholder': ("City")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">State </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("state"),
+      'placeholder': ("State")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Zip Code </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("zip"),
+      'placeholder': ("Zip")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">County </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("county"),
+      'placeholder': ("County")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><button class=\"btn btn-success\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Done</button><button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Cancel</button></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/employments", function(exports, require, module) {
+  Ember.TEMPLATES["employments"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+
+  function program1(depth0,data) {
+    
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
+    data.buffer.push("<th ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSort", "column", {hash:{},contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.humanize || depth0.humanize),stack1 ? stack1.call(depth0, "column", options) : helperMissing.call(depth0, "humanize", "column", options))));
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedAsc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedDesc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(6, program6, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</th>");
+    return buffer;
+    }
+  function program2(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-up\"></i>");
+    }
+
+  function program4(depth0,data) {
+    
+    var buffer = '';
+    return buffer;
+    }
+
+  function program6(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-down\"></i>");
+    }
+
+  function program8(depth0,data) {
+    
+    var buffer = '', stack1, stack2, hashContexts, hashTypes, options;
+    data.buffer.push("<tr><td><button class=\"btn btn-mini\" ");
+    hashContexts = {'id': depth0};
+    hashTypes = {'id': "STRING"};
+    data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
+      'id': ("id")
+    },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">-</button>");
+    hashContexts = {'contentBinding': depth0};
+    hashTypes = {'contentBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.ConfirmationView", {hash:{
+      'contentBinding': ("this")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},inverse:self.program(4, program4, data),fn:self.program(9, program9, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    stack2 = ((stack1 = helpers.linkTo || depth0.linkTo),stack1 ? stack1.call(depth0, "employment", "", options) : helperMissing.call(depth0, "linkTo", "employment", "", options));
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "labelEmploymentStatus", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "labelSource", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "phone", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "jobTitle", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "hireDate", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td></tr>");
+    return buffer;
+    }
+  function program9(depth0,data) {
+    
+    var hashTypes, hashContexts;
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    }
+
+    data.buffer.push("<div class=\"row-fluid\"><table class=\"table table-striped row-border\"><thead><tr><th><button class=\"btn btn-primary btn-mini\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "create", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">+</button></th>");
+    hashContexts = {'itemController': depth0};
+    hashTypes = {'itemController': "STRING"};
+    stack1 = helpers.each.call(depth0, "columns", {hash:{
+      'itemController': ("columnItem")
+    },inverse:self.program(4, program4, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tr></thead><tbody>");
+    hashContexts = {'itemController': depth0};
+    hashTypes = {'itemController': "STRING"};
+    stack1 = helpers.each.call(depth0, "controller", {hash:{
+      'itemController': ("employment")
+    },inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tbody></table></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/empty", function(exports, require, module) {
+  Ember.TEMPLATES["empty"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '';
+
+
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/index", function(exports, require, module) {
+  Ember.TEMPLATES["index"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashContexts, hashTypes, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+
+  function program1(depth0,data) {
+    
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
+    data.buffer.push("<th ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSort", "column", {hash:{},contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashContexts = {'style': depth0};
+    hashTypes = {'style': "STRING"};
+    data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
+      'style': ("width")
+    },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("><p ");
+    hashContexts = {'style': depth0};
+    hashTypes = {'style': "STRING"};
+    data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
+      'style': ("align")
+    },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.humanize || depth0.humanize),stack1 ? stack1.call(depth0, "label", options) : helperMissing.call(depth0, "humanize", "label", options))));
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedAsc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedDesc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(6, program6, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</p></th>");
+    return buffer;
+    }
+  function program2(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-up\"></i>");
+    }
+
+  function program4(depth0,data) {
+    
+    var buffer = '';
+    return buffer;
+    }
+
+  function program6(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-down\"></i>");
+    }
+
+  function program8(depth0,data) {
+    
+    var buffer = '', stack1, hashTypes, hashContexts, options;
+    data.buffer.push("<tr><td style=\"width:15%\"><a href=\"#/account/");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "id", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("/debtor/");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "debtorId", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("?clientId=");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "controller.params.clientId", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("&userId=");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "controller.params.userId", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("&canEditDebtor=");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "controller.params.canEditDebtor", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("&feePercentage=");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "controller.params.feePercentage", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("\" target=\"_blank\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "agencyId", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</a></td><td style=\"width:30%\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "fullNameWithTitle", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td style=\"width:15%\">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.shortDate || depth0.shortDate),stack1 ? stack1.call(depth0, "placementDate", options) : helperMissing.call(depth0, "shortDate", "placementDate", options))));
+    data.buffer.push("</td><td style=\"width:10%\"><div class=\"pull-right\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "originalBalance", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></td><td style=\"width:10%\"><div class=\"pull-right\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "payment", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></td><td style=\"width:10%\"><div class=\"pull-right\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "currBalance", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></td><td style=\"width:10%\"><div class=\"pagination-centered\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "computedStatus", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></td></tr>");
+    return buffer;
+    }
+
+  function program10(depth0,data) {
+    
+    
+    data.buffer.push("<div class=\"pagination-centered\"><span class=\"label label-info\" style=\"margin-top:45px;\"><h6>Loading more ...</h6></span></div>");
+    }
+
+    data.buffer.push("<div class=\"container-fluid\"><div class=\"pull-right\"><div class=\"search-query form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Search Debtors</label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("controller.search"),
+      'placeholder': ("filter by Id")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></div></div></div></div><div class=\"row-fluid row-border\"><table class=\"table\" style=\"margin-bottom: 0px;\"><thead><tr>");
+    hashContexts = {'itemController': depth0};
+    hashTypes = {'itemController': "STRING"};
+    stack1 = helpers.each.call(depth0, "columns", {hash:{
+      'itemController': ("columnItem")
+    },inverse:self.program(4, program4, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tr></thead></table><div id=\"debtors-grid\" class=\"scrollable-350\"><table id=\"table-body\" class=\"table table-striped\"><div class=\"tbody\">");
+    hashTypes = {};
+    hashContexts = {};
+    stack1 = helpers.each.call(depth0, "currentContent", {hash:{},inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</div></table></div>");
+    hashTypes = {};
+    hashContexts = {};
+    stack1 = helpers['if'].call(depth0, "controller.loadingMore", {hash:{},inverse:self.program(4, program4, data),fn:self.program(10, program10, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/loading", function(exports, require, module) {
+  Ember.TEMPLATES["loading"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-body\"><div class=\"pagination-centered\"><img src=\"");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.unbound.call(depth0, "App.AJAX_LOADER_IMG", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("\" alt=\"loading\" /></div><div class=\"pagination-centered\"><h4>Loading...</h4></div></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/modal_layout", function(exports, require, module) {
+  Ember.TEMPLATES["modal_layout"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal-backdrop fade\">&nbsp;</div><div class=\"model fade\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "yield", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/note", function(exports, require, module) {
+  Ember.TEMPLATES["note"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"row-fluid\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/note/index", function(exports, require, module) {
+  Ember.TEMPLATES["note/index"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, options, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "closeNote", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><div class=\"span4\"><h5>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.date || depth0.date),stack1 ? stack1.call(depth0, "controllers.note.time", options) : helperMissing.call(depth0, "date", "controllers.note.time", options))));
+    data.buffer.push("</h5></div><div class=\"span3\"><h6>Action Code: ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "controllers.note.actionCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</h6></div><h6>Result Code: ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "controllers.note.resultCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(" </h6></div><div class=\"modal-body\"><p>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "controllers.note.message", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</p></div><div class=\"modal-footer\"><button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "closeNote", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Close</button></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/note/new", function(exports, require, module) {
+  Ember.TEMPLATES["note/new"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelNewNote", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Historical Event</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Message </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextArea", {hash:{
+      'valueBinding': ("controllers.note.message"),
+      'placeholder': ("Message")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><button class=\"btn btn-success\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "saveNewNote", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Done</button><button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelNewNote", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Cancel</button></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/notes", function(exports, require, module) {
+  Ember.TEMPLATES["notes"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+
+  function program1(depth0,data) {
+    
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
+    data.buffer.push("<th ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSort", "column", {hash:{},contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.humanize || depth0.humanize),stack1 ? stack1.call(depth0, "column", options) : helperMissing.call(depth0, "humanize", "column", options))));
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedAsc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedDesc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(6, program6, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</th>");
+    return buffer;
+    }
+  function program2(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-up\"></i>");
+    }
+
+  function program4(depth0,data) {
+    
+    var buffer = '';
+    return buffer;
+    }
+
+  function program6(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-down\"></i>");
+    }
+
+  function program8(depth0,data) {
+    
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
+    data.buffer.push("<tr><td></td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},inverse:self.program(4, program4, data),fn:self.program(9, program9, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    stack2 = ((stack1 = helpers.linkTo || depth0.linkTo),stack1 ? stack1.call(depth0, "note", "", options) : helperMissing.call(depth0, "linkTo", "note", "", options));
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</td><td><div class=\"span2\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "labelActionCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></td><td><div class=\"span2\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "resultCode", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.summarize || depth0.summarize),stack1 ? stack1.call(depth0, "message", options) : helperMissing.call(depth0, "summarize", "message", options))));
+    data.buffer.push("</td></tr>");
+    return buffer;
+    }
+  function program9(depth0,data) {
+    
+    var stack1, hashTypes, hashContexts, options;
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.date || depth0.date),stack1 ? stack1.call(depth0, "time", options) : helperMissing.call(depth0, "date", "time", options))));
+    }
+
+    data.buffer.push("<div class=\"row-fluid\"><table class=\"table table-striped row-border\"><thead><tr><th><button class=\"btn btn-primary btn-mini\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "create", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">+</button></th>");
+    hashContexts = {'itemController': depth0};
+    hashTypes = {'itemController': "STRING"};
+    stack1 = helpers.each.call(depth0, "columns", {hash:{
+      'itemController': ("columnItem")
+    },inverse:self.program(4, program4, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tr></thead><tbody>");
+    hashContexts = {'itemController': depth0};
+    hashTypes = {'itemController': "STRING"};
+    stack1 = helpers.each.call(depth0, "controller", {hash:{
+      'itemController': ("note")
+    },inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tbody></table><hr /></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/person", function(exports, require, module) {
+  Ember.TEMPLATES["person"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"row-fluid\">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.partial || depth0.partial),stack1 ? stack1.call(depth0, "person/edit", options) : helperMissing.call(depth0, "partial", "person/edit", options))));
+    data.buffer.push("</div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/person/_edit", function(exports, require, module) {
+  Ember.TEMPLATES["person/_edit"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression=this.escapeExpression;
+
+
+    data.buffer.push("<div class=\"modal\"><div class=\"modal-header\"><button class=\"close\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">&times;</button><h5>Related Person</h5></div><div class=\"modal-body\"><div class=\"form form-horizontal\"><div class=\"control-group\"><label class=\"control-label\">Relationship </label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.relationships"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.relationships.selected"),
+      'prompt': ("Relationship ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Title </label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.titles"),
+      'optionLabelPath': ("content.id"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.titles.selected"),
+      'prompt': ("Title ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Last Name </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("lastName"),
+      'placeholder': ("Last Name")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">First Name </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("firstName"),
+      'placeholder': ("First Name")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Middle Name </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("middleName"),
+      'placeholder': ("Middle Name")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Suffix </label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.suffixes"),
+      'optionLabelPath': ("content.id"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.suffixes.selected"),
+      'prompt': ("Suffix ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Date of Birth </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'valueBinding': ("dob")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">SSN </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("ssn"),
+      'placeholder': ("SSN")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Relationship Start Date </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'valueBinding': ("startDate")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Relationship End Date </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0};
+    hashTypes = {'valueBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.DatePickerField", {hash:{
+      'valueBinding': ("endDate")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Claim Number </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("claimNumber"),
+      'placeholder': ("Claim Number")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Phone </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("phone"),
+      'placeholder': ("Phone")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Country </label><div class=\"controls\">");
+    hashContexts = {'contentBinding': depth0,'optionLabelPath': depth0,'optionValuePath': depth0,'selectionBinding': depth0,'prompt': depth0};
+    hashTypes = {'contentBinding': "STRING",'optionLabelPath': "STRING",'optionValuePath': "STRING",'selectionBinding': "STRING",'prompt': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.Select", {hash:{
+      'contentBinding': ("controllers.countries"),
+      'optionLabelPath': ("content.label"),
+      'optionValuePath': ("content.id"),
+      'selectionBinding': ("controllers.countries.selected"),
+      'prompt': ("Country ...")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 1 </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("address1"),
+      'placeholder': ("Address 1")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 2 </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("address2"),
+      'placeholder': ("Address 2")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Address 3 </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("address3"),
+      'placeholder': ("Address 3")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">City </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("city"),
+      'placeholder': ("City")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">State </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("state"),
+      'placeholder': ("State")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Zip Code </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("zip"),
+      'placeholder': ("Zip code")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">County </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextField", {hash:{
+      'valueBinding': ("county"),
+      'placeholder': ("County")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><label class=\"control-label\">Comment </label><div class=\"controls\">");
+    hashContexts = {'valueBinding': depth0,'placeholder': depth0};
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Em.TextArea", {hash:{
+      'valueBinding': ("comment"),
+      'placeholder': ("Comment")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></div></div></div><div class=\"modal-footer\"><button class=\"btn btn-success\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "doneEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Done</button><button class=\"btn\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancelEditing", {hash:{},contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">Cancel</button></div></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("templates/persons", function(exports, require, module) {
+  Ember.TEMPLATES["persons"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+  helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+
+  function program1(depth0,data) {
+    
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
+    data.buffer.push("<th ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSort", "column", {hash:{},contexts:[depth0,depth0],types:["ID","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.humanize || depth0.humanize),stack1 ? stack1.call(depth0, "column", options) : helperMissing.call(depth0, "humanize", "column", options))));
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedAsc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "sortedDesc", {hash:{},inverse:self.program(4, program4, data),fn:self.program(6, program6, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</th>");
+    return buffer;
+    }
+  function program2(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-up\"></i>");
+    }
+
+  function program4(depth0,data) {
+    
+    var buffer = '';
+    return buffer;
+    }
+
+  function program6(depth0,data) {
+    
+    
+    data.buffer.push("<i class=\"icon-chevron-down\"></i>");
+    }
+
+  function program8(depth0,data) {
+    
+    var buffer = '', stack1, stack2, hashContexts, hashTypes, options;
+    data.buffer.push("<tr><td><button class=\"btn btn-mini\" ");
+    hashContexts = {'id': depth0};
+    hashTypes = {'id': "STRING"};
+    data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
+      'id': ("id")
+    },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">-</button>");
+    hashContexts = {'contentBinding': depth0};
+    hashTypes = {'contentBinding': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.ConfirmationView", {hash:{
+      'contentBinding': ("this")
+    },contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash:{},inverse:self.program(4, program4, data),fn:self.program(9, program9, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+    stack2 = ((stack1 = helpers.linkTo || depth0.linkTo),stack1 ? stack1.call(depth0, "person", "", options) : helperMissing.call(depth0, "linkTo", "person", "", options));
+    if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "labelRelationship", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "phone", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "city", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "state", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td><td>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "comment", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push("</td></tr>");
+    return buffer;
+    }
+  function program9(depth0,data) {
+    
+    var hashTypes, hashContexts;
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "fullName", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    }
+
+    data.buffer.push("<div class=\"row-fluid\"><table class=\"table table-striped row-border\"><thead><tr><th><button class=\"btn btn-primary btn-mini\" ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "create", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+    data.buffer.push(">+</button></th>");
+    hashContexts = {'itemController': depth0};
+    hashTypes = {'itemController': "STRING"};
+    stack1 = helpers.each.call(depth0, "columns", {hash:{
+      'itemController': ("columnItem")
+    },inverse:self.program(4, program4, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tr></thead><tbody>");
+    hashContexts = {'itemController': depth0};
+    hashTypes = {'itemController': "STRING"};
+    stack1 = helpers.each.call(depth0, "controller", {hash:{
+      'itemController': ("person")
+    },inverse:self.program(4, program4, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</tbody></table></div>");
+    return buffer;
+    
+  });module.exports = module.id;
+});
+window.require.register("views/cancellationFeeView", function(exports, require, module) {
+  App.CancellationFeeView = Em.TextField.extend({
+    elementId: 'cancellationFee',
+    _updateElementValue: Em.observer(function() {
+      var ele, length, pos, value;
+      ele = this.$();
+      value = ele.val().replace('%', '');
+      length = value.length;
+      pos = length;
+      this.$().val(this.get('value'));
+      return ele.prop({
+        selectionStart: pos,
+        selectionEnd: pos
+      });
+    }, 'value'),
+    keyUp: function(e) {
+      this.interpretKeyEvents(e);
+      return this.set('value', this.get('value').replace('%', '') + '%');
+    }
+  });
+  
+});
+window.require.register("views/cancellationPopupView", function(exports, require, module) {
+  App.CancellationPopupView = Em.View.extend({
+    titlePrefix: '',
+    parentSelector: '',
+    contentSelector: '',
+    templateName: '_cancellationWarning',
+    willInsertElement: function() {
+      this.set('contentSelector', '#cancellationWarning');
+      this.set('id', 'popoverCancellationFee');
+      return this.set('parentSelector', '#cancellationFee');
+    },
+    didInsertElement: function() {
+      var self;
+      self = this;
+      return $(self.parentSelector).popover({
+        html: true,
+        placement: 'right',
+        container: 'body',
+        title: 'Cancellation Fee Limit',
+        trigger: 'manual',
+        content: function() {
+          var $content;
+          return $content = $(self.contentSelector).html();
+        }
+      });
+    },
+    willDestroyElement: function() {
+      return this.$().popover('destroy');
+    },
+    showWarning: (function() {
+      var self;
+      self = this;
+      if (this.get('controller.showCancellationWarning')) {
+        return $(self.parentSelector).popover('show');
+      } else {
+        return $(self.parentSelector).popover('hide');
+      }
+    }).observes('controller.showCancellationWarning'),
+    actions: {
+      close: function() {
+        return this.set('controller.showCancellationWarning', false);
+      }
+    }
+  });
+  
+});
+window.require.register("views/confirmationView", function(exports, require, module) {
+  App.ConfirmationView = Em.View.extend({
+    titlePrefix: '',
+    parentSelector: '',
+    contentSelector: '',
+    templateName: '_confirmation',
+    willInsertElement: function() {
+      this.set('contentSelector', '#content-' + this.get('controller.id'));
+      this.set('templateName', '_confirmation');
+      this.set('id', 'popover' + this.get('controller.id'));
+      return this.set('parentSelector', '#' + this.get('controller.id'));
+    },
+    didInsertElement: function() {
+      var self;
+      self = this;
+      return $(self.parentSelector).popover({
+        html: true,
+        placement: 'right',
+        container: 'body',
+        title: 'Delete Confirmation',
+        content: function() {
+          var $content;
+          return $content = $(self.contentSelector).html();
+        }
+      });
+    },
+    willDestroyElement: function() {
+      return this.$().popover('destroy');
+    },
+    close: function() {
+      var self;
+      self = this;
+      return $(self.parentSelector).popover('hide');
+    }
+  });
+  
+});
+window.require.register("views/contactView", function(exports, require, module) {
+  
+  
+});
+window.require.register("views/contactsListView", function(exports, require, module) {
+  
+  
+});
+window.require.register("views/datePickerField", function(exports, require, module) {
+  App.DatePickerField = Em.TextField.extend({
+    classNames: ['date-picker'],
+    textToDateTransform: (function(key, value) {
+      var date, month, parts;
+      if (arguments.length === 2) {
+        if (value instanceof Date) {
+          this.set('date', date);
+          return this.close();
+        } else if (value && /\d{2}\/\d{2}\/\d{4}/.test(value)) {
+          parts = value.split('-');
+          date = new Date();
+          date.setDate(parts[0]);
+          date.setMonth(parts[1] - 1);
+          date.setYear(parts[2]);
+          this.set('date', date);
+          return this.close();
+        } else {
+          return this.set('date', null);
+        }
+      } else if (arguments.length === 1 && this.get('date')) {
+        month = this.get('date').getMonth() + 1;
+        date = this.get('date').getDate();
+        if (month < 10) {
+          month = "0" + month;
+        }
+        if (date < 10) {
+          date = "0" + date;
+        }
+        return "%@-%@-%@".fmt(this.get('date').getFullYear(), month, date);
+      }
+    }).property('value'),
+    format: "mm/dd/yyyy",
+    placeholder: Em.computed.alias('format'),
+    size: 8,
+    valueBinding: "textToDateTransform",
+    yesterday: (function() {
+      var date;
+      date = new Date();
+      date.setDate(date.getDate() - 1);
+      return date;
+    }).property(),
+    didInsertElement: function() {
+      var _this = this;
+      return this.$().datepicker({
+        format: this.get('format'),
+        autoclose: true,
+        todayHighlight: true,
+        keyboardNavigation: false
+      }).on('changeDate', function(ev) {
+        _this.set('date', ev.date);
+        return _this.$().datepicker('setValue', ev.date);
+      });
+    },
+    close: function() {
+      return this.$().datepicker('hide');
+    }
+  });
+  
+});
+window.require.register("views/debtorsListView", function(exports, require, module) {
+  
+  
+});
+window.require.register("views/fixedHeaderTableView", function(exports, require, module) {
+  App.FixedHeaderTableView = Em.View.extend({
+    classNames: ['table-fixed-header'],
+    didInsertElement: function() {
+      return this.$('.table-fixed-header').fixedHeader();
+    }
+  });
+  
+});
+window.require.register("views/indexView", function(exports, require, module) {
+  App.IndexView = Ember.View.extend({
+    didInsertElement: function() {
+      return $('#debtors-grid').on('scroll', $.proxy(this.didScroll, this));
+    },
+    willDestroyElement: function() {
+      return $('#debtors-grid').off('scroll', $.proxy(this.didScroll, this));
+    },
+    didScroll: function() {
+      if (this.isScrolledToBottom() === 1) {
+        return this.get('controller').send('getMore');
+      } else if (this.isScrolledToBottom() === 0) {
+        return false;
+      }
+    },
+    isScrolledToBottom: function() {
+      var distance, documentHeight, gridHeight, pos, viewPortTop;
+      documentHeight = $('#table-body').height();
+      gridHeight = $('#debtors-grid').height();
+      viewPortTop = $('#debtors-grid').scrollTop();
+      distance = documentHeight - gridHeight + 20;
+      pos = distance - viewPortTop;
+      if (viewPortTop === 0) {
+        return 0;
+      }
+      if (pos === 0) {
+        return 1;
+      }
+      return 2;
+    }
+  });
+  
+});
+window.require.register("views/modalView", function(exports, require, module) {
+  App.ModalView = Ember.View.extend({
+    templateName: 'modal',
+    title: '',
+    content: '',
+    classNames: ['modal', 'fade', 'hide'],
+    didInsertElement: function() {
+      this.$().modal('show');
+      return this.$().one('hidden', this._viewDidHide);
+    },
+    _viewDidHide: function() {
+      if (!this.isDestroyed) {
+        return this.destroy();
+      }
+    },
+    close: function() {
+      return this.$('.close').click();
+    }
+  });
+  
+});
+window.require.register("views/radioButtonView", function(exports, require, module) {
+  App.RadioButton = Em.CollectionView.extend({
+    classNames: ['btn-group'],
+    itemViewClass: Em.View.extend({
+      template: Em.Handlebars.compile('{{view.content.name}}'),
+      tagName: 'button',
+      classNames: ['btn']
+    }),
+    attributeBindings: ['data-toggle', 'name', 'type', 'value'],
+    'data-toggle': 'buttons-radio',
+    click: function() {
+      return this.set('controller.filterStatus', this.$().val());
+    }
+  });
+  
+});
+window.require.register("views/scrollView", function(exports, require, module) {
+  
+  
+});

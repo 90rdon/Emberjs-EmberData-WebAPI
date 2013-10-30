@@ -1,5 +1,46 @@
-h3
-  .lead
-    | Account Number - {{=agencyId}}
+.row-fluid
+  .span6
+    .span6
+      h3
+        .lead
+          | Account Number - {{=agencyId}}
+      .intro
+        p 
+          | Account Status
+          h6
+            =computedStatus
+    
+    .span4.pull-right
+      .intro
+        table.table.small-table
+          thead
+            tr
+              td
+                span.span2
+              td
+                .pull-right
+                  p Account Balance
+          .tobdy
+            tr
+              td
+                p Original balance:
+              td
+                .pull-right
+                  h6 
+                    =originalBalance
+            tr
+              td
+                p Total payment:
+              td
+                .pull-right
+                  h6 
+                    =payment
+            tr
+              td
+                p Current balance:
+              td
+                .pull-right
+                  h6 
+                    =currBalance
 
 outlet

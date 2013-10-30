@@ -16,7 +16,7 @@ App.IndexView = Ember.View.extend
     if @isScrolledToBottom() == 1
       @get('controller').send 'getMore'
     else if @isScrolledToBottom() == 0
-      console.log 'did Scroll Up'
+      return false
   
   # we check if we are at the bottom of the page
   isScrolledToBottom: ->
