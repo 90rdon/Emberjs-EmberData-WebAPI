@@ -27,3 +27,6 @@ This project is design to run Ember.js with Node.js and IIS as the web server. I
 
 * Run from [Node.js](https://github.com/octapus/Hunter-Warfield/wiki/1.--Running-from-Node.js)
 * Run from [Windows IIS 7.5](https://github.com/octapus/Hunter-Warfield/wiki/3.-Running-from-Windows-IIS-7.5)
+
+
+Copyright (c) 2013 Gordon Chan
