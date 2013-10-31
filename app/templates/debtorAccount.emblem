@@ -6,6 +6,10 @@
           | Account Number - {{=agencyId}}
       .intro
         p 
+          | Placement Date
+          h6
+            =shortDate placementDate
+        p 
           | Account Status
           h6
             =computedStatus
