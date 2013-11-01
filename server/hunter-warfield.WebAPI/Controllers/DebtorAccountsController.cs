@@ -87,7 +87,7 @@ namespace hunter_warfield.WebAPI.Controllers
             sql.Append("            cnsmr_accnt_id,");
             sql.Append("            summary_code");
             sql.Append("        FROM");
-            sql.Append("            [CRS_Interface].[dbo].[vw_Debtor]");
+            sql.Append("            [HW-SQL01].[CRS_Interface].[dbo].[vw_Debtor]");
             sql.Append("        GROUP BY cnsmr_accnt_id, summary_code");
             sql.Append("    ) v on ca.cnsmr_accnt_id = v.cnsmr_accnt_id ");
 
